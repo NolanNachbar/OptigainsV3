@@ -3,49 +3,84 @@ import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import { Workout } from '../utils/types';
 import { assignWorkoutToDate, getWorkoutsForDate } from '../utils/localStorage';
-
+import '../styles/CalendarComponent.css';  // Import the CSS file
 interface CalendarProps {
   savedWorkouts: Workout[];
 }
 
 const CalendarComponent: React.FC<CalendarProps> = ({ savedWorkouts }) => {
-  const [date, setDate] = useState<Date>(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [selectedWorkouts, setSelectedWorkouts] = useState<Workout[]>([]);
+  const [selectedDays, setSelectedDays] = useState<string[]>([]);
 
-  // Adjust the function signature to match the expected onChange type
-  const handleDateChange = (value: Date | Date[] | null, event: React.MouseEvent<HTMLButtonElement>) => {
-    if (value instanceof Date) {
-      setDate(value);
-    } else if (Array.isArray(value)) {
-      setDate(value[0]);
-    } else {
-        setDate(new Date());
-    }
+  const handleDateChange = (date: Date) => {
+    setSelectedDate(date);
   };
 
-  // Handle workout assignment
-  const handleAssignWorkout = (workoutId: string, selectedDate: Date) => {
-    const formattedDate = selectedDate.toISOString().split('T')[0]; // Format date as YYYY-MM-DD
-    assignWorkoutToDate(workoutId, formattedDate);
-    alert(`Workout assigned to ${formattedDate}`);
+  const handleWorkoutSelection = (workout: Workout) => {
+    setSelectedWorkouts(prev => {
+      if (prev.includes(workout)) {
+        return prev.filter(w => w !== workout);
+      } else {
+        return [...prev, workout];
+      }
+    });
   };
 
-  // Get workouts assigned for the current date
-  const workoutsForToday = getWorkoutsForDate(date.toISOString().split('T')[0]);
+  const handleAssignWorkoutsToDays = () => {
+    selectedWorkouts.forEach(workout => {
+      selectedDays.forEach(day => {
+        assignWorkoutToDate(workout.workoutName, day);
+      });
+    });
+    alert(`Workouts assigned to selected days: ${selectedDays.join(', ')}`);
+  };
+
+  const workoutsForToday = getWorkoutsForDate(selectedDate.toISOString().split('T')[0]);
+
+  const handleDaySelection = (date: Date) => {
+    const day = date.toISOString().split('T')[0];
+    setSelectedDays(prev => {
+      if (prev.includes(day)) {
+        return prev.filter(d => d !== day);
+      } else {
+        return [...prev, day];
+      }
+    });
+  };
+
+  // Handle double-click to highlight dates
+  const handleDayDoubleClick = (date: Date) => {
+    const day = date.toISOString().split('T')[0]; // Convert the date to the 'YYYY-MM-DD' format
+    setSelectedDays(prev => {
+      if (prev.includes(day)) {
+        return prev.filter(d => d !== day); // Deselect if already selected
+      } else {
+        return [...prev, day]; // Select the day
+      }
+    });
+  };
+  
 
   return (
     <div>
       <h2>Assign Workouts to Calendar</h2>
       <Calendar
-        onChange={handleDateChange} // Now includes both value and event arguments
-        value={date}
+        onChange={handleDateChange}
+        value={selectedDate}
+        onClickDay={handleDayDoubleClick} // Handle double-click event
         tileClassName={({ date }) => {
-          const workoutsForThisDay = getWorkoutsForDate(date.toISOString().split('T')[0]);
-          return workoutsForThisDay.length > 0 ? 'highlight' : '';
+          const day = date.toISOString().split('T')[0]; // Get the date in the format 'YYYY-MM-DD'
+          if (selectedDays.includes(day)) {
+            return 'selected'; // Add 'selected' class if the day is selected
+          }
+          const workoutsForThisDay = getWorkoutsForDate(day);
+          return workoutsForThisDay.length > 0 ? 'highlight' : ''; // Highlight days with workouts
         }}
+        
       />
 
-      <h3>Workouts for {date.toDateString()}</h3>
-
+      <h3>Workouts for {selectedDate.toDateString()}</h3>
       <ul>
         {workoutsForToday.map((workout, index) => (
           <li key={index}>
@@ -54,16 +89,27 @@ const CalendarComponent: React.FC<CalendarProps> = ({ savedWorkouts }) => {
         ))}
       </ul>
 
-      <h3>Assign New Workout</h3>
-
+      <h3>Select Workouts to Assign</h3>
       {savedWorkouts.map((workout, index) => (
         <div key={index}>
-          <h4>{workout.workoutName}</h4>
-          <button onClick={() => handleAssignWorkout(workout.workoutName, date)}>
-            Assign to {date.toDateString()}
-          </button>
+          <input
+            type="checkbox"
+            onChange={() => handleWorkoutSelection(workout)}
+          />
+          <span>{workout.workoutName}</span>
         </div>
       ))}
+
+      <h3>Selected Days to Assign Workouts</h3>
+      <ul>
+        {selectedDays.map((day, index) => (
+          <li key={index}>{new Date(day).toDateString()}</li>
+        ))}
+      </ul>
+
+      <button onClick={handleAssignWorkoutsToDays}>
+        Assign Workouts to Selected Days
+      </button>
     </div>
   );
 };

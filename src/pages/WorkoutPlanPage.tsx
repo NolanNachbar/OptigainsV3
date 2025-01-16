@@ -1,5 +1,3 @@
-// src/pages/WorkoutPlanPage.tsx
-
 import React, { useEffect, useState } from 'react';
 import WorkoutForm from '../components/WorkoutForm';
 import CalendarComponent from '../components/Calendar';
@@ -20,7 +18,7 @@ const WorkoutPlanPage: React.FC = () => {
       <h2>Create and Assign Workouts</h2>
       <WorkoutForm />
       <CalendarComponent savedWorkouts={savedWorkouts} />
-      <HomeButton/>
+      <HomeButton />
     </div>
   );
 };

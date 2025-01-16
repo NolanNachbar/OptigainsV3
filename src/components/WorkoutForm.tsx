@@ -1,5 +1,3 @@
-// src/components/WorkoutForm.tsx
-
 import React, { useState } from 'react';
 import { saveWorkouts, loadWorkouts } from '../utils/localStorage';
 import { Workout, Exercise } from '../utils/types';
@@ -12,6 +10,7 @@ const WorkoutForm: React.FC = () => {
   const [sets, setSets] = useState<number>(1);
   const [reps, setReps] = useState<string>('10');
   const [rir, setRir] = useState<number>(2);
+  const [search, setSearch] = useState<string>('');
 
   const handleAddExercise = () => {
     const newExercise: Exercise = { name: exerciseName, sets, reps, rir };
@@ -35,6 +34,10 @@ const WorkoutForm: React.FC = () => {
     setWorkoutType('');
     setExercises([]);
   };
+
+  const filteredWorkouts = loadWorkouts().filter(workout =>
+    workout.workoutName.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <div>
@@ -88,6 +91,21 @@ const WorkoutForm: React.FC = () => {
       </div>
 
       <button onClick={handleSaveWorkout}>Save Workout</button>
+
+      <h4>Saved Workouts</h4>
+      <input
+        type="text"
+        placeholder="Search workouts"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
+      <ul>
+        {filteredWorkouts.map((workout, index) => (
+          <li key={index}>
+            {workout.workoutName} ({workout.workoutType})
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };
