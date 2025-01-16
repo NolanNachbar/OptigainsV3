@@ -1,103 +1,43 @@
-/* Style for the calendar */
-.react-calendar__tile--active {
-    background-color: #4CAF50; /* Green background for selected days */
+.react-calendar {
+    background-color: #2e2e2e; /* Dark background */
     color: white;
-  }
-  
-  .react-calendar__tile--now {
-    background-color: #FFD700; /* Yellow background for today's date */
-    color: black;
-  }
-  
-  .react-calendar__tile--highlight {
-    background-color: #FF6347; /* Light red background for days with workouts */
-    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 10px;
   }
   
   .react-calendar__tile {
-    border-radius: 5px; /* Smooth rounded corners for calendar tiles */
-  }
-  
-  /* Style for the selected workout list */
-  .selected-workouts-list {
-    list-style-type: none;
-    padding-left: 0;
-  }
-  
-  .selected-workouts-list li {
-    margin: 5px 0;
-    font-size: 1.1rem;
-    font-weight: bold;
-  }
-  
-  /* Style for the workout selection checkboxes */
-  input[type="checkbox"] {
-    margin-right: 10px;
-  }
-  
-  h3 {
-    margin-top: 20px;
-  }
-  
-  /* Style for the selected days */
-  .selected-days-list {
-    list-style-type: none;
-    padding-left: 0;
-  }
-  
-  .selected-days-list li {
-    margin: 5px 0;
-    font-size: 1.1rem;
-    color: #4CAF50;
-  }
-  
-  /* Style for the Assign button */
-  button {
-    background-color: #4CAF50; /* Green background for the button */
+    background-color: #3b3b3b; /* Darker tiles */
     color: white;
-    padding: 10px 20px;
-    border: none;
     border-radius: 5px;
-    font-size: 1rem;
-    cursor: pointer;
-    margin-top: 20px;
+    position: relative; /* Required for the dot */
   }
   
-  button:hover {
-    background-color: #45a049; /* Darker green on hover */
-  }
-  
-  button:disabled {
-    background-color: #d3d3d3; /* Grey out the button when no days are selected */
-    cursor: not-allowed;
-  }
-  
-  /* Style for the list of selected days */
-  .selected-days-container {
-    margin-top: 15px;
-  }
-  /* Style for the selected days */
-.react-calendar__tile.selected {
-    background-color: #4CAF50; /* Green background for selected days */
-    color: white;
+  .react-calendar__tile:hover {
+    background-color: #505050; /* Highlighted on hover */
   }
   
   .react-calendar__tile--active {
-    background-color: #4CAF50; /* Green background for active (current) day */
+    background-color: #4CAF50; /* Green background for active days */
     color: white;
   }
   
   .react-calendar__tile--now {
-    background-color: #FFD700; /* Yellow background for today's date */
+    background-color: #FFD700; /* Yellow for today's date */
     color: black;
   }
-  
   .react-calendar__tile--highlight {
-    background-color: #FF6347; /* Light red background for days with workouts */
+    background-color: #a52222; /* Red for selected days */
     color: white;
   }
   
-  .react-calendar__tile {
-    border-radius: 5px; /* Smooth rounded corners for calendar tiles */
+  .react-calendar__tile--dot::after {
+    content: '•'; /* Dot for assigned workout days */
+    color: #FF6347; /* Light red dot */
+    font-size: 1.2rem;
+    position: absolute;
+    bottom: 5px;
+    left: 50%;
+    transform: translateX(-50%);
   }
   
