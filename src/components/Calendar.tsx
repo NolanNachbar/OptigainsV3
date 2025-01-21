@@ -43,47 +43,45 @@ const CalendarComponent: React.FC<CalendarProps> = ({ savedWorkouts }) => {
   };
 
   const handleDaySelection = (date: Date) => {
-    // Format the selected date directly
-    const selectedDateObj = new Date(date.toISOString().split('T')[0]); 
-  
-    const selectedDay = selectedDateObj.toISOString().split('T')[0];  // This is the selected day formatted correctly
+    const selectedDateStr = date.toISOString().split('T')[0];  // Get the date in YYYY-MM-DD format
   
     if (selectedWorkouts.length === 0) {
       // If no workout is selected, show all workouts for the selected day
-      const workouts = getWorkoutsForDate(selectedDay); 
+      const workouts = getWorkoutsForDate(selectedDateStr); 
       setWorkoutsForToday(workouts);
     } else {
-      // If a workout is selected, highlight the day
-      const dayIndex = selectedDays.findIndex(selectedDay => selectedDay === selectedDay); 
-      setSelectedDays(prev => {
-        if (dayIndex === -1) { // If day not found, add it
-          return [...prev, selectedDay];
-        } else { // If day found, toggle selection at the correct index
-          return prev.slice(0, dayIndex).concat(prev.slice(dayIndex + 1));
+      // Toggle selection of the day
+      setSelectedDays(prevSelectedDays => {
+        if (prevSelectedDays.includes(selectedDateStr)) {
+          return prevSelectedDays.filter(day => day !== selectedDateStr);
+        } else {
+          return [...prevSelectedDays, selectedDateStr];
         }
       });
     }
   };
   
+  
 
   const handleAssignWorkoutsToDays = () => {
     const newAssignedDays = { ...assignedDays };
-
+  
     selectedDays.forEach(day => {
       selectedWorkouts.forEach(workout => {
-        assignWorkoutToDate(workout.workoutName, day);
+        assignWorkoutToDate(workout.workoutName, day);  // Save to localStorage
+        if (!newAssignedDays[day]) newAssignedDays[day] = true;
       });
-      newAssignedDays[day] = true;
     });
-
-    setAssignedDays(newAssignedDays);
-    setSelectedDays([]);
-
+  
+    setAssignedDays(newAssignedDays); // Update UI state
+    setSelectedDays([]); // Clear the selected days
+  
     // Save the updated assignedDays to localStorage
     localStorage.setItem('assignedDays', JSON.stringify(newAssignedDays));
-
+  
     alert(`Workouts assigned to selected days: ${selectedDays.join(', ')}`);
   };
+  
 
   const handleRemoveWorkoutFromDate = (workout: Workout, date: string) => {
     removeWorkoutFromDate(workout.workoutName, date);
@@ -126,9 +124,10 @@ const CalendarComponent: React.FC<CalendarProps> = ({ savedWorkouts }) => {
         onClickDay={handleDaySelection} // Pass the correct handler for day click
         tileClassName={({ date }) => {
           const day = date.toISOString().split('T')[0];
-          if (assignedDays[day]) return 'react-calendar__tile--dot';
-          return selectedDays.includes(day) ? 'react-calendar__tile--highlight' : '';
-        }}
+          // Check if this day has workouts assigned
+          if (assignedDays[day]) return 'react-calendar__tile--dot'; // Add a dot for assigned days
+          return selectedDays.includes(day) ? 'react-calendar__tile--highlight' : '';  // Highlight selected days
+        }}        
       />
 
       {/* <h3>Workouts for {selectedDate.toDateString()}</h3> */}

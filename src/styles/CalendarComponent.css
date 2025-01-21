@@ -40,4 +40,21 @@
     left: 50%;
     transform: translateX(-50%);
   }
+
+  
+  .react-calendar__tile--dot {
+    position: relative;
+  }
+  
+  .react-calendar__tile--dot::after {
+    content: '';
+    position: absolute;
+    bottom: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 5px;
+    height: 5px;
+    background-color: green; /* Mark workouts with a dot */
+    border-radius: 50%;
+  }
   

@@ -17,17 +17,21 @@ export const loadWorkouts = (): Workout[] => {
 export const normalizeExerciseName = (name: string) => name.toUpperCase();
 
 // Assign a workout to a specific date
+// src/utils/localStorage.js
 export const assignWorkoutToDate = (workoutId: string, date: string) => {
-  const workouts = loadWorkouts();
-  const workoutIndex = workouts.findIndex(workout => workout.workoutName === workoutId);
-
-  if (workoutIndex !== -1) {
-    if (!workouts[workoutIndex].assignedDays.includes(date)) {
-      workouts[workoutIndex].assignedDays.push(date);
-      saveWorkouts(workouts);
+    const workouts = loadWorkouts();
+    const workoutIndex = workouts.findIndex(workout => workout.workoutName === workoutId);
+  
+    if (workoutIndex !== -1) {
+      const workout = workouts[workoutIndex];
+      // If workout is not already assigned to the day, add it
+      if (!workout.assignedDays.includes(date)) {
+        workout.assignedDays.push(date);
+        saveWorkouts(workouts);
+      }
     }
-  }
-};
+  };
+  
 
 // Get the workouts assigned to a specific day
 export const getWorkoutsForDate = (date: string): Workout[] => {
