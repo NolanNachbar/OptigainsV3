@@ -1,87 +1,110 @@
 import React, { useState, useEffect } from 'react';
-//import { saveAs } from 'file-saver';
-import { saveWorkouts, loadWorkouts } from '../utils/localStorage';
-import { Workout } from '../utils/types';
+import { loadWorkouts, saveWorkouts, getConsolidatedExercises } from '../utils/localStorage';
+import { Workout, Exercise } from '../utils/types';  
 import HomeButton from '../components/HomeButton';
 
-type Set = {
-  weight: number;
-  reps: number;
-  rir: number;
-};
-
-type Exercise = {
-  name: string;
-  sets: Set[];
-};
+const normalizeExerciseName = (name: string) => name.toUpperCase();
 
 const FreestyleLiftPage: React.FC = () => {
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [currentExercise, setCurrentExercise] = useState('');
-  const [weight, setWeight] = useState<number | ''>('');
-  const [reps, setReps] = useState<number | ''>('');
-  const [rir, setRir] = useState<number | ''>('');
+  const [weight, setWeight] = useState<number | ''>(''); 
+  const [reps, setReps] = useState<number | ''>(''); 
+  const [rir, setRir] = useState<number | ''>(''); 
   const [workoutName, setWorkoutName] = useState('');
 
   useEffect(() => {
-    const savedExercises = localStorage.getItem('freestyleExercises');
-    if (savedExercises) {
-      setExercises(JSON.parse(savedExercises));
-    }
+    const consolidatedExercises = getConsolidatedExercises();
+    setExercises(consolidatedExercises);
   }, []);
-
+  
   const handleAddExercise = () => {
-    if (currentExercise.trim() && !exercises.find((e) => e.name === currentExercise.trim())) {
-      setExercises([...exercises, { name: currentExercise.trim(), sets: [] }]);
+    const normalizedExercise = normalizeExerciseName(currentExercise.trim());
+    if (normalizedExercise && !exercises.some(e => e.name === normalizedExercise)) {
+      setExercises(prev => [
+        ...prev,
+        { name: normalizedExercise, sets: [], rir: 0 },
+      ]);
       setCurrentExercise('');
     }
-  };
+  };  
 
   const handleAddSet = (exerciseName: string) => {
-    if (weight !== '' && reps !== '' && rir !== '') {
-      const updatedExercises = exercises.map((exercise) => {
-        if (exercise.name === exerciseName) {
-          return {
-            ...exercise,
-            sets: [...exercise.sets, { weight: Number(weight), reps: Number(reps), rir: Number(rir) }],
-          };
-        }
-        return exercise;
-      });
-      setExercises(updatedExercises);
-      setWeight('');
-      setReps('');
-      setRir('');
+    const normalizedExerciseName = normalizeExerciseName(exerciseName.trim());
+  
+    if (!normalizedExerciseName || weight === '' || reps === '' || rir === '') {
+      alert('Please fill in all fields before adding a set.');
+      return;
     }
-  };
+  
+    setExercises((prevExercises) => {
+      const existingExerciseIndex = prevExercises.findIndex(
+        (exercise) => normalizeExerciseName(exercise.name) === normalizedExerciseName
+      );
+  
+      if (existingExerciseIndex !== -1) {
+        const updatedExercises = [...prevExercises];
+        const updatedExercise = { ...updatedExercises[existingExerciseIndex] };
+        updatedExercise.sets = [
+          ...updatedExercise.sets,
+          { weight: Number(weight), reps: Number(reps), rir: Number(rir) },
+        ];
+        updatedExercises[existingExerciseIndex] = updatedExercise;
+        return updatedExercises;
+      }
 
-  const handleSaveWorkout = () => {
-    if (workoutName.trim()) {
-      const workoutData: Workout = {
-        workoutName: workoutName.trim(),
-        workoutType: 'Freestyle', // Or another type if applicable
-        exercises: exercises.map((exercise) => ({
-          name: exercise.name,
-          sets: exercise.sets.length,
-          reps: exercise.sets.map((set) => `${set.reps}`).join(', '),
-          rir: exercise.sets.reduce((acc, set) => acc + set.rir, 0) / (exercise.sets.length || 1),
-        })),
-        assignedDays: [],
-      };
-  
-      // Save the workout to localStorage
-      const savedWorkouts = [...loadWorkouts(), workoutData];
-      saveWorkouts(savedWorkouts);
-  
-      // Reset state after saving
-      setExercises([]);
-      setWorkoutName('');
-      alert('Workout saved successfully and added to Planned Workouts!');
-    } else {
-      alert('Please enter a workout name.');
-    }
+      return [
+        ...prevExercises,
+        {
+          name: normalizedExerciseName,
+          sets: [{ weight: Number(weight), reps: Number(reps), rir: Number(rir) }],
+          rir: Number(rir),
+        },
+      ];
+    });
+
+    setWeight('');
+    setReps('');
+    setRir('');
   };
   
+  const handleSaveWorkout = () => {
+    if (!workoutName.trim()) {
+      alert('Please enter a workout name.');
+      return;
+    }
+    
+    const today = new Date().toISOString().split('T')[0];
+    
+    // Map exercises to be saved in the same format as preloaded ones
+    const newWorkout: Workout = {
+      workoutName: workoutName.trim(),
+      workoutType: 'Freestyle',
+      exercises: exercises.map(exercise => ({
+        name: normalizeExerciseName(exercise.name),
+        sets: exercise.sets.map(set => ({
+          weight: set.weight,
+          reps: set.reps,
+          rir: set.rir,
+        })),
+        rir: exercise.rir,
+        logs: exercise.sets.map(set => ({
+          date: today,
+          weight: set.weight,
+          reps: set.reps,
+          rir: set.rir,
+        })),
+      })),
+      assignedDays: [today],
+    };
+  
+    // Save the workout to local storage, making sure it's saved alongside preloaded ones
+    saveWorkouts([...loadWorkouts(), newWorkout]); 
+  
+    setExercises([]);
+    setWorkoutName('');
+    alert('Workout saved successfully!');
+  };
   
 
   return (
@@ -208,7 +231,7 @@ const FreestyleLiftPage: React.FC = () => {
         >
           Save/End Workout
         </button>
-        <HomeButton/>
+        <HomeButton />
       </div>
     </div>
   );

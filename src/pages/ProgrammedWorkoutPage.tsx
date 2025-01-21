@@ -1,37 +1,52 @@
 import React, { useState, useEffect } from 'react';
 import { getWorkoutForToday, saveWorkouts } from '../utils/localStorage';
-import { Workout } from '../utils/types';
+import { Workout, /*Exercise,*/ Set } from '../utils/types';
 import HomeButton from '../components/HomeButton';
 
 const StartProgrammedLiftPage: React.FC = () => {
   const [workoutToday, setWorkoutToday] = useState<Workout | null>(null);
-  const [userLog, setUserLog] = useState<Record<string, { weight: number; reps: number; rir: number }[]>>({});
-  
+  const [userLog, setUserLog] = useState<Record<string, Set[]>>({});
+
   useEffect(() => {
     const today = new Date().toISOString().split('T')[0];
     const workout = getWorkoutForToday(today);
     setWorkoutToday(workout);
   }, []);
 
-  const handleInputChange = (exerciseName: string, setIndex: number, field: string, value: string | number) => {
+  const handleInputChange = (exerciseName: string, setIndex: number, field: keyof Set, value: number) => {
     setUserLog((prev) => ({
       ...prev,
       [exerciseName]: prev[exerciseName]
-        ? prev[exerciseName].map((set, idx) => (idx === setIndex ? { ...set, [field]: value } : set))
+        ? prev[exerciseName].map((set, idx) => 
+            idx === setIndex ? { ...set, [field]: value } : set)
         : [{ weight: 0, reps: 0, rir: 0 }]
     }));
   };
 
   const handleSaveWorkout = () => {
     if (workoutToday) {
+      const updatedExercises = workoutToday.exercises.map((exercise) => {
+        const exerciseLogs = userLog[exercise.name] || [];
+        return {
+          ...exercise,
+          logs: exerciseLogs.map((set) => ({
+            date: new Date().toISOString(),
+            weight: set.weight,
+            reps: set.reps,
+            rir: set.rir,
+          }))
+        };
+      });
+  
       const updatedWorkout = {
         ...workoutToday,
-        exercises: workoutToday.exercises.map((exercise) => ({
-          ...exercise,
-          userSets: userLog[exercise.name] || []
-        }))
+        exercises: updatedExercises,
       };
-      const allWorkouts = [...(JSON.parse(localStorage.getItem('workouts') || '[]') as Workout[]), updatedWorkout];
+  
+      const allWorkouts = [
+        ...(JSON.parse(localStorage.getItem('workouts') || '[]') as Workout[]),
+        updatedWorkout // Include the updated workout
+      ];
       saveWorkouts(allWorkouts);
       alert('Workout saved!');
     }
@@ -47,27 +62,27 @@ const StartProgrammedLiftPage: React.FC = () => {
           <ul style={{ listStyle: 'none', padding: 0 }}>
             {workoutToday.exercises.map((exercise, index) => (
               <li key={index} style={{ marginBottom: '1rem' }}>
-                <strong>{exercise.name}</strong> - Sets: {exercise.sets}, Reps: {exercise.reps}, RIR: {exercise.rir}
+                <strong>{exercise.name}</strong> - Sets: {exercise.sets.length}, RIR: {exercise.rir}
                 <div>
-                  {[...Array(exercise.sets)].map((_, setIndex) => (
+                  {exercise.sets.map((set, setIndex) => (
                     <div key={setIndex} style={{ marginTop: '0.5rem' }}>
                       <label>Set {setIndex + 1}:</label>
                       <input
                         type="number"
                         placeholder="Weight"
-                        value={userLog[exercise.name]?.[setIndex]?.weight || ''}
+                        value={userLog[exercise.name]?.[setIndex]?.weight || set.weight}
                         onChange={(e) => handleInputChange(exercise.name, setIndex, 'weight', +e.target.value)}
                       />
                       <input
                         type="number"
                         placeholder="Reps"
-                        value={userLog[exercise.name]?.[setIndex]?.reps || ''}
+                        value={userLog[exercise.name]?.[setIndex]?.reps || set.reps}
                         onChange={(e) => handleInputChange(exercise.name, setIndex, 'reps', +e.target.value)}
                       />
                       <input
                         type="number"
                         placeholder="RIR"
-                        value={userLog[exercise.name]?.[setIndex]?.rir || ''}
+                        value={userLog[exercise.name]?.[setIndex]?.rir || set.rir}
                         onChange={(e) => handleInputChange(exercise.name, setIndex, 'rir', +e.target.value)}
                       />
                     </div>

@@ -5,13 +5,13 @@ import WorkoutPlanPage from './pages/WorkoutPlanPage';
 import StartLiftPage from './pages/StartLiftPage';
 import FreestyleLiftPage from './pages/FreestyleLiftPage';
 import StartProgrammedLiftPage from './pages/ProgrammedWorkoutPage'
-import CalcPage from './pages/Calculator';
+import CalcPage from './pages/CalculatorPage';
+import ExerciseLibrary from './pages/exerciseLibrary';
 
 const App: React.FC = () => {
   return (
     <Router>
       <div>
-        <h1>Lifting App</h1>
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/workout-plan" element={<WorkoutPlanPage />} />
@@ -19,6 +19,7 @@ const App: React.FC = () => {
           <Route path="/freestyle-lift" element={<FreestyleLiftPage />} />
           <Route path='/start-programmed-lift' element={<StartProgrammedLiftPage/>}/>
           <Route path='/calc-page' element={<CalcPage/>}/>
+          <Route path='/library-page' element={<ExerciseLibrary/>}/>
         </Routes>
       </div>
     </Router>

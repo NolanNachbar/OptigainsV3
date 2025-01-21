@@ -1,8 +1,13 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { preloadWorkouts } from '../utils/localStorage';
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    preloadWorkouts(); // Preload workouts when the app loads
+  }, []);
 
   return (
     <div style={{ textAlign: 'center', padding: '2rem' }}>
@@ -60,7 +65,7 @@ const HomePage: React.FC = () => {
           borderRadius: '5px',
           cursor: 'pointer',
         }}
-        onClick={() => navigate('/exercise-library')}
+        onClick={() => navigate('/library-page')}
       >
         Exercise Library
       </button>

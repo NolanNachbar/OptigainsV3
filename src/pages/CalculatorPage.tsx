@@ -6,23 +6,41 @@ const CalcPage: React.FC = () => {
     const [weight, setWeight] = useState<number | ''>('');
     const [rir, setRir] = useState<number | ''>('');
     const [oneRm, setOneRm] = useState<number | null>(null);
-    const [repRange, setRepRange] = useState<number[][] | null>(
-        Array.from({ length: 12 }, () => Array(2).fill(0))
-    );
+    const [repRange, setRepRange] = useState<number[][] | null>(null);
+    const [formula, setFormula] = useState<string>('epley'); // Formula selection: epley, brzycki, lombardi
 
-    // Calculate 1RM based on the Epley formula and adjusted reps
+    // Calculate 1RM based on the selected formula
     const calculateOneRm = () => {
         if (reps !== '' && weight !== '' && rir !== '') {
-            const adjustedReps = Math.max(0, reps + rir);  // Ensure reps doesn't go below 0
-            const calculatedOneRm = weight * (1 + 0.0333 * adjustedReps);
+            const adjustedReps = Math.max(0, reps + rir); // Ensure reps doesn't go below 0
+            let calculatedOneRm = 0;
+
+            // Use the selected formula
+            if (formula === 'epley') {
+                calculatedOneRm = weight * (1 + 0.0333 * adjustedReps);
+            } else if (formula === 'brzycki') {
+                calculatedOneRm = (36 * weight) / (37 - adjustedReps);
+            } else if (formula === 'lombardi') {
+                calculatedOneRm = weight * Math.pow(adjustedReps, 0.10);
+            }
+
             setOneRm(calculatedOneRm);
 
-            // Now, generate the rep range based on the calculated 1RM
-            const temp = Array.from({ length: 12 }, () => Array(2).fill(0));
-            for (let i = 1; i <= 12; i++) {
-                temp[i - 1][0] = i;  // Rep range (1 to 12)
-                temp[i - 1][1] = calculatedOneRm / (1 + (30 / i));  // Estimated weight for each rep
-            }
+            // Generate the rep range
+            const temp = Array.from({ length: 12 }, (_, i) => {
+                const repsForRange = i + 1; // Reps from 1 to 12
+                let estimatedWeight = 0;
+
+                if (formula === 'epley') {
+                    estimatedWeight = calculatedOneRm / (1 + 0.0333 * repsForRange);
+                } else if (formula === 'brzycki') {
+                    estimatedWeight = calculatedOneRm * (37 - repsForRange) / 36;
+                } else if (formula === 'lombardi') {
+                    estimatedWeight = calculatedOneRm / Math.pow(repsForRange, 0.10);
+                }
+
+                return [repsForRange, estimatedWeight];
+            });
             setRepRange(temp);
         }
     };
@@ -71,6 +89,20 @@ const CalcPage: React.FC = () => {
                         marginRight: '0.5rem',
                     }}
                 />
+                <select
+                    value={formula}
+                    onChange={(e) => setFormula(e.target.value)}
+                    style={{
+                        padding: '0.5rem',
+                        border: '1px solid #ddd',
+                        borderRadius: '5px',
+                        marginRight: '0.5rem',
+                    }}
+                >
+                    <option value="epley">Epley</option>
+                    <option value="brzycki">Brzycki</option>
+                    <option value="lombardi">Lombardi</option>
+                </select>
                 <button
                     onClick={calculateOneRm}
                     style={{

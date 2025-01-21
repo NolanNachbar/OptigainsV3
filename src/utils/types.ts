@@ -1,17 +1,28 @@
 // src/utils/types.ts
-
 export interface Exercise {
     name: string;
-    sets: number;
-    reps: string;
+    sets: Set[];  // Change from number to Set[] to hold actual sets
+    rir: number;
+    logs?: ExerciseLog[];
+  }
+  
+  export type Set = {
+    weight: number;
+    reps: number;
+    rir: number;
+  };
+  
+  interface ExerciseLog {
+    date: string;
+    weight: number;
+    reps: number;
     rir: number;
   }
   
   export interface Workout {
     workoutName: string;
-    workoutType?: string; // Optional (e.g., Push/Pull)
+    workoutType?: string;
     exercises: Exercise[];
-    //id: string; // Unique ID for each workout
-    assignedDays: string[]; // Array to store dates the workout is assigned to
+    assignedDays: string[];
   }
   
