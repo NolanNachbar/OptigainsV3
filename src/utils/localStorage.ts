@@ -52,24 +52,41 @@ export const removeWorkoutFromDate = (workoutId: string, date: string) => {
     saveWorkouts(workouts);
   }
 };
-
-// Add logging to each exercise in the workout
 export const calculateNextWeight = (exercise: Exercise, reps: number, rir: number): number => {
-  const lastLog = exercise.logs && exercise.logs.length > 0 ? exercise.logs[exercise.logs.length - 1] : null;
-  const performance = reps + rir;
-
-  // Assuming we calculate based on the last set
-  if (lastLog) {
-    const performanceDifference = performance - (lastLog.reps + lastLog.rir);
-    if (performanceDifference > 1) {
-      return lastLog.weight + 2.5; // Increment weight if performance improved
-    } else if (performanceDifference < -1) {
-      return Math.max(0, lastLog.weight - 2.5); // Decrement weight if performance decreased
+    // Check if the exercise has logs
+    if (!exercise.logs || exercise.logs.length === 0) {
+      console.warn(`No logs available for exercise: ${exercise.name}`);
+      return exercise.sets[0]?.weight ?? 0; // Return the initial set weight or 0 if not available
     }
-  }
-
-  return exercise.sets[0]?.weight ?? 0; // Default to first set weight if no previous logs
+  
+    const lastLog = exercise.logs[exercise.logs.length - 1];
+  
+    // Check if the last log is valid
+    if (!lastLog || typeof lastLog.weight === "undefined" || typeof lastLog.reps === "undefined" || typeof lastLog.rir === "undefined") {
+      console.warn(`Invalid log data for exercise: ${exercise.name}`);
+      return exercise.sets[0]?.weight ?? 0; // Return the initial set weight if last log is invalid
+    }
+  
+    // Calculate adjusted reps from last log
+    const lastAdjustedReps = lastLog.reps + lastLog.rir;
+    const adjustedReps = reps + rir;
+  
+    if (lastAdjustedReps <= 0 || adjustedReps <= 0) {
+      return lastLog.weight; // Return the last known weight if reps are invalid
+    }
+  
+    // Calculate 1RM and then estimate the new weight
+    const calculatedOneRm = lastLog.weight * (1 + 0.0333 * lastAdjustedReps);
+    const estimatedWeight = calculatedOneRm / (1 + 0.0333 * adjustedReps);
+  
+    // If the estimated weight is invalid (NaN or <= 0), fallback to last known weight
+    const result = isNaN(estimatedWeight) || estimatedWeight <= 0 ? lastLog.weight : estimatedWeight;
+    return Math.round(result / 5)*5
 };
+  
+  
+  
+  
 
 export const addWorkoutWithNormalizedExercises = (workout: Workout) => {
   const workouts = loadWorkouts();

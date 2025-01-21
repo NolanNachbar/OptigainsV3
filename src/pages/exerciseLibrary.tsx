@@ -67,6 +67,31 @@ const ExerciseLibrary: React.FC = () => {
           ) : (
             <p>No data available</p>
           )}
+
+          {/* Displaying the data points below the graph */}
+          <h3>Data Points</h3>
+          {selectedExercise.logs && selectedExercise.logs.length > 0 ? (
+            <table style={{ width: '100%', marginTop: '1rem', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr>
+                  <th style={{ border: '1px solid #ddd', padding: '0.5rem' }}>Date</th>
+                  <th style={{ border: '1px solid #ddd', padding: '0.5rem' }}>Weight</th>
+                  <th style={{ border: '1px solid #ddd', padding: '0.5rem' }}>Reps</th>
+                </tr>
+              </thead>
+              <tbody>
+                {selectedExercise.logs.map((log, index) => (
+                  <tr key={index}>
+                    <td style={{ border: '1px solid #ddd', padding: '0.5rem' }}>{log.date}</td>
+                    <td style={{ border: '1px solid #ddd', padding: '0.5rem' }}>{log.weight} lbs</td>
+                    <td style={{ border: '1px solid #ddd', padding: '0.5rem' }}>{log.reps}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <p>No logs available</p>
+          )}
         </div>
       )}
       <HomeButton />
