@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { getWorkoutForToday, saveWorkouts } from '../utils/localStorage';
-import { Workout, /*Exercise,*/ Set } from '../utils/types';
+import { getWorkoutForToday, saveWorkouts, calculateNextWeight, loadWorkouts } from '../utils/localStorage';
+import { Workout, Set } from '../utils/types';
 import HomeButton from '../components/HomeButton';
+
+const normalizeExerciseName = (name: string) => name.toUpperCase();
 
 const StartProgrammedLiftPage: React.FC = () => {
   const [workoutToday, setWorkoutToday] = useState<Workout | null>(null);
   const [userLog, setUserLog] = useState<Record<string, Set[]>>({});
 
+  // Load today's workout on component mount
   useEffect(() => {
     const today = new Date().toISOString().split('T')[0];
     const workout = getWorkoutForToday(today);
@@ -19,96 +22,164 @@ const StartProgrammedLiftPage: React.FC = () => {
       [exerciseName]: prev[exerciseName]
         ? prev[exerciseName].map((set, idx) => 
             idx === setIndex ? { ...set, [field]: value } : set)
-        : [{ weight: 0, reps: 0, rir: 0 }]
+        : Array.from({ length: workoutToday?.exercises.find(ex => ex.name === exerciseName)?.sets.length || 1 }, () => ({
+            weight: 0,
+            reps: 0,
+            rir: 0,
+          })),
     }));
+  };
+
+  const handleCalculateWeight = (exerciseName: string, setIndex: number) => {
+    const reps = userLog[exerciseName]?.[setIndex]?.reps || 0;
+    const rir = userLog[exerciseName]?.[setIndex]?.rir || 0;
+
+    if (workoutToday) {
+      const exercise = workoutToday.exercises.find((ex) => normalizeExerciseName(ex.name) === normalizeExerciseName(exerciseName));
+      if (exercise) {
+        const recommendedWeight = calculateNextWeight(exercise, reps, rir);
+        handleInputChange(exerciseName, setIndex, 'weight', recommendedWeight);
+      } else {
+        alert('Exercise not found in today’s workout.');
+      }
+    }
   };
 
   const handleSaveWorkout = () => {
     if (workoutToday) {
-      const updatedExercises = workoutToday.exercises.map((exercise) => {
-        const exerciseLogs = userLog[exercise.name] || [];
-        return {
-          ...exercise,
-          logs: exerciseLogs.map((set) => ({
-            date: new Date().toISOString(),
-            weight: set.weight,
-            reps: set.reps,
-            rir: set.rir,
-          }))
-        };
-      });
-  
-      const updatedWorkout = {
+      const today = new Date().toISOString().split('T')[0];
+      const updatedWorkout: Workout = {
         ...workoutToday,
-        exercises: updatedExercises,
+        exercises: workoutToday.exercises.map((exercise) => ({
+          ...exercise,
+          sets: userLog[exercise.name] || exercise.sets,
+          logs: (userLog[exercise.name] || []).map((set) => ({
+            ...set,
+            date: today,
+          })),
+        })),
       };
-  
-      const allWorkouts = [
-        ...(JSON.parse(localStorage.getItem('workouts') || '[]') as Workout[]),
-        updatedWorkout // Include the updated workout
-      ];
-      saveWorkouts(allWorkouts);
-      alert('Workout saved!');
+
+      saveWorkouts([...loadWorkouts(), updatedWorkout]);
+      alert('Workout saved successfully!');
+    } else {
+      alert('No workout to save.');
     }
   };
 
   return (
     <div style={{ textAlign: 'center', padding: '2rem' }}>
-      <h2>Today's Programmed Lift</h2>
+      <h2>Programmed Lift</h2>
+
       {workoutToday ? (
-        <div>
-          <p>Workout Name: {workoutToday.workoutName}</p>
-          <p>Workout Type: {workoutToday.workoutType || 'No Type'}</p>
-          <ul style={{ listStyle: 'none', padding: 0 }}>
-            {workoutToday.exercises.map((exercise, index) => (
-              <li key={index} style={{ marginBottom: '1rem' }}>
-                <strong>{exercise.name}</strong> - Sets: {exercise.sets.length}, RIR: {exercise.rir}
-                <div>
-                  {exercise.sets.map((set, setIndex) => (
-                    <div key={setIndex} style={{ marginTop: '0.5rem' }}>
-                      <label>Set {setIndex + 1}:</label>
+        workoutToday.exercises.map((exercise) => (
+          <div key={exercise.name} style={{ marginBottom: '2rem' }}>
+            <h3>{exercise.name}</h3>
+            <ul style={{ listStyle: 'none', padding: 0 }}>
+              {exercise.sets.map((set, index) => (
+                <li key={index} style={{ marginBottom: '1rem' }}>
+                  <div>
+                    <label>
+                      Weight (lbs):
                       <input
                         type="number"
-                        placeholder="Weight"
-                        value={userLog[exercise.name]?.[setIndex]?.weight || set.weight}
-                        onChange={(e) => handleInputChange(exercise.name, setIndex, 'weight', +e.target.value)}
+                        value={userLog[exercise.name]?.[index]?.weight || set.weight || ''}
+                        onChange={(e) =>
+                          handleInputChange(
+                            exercise.name,
+                            index,
+                            'weight',
+                            Number(e.target.value)
+                          )
+                        }
+                        style={{
+                          margin: '0.5rem',
+                          padding: '0.5rem',
+                          width: '70px',
+                          textAlign: 'center',
+                        }}
                       />
+                    </label>
+                    <label>
+                      Reps:
                       <input
                         type="number"
-                        placeholder="Reps"
-                        value={userLog[exercise.name]?.[setIndex]?.reps || set.reps}
-                        onChange={(e) => handleInputChange(exercise.name, setIndex, 'reps', +e.target.value)}
+                        value={userLog[exercise.name]?.[index]?.reps || set.reps || ''}
+                        onChange={(e) =>
+                          handleInputChange(
+                            exercise.name,
+                            index,
+                            'reps',
+                            Number(e.target.value)
+                          )
+                        }
+                        style={{
+                          margin: '0.5rem',
+                          padding: '0.5rem',
+                          width: '50px',
+                          textAlign: 'center',
+                        }}
                       />
+                    </label>
+                    <label>
+                      RIR:
                       <input
                         type="number"
-                        placeholder="RIR"
-                        value={userLog[exercise.name]?.[setIndex]?.rir || set.rir}
-                        onChange={(e) => handleInputChange(exercise.name, setIndex, 'rir', +e.target.value)}
+                        value={userLog[exercise.name]?.[index]?.rir || set.rir || ''}
+                        onChange={(e) =>
+                          handleInputChange(
+                            exercise.name,
+                            index,
+                            'rir',
+                            Number(e.target.value)
+                          )
+                        }
+                        style={{
+                          margin: '0.5rem',
+                          padding: '0.5rem',
+                          width: '50px',
+                          textAlign: 'center',
+                        }}
                       />
-                    </div>
-                  ))}
-                </div>
-              </li>
-            ))}
-          </ul>
-          <button
-            style={{
-              padding: '0.5rem 1rem',
-              backgroundColor: '#6200ea',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '5px',
-              marginRight: '1rem',
-            }}
-            onClick={handleSaveWorkout}
-          >
-            Save Workout
-          </button>
-          <HomeButton />
-        </div>
+                    </label>
+                    <button
+                      onClick={() => handleCalculateWeight(exercise.name, index)}
+                      style={{
+                        padding: '0.5rem 1rem',
+                        backgroundColor: '#4CAF50',
+                        color: '#fff',
+                        border: 'none',
+                        borderRadius: '5px',
+                        marginLeft: '1rem',
+                      }}
+                    >
+                      Calculate Weight
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))
       ) : (
-        <p>No programmed workout found for today.</p>
+        <p>No workout assigned for today.</p>
       )}
+
+      <button
+        onClick={handleSaveWorkout}
+        style={{
+          padding: '0.5rem 1rem',
+          backgroundColor: '#6200ea',
+          color: '#fff',
+          border: 'none',
+          borderRadius: '5px',
+          marginTop: '2rem',
+        }}
+      >
+        Save Workout
+      </button>
+
+      <HomeButton />
     </div>
   );
 };

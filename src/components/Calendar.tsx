@@ -84,9 +84,23 @@ const CalendarComponent: React.FC<CalendarProps> = ({ savedWorkouts }) => {
   
 
   const handleRemoveWorkoutFromDate = (workout: Workout, date: string) => {
+    // Remove workout from localStorage for that date
     removeWorkoutFromDate(workout.workoutName, date);
+  
     // Update workoutsForToday state using a callback function
     updateWorkoutsForToday(workouts => workouts.filter(w => w.workoutName !== workout.workoutName));
+  
+    // Check if the day still has any workouts assigned
+    const updatedAssignedDays = { ...assignedDays };
+    const workoutsForThisDay = getWorkoutsForDate(date); // Get updated workouts for that day
+    if (workoutsForThisDay.length === 0) {
+      // If there are no workouts left for this day, remove the marker
+      delete updatedAssignedDays[date];
+    }
+  
+    // Update the assignedDays state and save it to localStorage
+    setAssignedDays(updatedAssignedDays);
+    localStorage.setItem('assignedDays', JSON.stringify(updatedAssignedDays));
   };
   
   const updateWorkoutsForToday = (callback: (workouts: Workout[]) => Workout[]) => {

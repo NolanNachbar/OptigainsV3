@@ -143,6 +143,47 @@ export const removeWorkoutFromList = (workoutId: string) => {
   saveWorkouts(updatedWorkouts);
 };
 
+// // Preload some default workouts for testing purposes
+// export const preloadWorkouts = () => {
+//     const existingWorkouts = loadWorkouts();
+//     if (existingWorkouts.length > 0) return; // Don't overwrite existing workouts
+  
+//     const defaultWorkouts: Workout[] = [
+//       {
+//         workoutName: "Full Body",
+//         assignedDays: ["2025-01-16"],
+//         exercises: [
+//           {
+//             name: "BENCH PRESS",
+//             sets: [
+//               { weight: 130, reps: 10, rir: 3 },
+//               { weight: 125, reps: 10, rir: 3 },
+//             ],
+//             rir: 2,
+//             logs: [
+//               { date: "2025-01-15", weight: 130, reps: 10, rir: 3 },
+//               { date: "2025-01-10", weight: 125, reps: 10, rir: 3 },
+//             ],
+//           },
+//           {
+//             name: "SQUAT",
+//             sets: [
+//               { weight: 180, reps: 8, rir: 2 },
+//               { weight: 175, reps: 8, rir: 2 },
+//             ],
+//             rir: 1,
+//             logs: [
+//               { date: "2025-01-15", weight: 180, reps: 8, rir: 2 },
+//               { date: "2025-01-10", weight: 175, reps: 8, rir: 2 },
+//             ],
+//           },
+//         ],
+//       },
+//     ];
+  
+//     saveWorkouts(defaultWorkouts); // Save default workouts if none exist
+//   };
+
 export const preloadWorkouts = () => {
     const existingWorkouts = loadWorkouts();
     if (existingWorkouts.length > 0) return; // Don't overwrite existing workouts
