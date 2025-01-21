@@ -11,8 +11,8 @@ const HomePage: React.FC = () => {
 
   return (
     <div style={{ textAlign: 'center', padding: '2rem' }}>
-      <h1>Welcome to the Lifting App</h1>
-      <p>Your journey to better fitness starts here!</p>
+      <h1>Optigains</h1>
+      <p>The tool for optimal gains</p>
 
       <button
         style={{
