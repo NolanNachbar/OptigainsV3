@@ -3,8 +3,7 @@ import { getConsolidatedExercises } from '../utils/localStorage';
 import { Exercise } from '../utils/types';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
-import HomeButton from '../components/HomeButton';
-
+import ActionBar from '../components/Actionbar';
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 const ExerciseLibrary: React.FC = () => {
@@ -51,6 +50,7 @@ const ExerciseLibrary: React.FC = () => {
 
   return (
     <div>
+      <ActionBar/>
       <h1>Exercise Library</h1>
       <ul>
         {exercises.map((exercise, index) => (
@@ -96,7 +96,6 @@ const ExerciseLibrary: React.FC = () => {
           )}
         </div>
       )}
-      <HomeButton />
     </div>
   );
 };

@@ -1,0 +1,136 @@
+/* Global styles */
+.container {
+    text-align: center;
+    padding: 2rem;
+    font-family: 'Arial', sans-serif;
+  }
+  
+  h1 {
+    color: #333;
+  }
+  
+  h2 {
+    color: #4CAF50;
+    margin-bottom: 1rem;
+  }
+  
+  .exercise-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+  
+  .exercise-card {
+    border: 1px solid #ddd;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    background-color: #f9f9f9;
+  }
+  
+  .set-list {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .set-item {
+    margin-bottom: 1.5rem;
+  }
+  
+  .set-inputs {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-bottom: 1rem;
+  }
+  
+  .input-field {
+    padding: 0.5rem;
+    width: 60px;
+    text-align: center;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+  }
+  
+  .button-group {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+  }
+  
+  .action-buttons {
+    margin-top: 2rem;
+  }
+  
+  .action-btn {
+    padding: 0.7rem 1.5rem;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 0.5rem;
+  }
+  
+  .remove-btn {
+    padding: 0.7rem 1.5rem;
+    background-color: #f44336;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .save-btn {
+    padding: 0.7rem 1.5rem;
+    background-color: #2196F3;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    margin-top: 2rem;
+  }
+  
+  .remove-exercise-btn, .add-exercise-btn {
+    background-color: #f44336;
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 5px;
+  }
+  
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .modal-content {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    max-width: 500px;
+    width: 100%;
+  }
+  
+  .set-input-group {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+  
+  .close-modal-btn {
+    padding: 0.7rem 1.5rem;
+    background-color: #ccc;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  

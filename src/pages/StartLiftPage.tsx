@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getWorkoutForToday } from '../utils/localStorage';
 import { Workout } from '../utils/types';
-import HomeButton from '../components/HomeButton';
+import ActionBar from '../components/Actionbar';
 
 const StartLiftPage: React.FC = () => {
   const [workoutToday, setWorkoutToday] = useState<Workout | null>(null);
@@ -16,6 +16,7 @@ const StartLiftPage: React.FC = () => {
 
   return (
     <div style={{ textAlign: 'center', padding: '2rem' }}>
+      <ActionBar/>
       <h2>Start Your Lift</h2>
       <button
         style={{
@@ -47,7 +48,6 @@ const StartLiftPage: React.FC = () => {
       ) : (
         <p>No lift programmed for today.</p>
       )}
-      <HomeButton/>
     </div>
   );
 };

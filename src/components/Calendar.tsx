@@ -123,8 +123,23 @@ const CalendarComponent: React.FC<CalendarProps> = ({ savedWorkouts }) => {
   };
 
   const getRecommendedWeight = (exercise: Exercise, reps: number, rir: number): number => {
+    // Calculate the next weight based on reps and rir
     const nextWeight = calculateNextWeight(exercise, reps, rir);
-    return nextWeight;
+  
+    // Calculate the adjusted reps (6-7 reps + RIR)
+    const adjustedReps = reps + rir; // Make sure it's between 6-7 reps
+  
+    // Calculate the 1RM using Epley
+    const oneRm = nextWeight * (1 + 0.0333 * adjustedReps);
+  
+    // Estimate the weight for 6-7 reps based on the 1RM using Epley
+    const targetReps = 6 + rir;
+    const recommendedWeight = oneRm / (1 + 0.0333 * targetReps);
+  
+    // Return the recommended weight, rounded to the nearest 5
+    const roundedWeight = Math.round(recommendedWeight / 5) * 5;
+  
+    return roundedWeight;
   };
 
   const handleViewWorkout = (workout: Workout) => {

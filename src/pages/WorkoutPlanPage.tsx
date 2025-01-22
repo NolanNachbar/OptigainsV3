@@ -3,7 +3,8 @@ import WorkoutForm from '../components/WorkoutForm';
 import CalendarComponent from '../components/Calendar';
 import { loadWorkouts } from '../utils/localStorage';
 import { Workout } from '../utils/types';
-import HomeButton from '../components/HomeButton';
+import ActionBar from '../components/Actionbar';
+
 
 const WorkoutPlanPage: React.FC = () => {
   const [savedWorkouts, setSavedWorkouts] = useState<Workout[]>([]);
@@ -15,9 +16,9 @@ const WorkoutPlanPage: React.FC = () => {
 
   return (
     <div>
+      <ActionBar/>
       <CalendarComponent savedWorkouts={savedWorkouts} />
       <WorkoutForm setSavedWorkouts={setSavedWorkouts} />
-      <HomeButton />
     </div>
   );
 };

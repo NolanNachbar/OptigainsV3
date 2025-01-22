@@ -143,6 +143,49 @@ export const removeWorkoutFromList = (workoutId: string) => {
   saveWorkouts(updatedWorkouts);
 };
 
+// Update workouts to support editing exercises and sets
+export const editWorkout = (workoutId: string, updatedWorkout: Workout) => {
+  const workouts = loadWorkouts();
+  const workoutIndex = workouts.findIndex(workout => workout.workoutName === workoutId);
+
+  if (workoutIndex !== -1) {
+    workouts[workoutIndex] = { ...workouts[workoutIndex], ...updatedWorkout };
+    saveWorkouts(workouts);
+  } else {
+    console.warn(`Workout with ID ${workoutId} not found.`);
+  }
+};
+
+
+
+// Remove an exercise from a workout
+export const removeExerciseFromWorkout = (workoutId: string, exerciseName: string) => {
+  const workouts = loadWorkouts();
+  const workout = workouts.find(workout => workout.workoutName === workoutId);
+
+  if (workout) {
+    workout.exercises = workout.exercises.filter(exercise => normalizeExerciseName(exercise.name) !== normalizeExerciseName(exerciseName));
+    saveWorkouts(workouts);
+  } else {
+    console.warn(`Workout with ID ${workoutId} not found.`);
+  }
+};
+
+// Rearrange exercises within a workout
+export const rearrangeExercisesInWorkout = (workoutId: string, newOrder: Exercise[]) => {
+  const workouts = loadWorkouts();
+  const workout = workouts.find(workout => workout.workoutName === workoutId);
+
+  if (workout) {
+    workout.exercises = newOrder;
+    saveWorkouts(workouts);
+  } else {
+    console.warn(`Workout with ID ${workoutId} not found.`);
+  }
+};
+
+
+
 // // Preload some default workouts for testing purposes
 // export const preloadWorkouts = () => {
 //     const existingWorkouts = loadWorkouts();

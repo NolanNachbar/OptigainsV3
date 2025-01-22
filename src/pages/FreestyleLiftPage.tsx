@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { loadWorkouts, saveWorkouts, getConsolidatedExercises, calculateNextWeight } from '../utils/localStorage';
 import { Workout, Exercise } from '../utils/types';
-import HomeButton from '../components/HomeButton';
+import ActionBar from '../components/Actionbar';
 
 const normalizeExerciseName = (name: string) => name.toUpperCase();
 
@@ -125,6 +125,7 @@ const FreestyleLiftPage: React.FC = () => {
 
   return (
     <div style={{ textAlign: 'center', padding: '2rem' }}>
+      <ActionBar />
       <h2>Freestyle Lift</h2>
 
       <div style={{ marginBottom: '2rem' }}>
@@ -277,8 +278,6 @@ const FreestyleLiftPage: React.FC = () => {
           Save Workout
         </button>
       </div>
-
-      <HomeButton />
     </div>
   );
 };

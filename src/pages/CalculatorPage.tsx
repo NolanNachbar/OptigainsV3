@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import HomeButton from '../components/HomeButton';
+import ActionBar from '../components/Actionbar';
 
 const CalcPage: React.FC = () => {
     const [reps, setReps] = useState<number | ''>('');
@@ -47,6 +47,7 @@ const CalcPage: React.FC = () => {
 
     return (
         <div style={{ textAlign: 'center', padding: '2rem' }}>
+            <ActionBar/>
             <h2>Weight Calculator</h2>
 
             <div style={{ marginBottom: '2rem' }}>
@@ -140,8 +141,6 @@ const CalcPage: React.FC = () => {
                     )}
                 </div>
             )}
-
-            <HomeButton />
         </div>
     );
 };
