@@ -21,7 +21,7 @@ const ActionBar: React.FC = () => {
         zIndex: 1000, // Keeps it on top
       }}
     >
-      {/* SVG Icon */}
+      {/* SVG Icon with onClick to navigate to home */}
       <img 
         src={OptigainDumbell} 
         alt="Optigain Dumbell Logo" 
@@ -29,7 +29,9 @@ const ActionBar: React.FC = () => {
           width: '30px',  // Scale down the icon
           height: '30px', // Scale down the icon
           marginRight: '1rem',  // Space between icon and app name
+          cursor: 'pointer',  // Make it look clickable
         }} 
+        onClick={() => navigate('/')}  // Navigate to home on click
       />
 
       {/* App Name */}
@@ -40,22 +42,6 @@ const ActionBar: React.FC = () => {
       }}>
         Optigains
       </h1>
-
-      {/* Home Button */}
-      <button
-        style={{
-          padding: '0.5rem 1rem',
-          backgroundColor: '#007bff',
-          color: '#fff',
-          border: 'none',
-          borderRadius: '5px',
-          cursor: 'pointer',
-          fontSize: '0.875rem', // Optional: reduce button font size for better balance
-        }}
-        onClick={() => navigate('/')}
-      >
-        Home
-      </button>
     </div>
   );
 };
