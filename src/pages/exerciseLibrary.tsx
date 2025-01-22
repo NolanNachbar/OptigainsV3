@@ -77,6 +77,7 @@ const ExerciseLibrary: React.FC = () => {
                   <th style={{ border: '1px solid #ddd', padding: '0.5rem' }}>Date</th>
                   <th style={{ border: '1px solid #ddd', padding: '0.5rem' }}>Weight</th>
                   <th style={{ border: '1px solid #ddd', padding: '0.5rem' }}>Reps</th>
+                  <th style={{ border: '1px solid #ddd', padding: '0.5rem' }}>Rir</th>
                 </tr>
               </thead>
               <tbody>
@@ -85,6 +86,7 @@ const ExerciseLibrary: React.FC = () => {
                     <td style={{ border: '1px solid #ddd', padding: '0.5rem' }}>{log.date}</td>
                     <td style={{ border: '1px solid #ddd', padding: '0.5rem' }}>{log.weight} lbs</td>
                     <td style={{ border: '1px solid #ddd', padding: '0.5rem' }}>{log.reps}</td>
+                    <td style={{ border: '1px solid #ddd', padding: '0.5rem' }}>{log.rir}</td>
                   </tr>
                 ))}
               </tbody>

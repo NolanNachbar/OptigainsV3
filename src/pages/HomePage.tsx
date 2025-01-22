@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { preloadWorkouts } from '../utils/localStorage';
+import OptigainDumbell from '../assets/react3.svg'; 
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
@@ -11,6 +12,8 @@ const HomePage: React.FC = () => {
 
   return (
     <div style={{ textAlign: 'center', padding: '2rem' }}>
+      <img src={OptigainDumbell} alt="Optigain Dumbell Logo" /> 
+      {/* Render the SVG as an <img> tag */}
       <h1>Optigains</h1>
       <p>The tool for optimal gains</p>
 
