@@ -12,7 +12,6 @@ const WorkoutForm: React.FC<WorkoutFormProps> = ({ setSavedWorkouts }) => {
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [exerciseName, setExerciseName] = useState<string>('');
   const [sets, setSets] = useState<{ weight: number; reps: number; rir: number }[]>([{ weight: 1, reps: 10, rir: 2 }]); // Changed to hold an array of sets
-  const [search, setSearch] = useState<string>('');
   const [feedback, setFeedback] = useState<string>('');
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
@@ -82,10 +81,6 @@ const WorkoutForm: React.FC<WorkoutFormProps> = ({ setSavedWorkouts }) => {
       setFeedback('Please fill all fields with valid values.');
     }
   };
-
-  const filteredWorkouts = loadWorkouts().filter(workout =>
-    workout.workoutName.toLowerCase().includes(search.toLowerCase())
-  );
 
   return (
     <div>
@@ -186,27 +181,6 @@ const WorkoutForm: React.FC<WorkoutFormProps> = ({ setSavedWorkouts }) => {
 
       {/* Save Workout Button */}
       <button onClick={handleSaveWorkout}>Save Workout</button>
-
-      <h4>Saved Workouts</h4>
-      
-      {/* Search Workouts */}
-      <div>
-        <label>Search Workouts</label>
-        <input
-          type="text"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-      </div>
-
-      {/* List of Saved Workouts */}
-      <ul>
-        {filteredWorkouts.map((workout, index) => (
-          <li key={index}>
-            {workout.workoutName} ({workout.workoutType})
-          </li>
-        ))}
-      </ul>
     </div>
   );
 };

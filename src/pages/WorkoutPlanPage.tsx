@@ -15,9 +15,8 @@ const WorkoutPlanPage: React.FC = () => {
 
   return (
     <div>
-      <h2>Create and Assign Workouts</h2>
-      <WorkoutForm setSavedWorkouts={setSavedWorkouts} />
       <CalendarComponent savedWorkouts={savedWorkouts} />
+      <WorkoutForm setSavedWorkouts={setSavedWorkouts} />
       <HomeButton />
     </div>
   );

@@ -196,67 +196,67 @@ export const preloadWorkouts = () => {
           {
             name: "Chest-Supported Row",
             sets: [
-              { weight: 415, reps: 3, rir: 0 },
+              { weight: 415, reps: 9, rir: 0 },
               { weight: 320, reps: 10, rir: 3 },
             ],
             rir: 2,
             logs: [
-              { date: "2025-01-16", weight: 415, reps: 3, rir: 0 },
+              { date: "2025-01-16", weight: 415, reps: 10, rir: 0 },
               { date: "2025-01-10", weight: 320, reps: 10, rir: 3 },
             ],
           },
           {
             name: "Incline Medium Grip Bench Press",
             sets: [
-              { weight: 290, reps: 3, rir: 0 },
+              { weight: 290, reps: 10, rir: 0 },
               { weight: 225, reps: 10, rir: 3 },
             ],
             rir: 2,
             logs: [
-              { date: "2025-01-16", weight: 290, reps: 3, rir: 0 },
+              { date: "2025-01-16", weight: 290, reps: 10, rir: 0 },
               { date: "2025-01-10", weight: 225, reps: 10, rir: 3 },
             ],
           },
           {
             name: "Sus-machine",
             sets: [
-              { weight: 360, reps: 3, rir: 0 },
+              { weight: 360, reps: 10, rir: 0 },
               { weight: 275, reps: 10, rir: 3 },
             ],
             rir: 2,
             logs: [
-              { date: "2025-01-16", weight: 360, reps: 3, rir: 0 },
+              { date: "2025-01-16", weight: 360, reps: 10, rir: 0 },
               { date: "2025-01-10", weight: 275, reps: 10, rir: 3 },
             ],
           },
           {
             name: "Cable Tricep Pushdown",
             sets: [
-              { weight: 45, reps: 3, rir: 0 },
+              { weight: 45, reps: 10, rir: 0 },
               { weight: 35, reps: 10, rir: 3 },
             ],
             rir: 2,
             logs: [
-              { date: "2025-01-16", weight: 45, reps: 3, rir: 0 },
+              { date: "2025-01-16", weight: 45, reps: 10, rir: 0 },
               { date: "2025-01-10", weight: 35, reps: 10, rir: 3 },
             ],
           },
           {
             name: "Leg extensions",
             sets: [
-              { weight: 400, reps: 3, rir: 0 },
+              { weight: 400, reps: 10, rir: 0 },
               { weight: 310, reps: 10, rir: 3 },
             ],
             rir: 2,
             logs: [
-              { date: "2025-01-16", weight: 400, reps: 3, rir: 0 },
+              { date: "2025-01-16", weight: 400, reps: 10, rir: 0 },
               { date: "2025-01-10", weight: 310, reps: 10, rir: 3 },
             ],
           },
           {
             name: "Machine lateral raises",
             sets: [
-              { weight: 150, reps: 3, rir: 0 },
+              { weight: 150, reps: 10, rir: 0 },
               { weight: 115, reps: 10, rir: 3 },
             ],
             rir: 2,

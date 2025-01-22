@@ -16,6 +16,7 @@ const CalendarComponent: React.FC<CalendarProps> = ({ savedWorkouts }) => {
   const [assignedDays, setAssignedDays] = useState<Record<string, boolean>>({});
   const [workoutsForToday, setWorkoutsForToday] = useState<Workout[]>([]);
   const [modalWorkout, setModalWorkout] = useState<Workout | null>(null);
+  const [search, setSearch] = useState<string>('');
 
   useEffect(() => {
     // Fetch assigned workouts for the selected date
@@ -107,6 +108,11 @@ const CalendarComponent: React.FC<CalendarProps> = ({ savedWorkouts }) => {
     setWorkoutsForToday(callback);
   };
 
+  
+  const filteredWorkouts = savedWorkouts.filter(workout =>
+    workout.workoutName.toLowerCase().includes(search.toLowerCase())
+  );  
+
   const handleRemoveWorkoutFromList = (workout: Workout) => {
     removeWorkoutFromList(workout.workoutName);
 
@@ -176,18 +182,35 @@ const CalendarComponent: React.FC<CalendarProps> = ({ savedWorkouts }) => {
       </ul>
 
       <h3>Select Workouts to Assign</h3>
-      {savedWorkouts.map((workout, index) => (
-        <div key={index}>
-          <input
-            type="checkbox"
-            checked={selectedWorkouts.some(w => w.workoutName === workout.workoutName)}
-            onChange={() => handleWorkoutSelection(workout)}
-          />
-          <span>{workout.workoutName}</span>
-          <button onClick={() => handleViewWorkout(workout)}>View</button>
-          <button onClick={() => handleRemoveWorkoutFromList(workout)}>Delete</button>
-        </div>
-      ))}
+      
+      <h4>Saved Workouts</h4>
+      
+      {/* Search and List of Workouts */}
+<div>
+  <label>Search Workouts</label>
+  <input
+    type="text"
+    value={search}
+    onChange={(e) => setSearch(e.target.value)}
+  />
+</div>
+
+<ul>
+  {filteredWorkouts.map((workout, index) => (
+    <div key={index}>
+    <input
+      type="checkbox"
+      checked={selectedWorkouts.some(w => w.workoutName === workout.workoutName)}
+      onChange={() => handleWorkoutSelection(workout)}
+    />
+    <span>{workout.workoutName}</span>
+    <button onClick={() => handleViewWorkout(workout)}>View</button>
+    <button onClick={() => handleRemoveWorkoutFromList(workout)}>Delete</button>
+  </div>
+  ))}
+
+</ul>
+
 
       {selectedWorkouts.length > 0 && (
         <>
