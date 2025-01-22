@@ -17,7 +17,7 @@ const CalendarComponent: React.FC<CalendarProps> = ({ savedWorkouts }) => {
   const [workoutsForToday, setWorkoutsForToday] = useState<Workout[]>([]);
   const [modalWorkout, setModalWorkout] = useState<Workout | null>(null);
   const [search, setSearch] = useState<string>('');
-
+  
   useEffect(() => {
     // Fetch assigned workouts for the selected date
     const workouts = getWorkoutsForDate(selectedDate.toISOString().split('T')[0]);
@@ -255,7 +255,7 @@ const CalendarComponent: React.FC<CalendarProps> = ({ savedWorkouts }) => {
                 </li>
               ))}
             </ul>
-            <button onClick={() => alert('Edit workout functionality to be added.')}>Edit Workout</button>
+            {/* <button onClick={() => alert('Edit workout functionality to be added.')}>Edit Workout</button> */}
             <button onClick={() => handleRemoveWorkoutFromList(modalWorkout)}>Delete Workout</button>
             <button onClick={handleCloseModal}>Close</button>
           </div>

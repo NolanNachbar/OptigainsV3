@@ -48,6 +48,11 @@ const StartProgrammedLiftPage: React.FC = () => {
   const handleSaveWorkout = () => {
     if (workoutToday) {
       const today = new Date().toISOString().split('T')[0];
+      
+      // Check if the workout already exists in localStorage
+      const existingWorkouts = loadWorkouts();
+      const existingWorkoutIndex = existingWorkouts.findIndex(workout => workout.workoutName === workoutToday.workoutName);
+  
       const updatedWorkout: Workout = {
         ...workoutToday,
         exercises: workoutToday.exercises.map((exercise) => ({
@@ -59,13 +64,24 @@ const StartProgrammedLiftPage: React.FC = () => {
           })),
         })),
       };
-
-      saveWorkouts([...loadWorkouts(), updatedWorkout]);
+  
+      if (existingWorkoutIndex !== -1) {
+        // If workout already exists, update it
+        existingWorkouts[existingWorkoutIndex] = updatedWorkout;
+      } else {
+        // If workout doesn't exist, add it as a new workout
+        existingWorkouts.push(updatedWorkout);
+      }
+  
+      // Save updated workouts
+      saveWorkouts(existingWorkouts);
       alert('Workout saved successfully!');
     } else {
       alert('No workout to save.');
     }
   };
+  
+  
 
   return (
     <div style={{ textAlign: 'center', padding: '2rem' }}>
