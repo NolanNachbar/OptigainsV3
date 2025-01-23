@@ -46,7 +46,7 @@ const StartProgrammedLiftPage: React.FC = () => {
   };
 
   const handleAddExercise = () => {
-    if (exerciseName && sets.every(set => set.weight > 0 && set.reps > 0 && set.rir > 0)) {
+    if (exerciseName && sets.every(set => set.weight > 0 && set.reps > 0 && set.rir >= 0)) {
       const newExercise: Exercise = {
         name: exerciseName,
         sets: sets,
@@ -85,6 +85,7 @@ const StartProgrammedLiftPage: React.FC = () => {
           })),
     }));
   };
+  
 
   const handleCalculateWeight = (exerciseName: string, setIndex: number) => {
     const reps = userLog[exerciseName]?.[setIndex]?.reps || 0;
@@ -170,7 +171,8 @@ const StartProgrammedLiftPage: React.FC = () => {
 
   return (
     <div className="container">
-      <ActionBar />
+            <ActionBar />
+            <div style={{ marginTop: '60px' /* Adjust to match ActionBar height */ }}>
       <h1>Today's Workout</h1>
       {workoutToday ? (
         <>
@@ -219,7 +221,7 @@ const StartProgrammedLiftPage: React.FC = () => {
                           />
                           <input
                             type="number"
-                            value={userLog[exercise.name]?.[setIndex]?.rir || set.rir || ''}
+                            value={userLog[exercise.name]?.[setIndex]?.rir || set.rir || 0}
                             onChange={(e) =>
                               handleInputChange(exercise.name, setIndex, 'rir', Number(e.target.value))
                             }
@@ -284,7 +286,7 @@ const StartProgrammedLiftPage: React.FC = () => {
                 />
                 <input
                   type="number"
-                  value={userLog[exercise.name]?.[setIndex]?.rir || set.rir || ''}
+                  value={userLog[exercise.name]?.[setIndex]?.rir || set.rir || 0}
                   onChange={(e) =>
                     handleInputChange(exercise.name, setIndex, 'rir', Number(e.target.value))
                   }
@@ -401,6 +403,7 @@ const StartProgrammedLiftPage: React.FC = () => {
     )}
 
     <button onClick={handleSaveWorkout} className="save-btn">Save Workout</button>
+  </div>
   </div>
 );
 };
