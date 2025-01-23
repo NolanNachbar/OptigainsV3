@@ -50,7 +50,8 @@ const ExerciseLibrary: React.FC = () => {
 
   return (
     <div>
-      <ActionBar/>
+    <ActionBar />
+    <div style={{ marginTop: '60px' /* Adjust to match ActionBar height */ }}>
       <h1>Exercise Library</h1>
       <ul>
         {exercises.map((exercise, index) => (
@@ -95,8 +96,10 @@ const ExerciseLibrary: React.FC = () => {
             <p>No logs available</p>
           )}
         </div>
+        
       )}
     </div>
+  </div>
   );
 };
 

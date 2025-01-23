@@ -7,9 +7,11 @@ import {
   removeExerciseFromWorkout, 
 } from '../utils/localStorage';
 import { Workout, Exercise, Set } from '../utils/types';
+import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import ActionBar from '../components/Actionbar';
 
 const normalizeExerciseName = (name: string) => name.toUpperCase();
+
 
 const StartProgrammedLiftPage: React.FC = () => {
   const [workoutToday, setWorkoutToday] = useState<Workout | null>(null);
@@ -24,6 +26,24 @@ const StartProgrammedLiftPage: React.FC = () => {
     const workout = getWorkoutForToday(today);
     setWorkoutToday(workout);
   }, []);
+
+  const handleReorderExercises = (result: DropResult) => {
+    const { source, destination } = result;
+
+    // If there is no destination, just return
+    if (!destination) return;
+
+    // Reorder the exercises array
+    const reorderedExercises = Array.from(workoutToday?.exercises || []);
+    const [removed] = reorderedExercises.splice(source.index, 1);
+    reorderedExercises.splice(destination.index, 0, removed);
+
+    // Update the workout with the reordered exercises
+    setWorkoutToday({
+      ...workoutToday!,
+      exercises: reorderedExercises,
+    });
+  };
 
   const handleAddExercise = () => {
     if (exerciseName && sets.every(set => set.weight > 0 && set.reps > 0 && set.rir > 0)) {
@@ -149,72 +169,168 @@ const StartProgrammedLiftPage: React.FC = () => {
   };
 
   return (
-  <div className="container">
-    <ActionBar/>
-    <h1>Today's Workout</h1>
-    {workoutToday ? (
-      <>
-        <h2>{workoutToday.workoutName}</h2>
-        <div className="exercise-list">
-          {workoutToday.exercises.map((exercise, index) => (
-            <div key={index} className="exercise-card">
-              <h3>{exercise.name}</h3>
-              <ul className="set-list">
-                {exercise.sets.map((set, setIndex) => (
-                  <li key={setIndex} className="set-item">
-                    <div className="set-inputs">
-                      <input
-                        type="number"
-                        value={userLog[exercise.name]?.[setIndex]?.weight || set.weight || ''}
-                        onChange={(e) => handleInputChange(exercise.name, setIndex, 'weight', Number(e.target.value))}
-                        placeholder="Weight"
-                        className="input-field"
-                      />
-                      <input
-                        type="number"
-                        value={userLog[exercise.name]?.[setIndex]?.reps || set.reps || ''}
-                        onChange={(e) => handleInputChange(exercise.name, setIndex, 'reps', Number(e.target.value))}
-                        placeholder="Reps"
-                        className="input-field"
-                      />
-                      <input
-                        type="number"
-                        value={userLog[exercise.name]?.[setIndex]?.rir || set.rir || ''}
-                        onChange={(e) => handleInputChange(exercise.name, setIndex, 'rir', Number(e.target.value))}
-                        placeholder="RIR"
-                        className="input-field"
-                      />
-                    </div>
-                    <div className="button-group">
-                      <button
-                        onClick={() => handleCalculateWeight(exercise.name, setIndex)}
-                        className="calculate-btn"
-                      >
-                        Calculate Weight
-                      </button>
-                      <button
-                        onClick={() => handleRemoveSet(exercise.name, setIndex)}
-                        className="remove-btn"
-                      >
-                        Remove Set
-                      </button>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-              <button onClick={() => handleRemoveExercise(exercise.name)} className="remove-exercise-btn">
-                Remove Exercise
-              </button>
-            </div>
-          ))}
-        </div>
+    <div className="container">
+      <ActionBar />
+      <h1>Today's Workout</h1>
+      {workoutToday ? (
+        <>
+          <h2>{workoutToday.workoutName}</h2>
 
-        <div className="action-buttons">
-          <button onClick={() => setIsModalOpen(true)} className="action-btn">Add Exercise</button>
-          <button onClick={() => setEditing(!editing)} className="action-btn">Rearrange Exercises</button>
+          <DragDropContext onDragEnd={handleReorderExercises}>
+  {!editing ? (
+    <Droppable droppableId="exercises">
+      {(provided) => (
+        <div
+          ref={provided.innerRef}
+          {...provided.droppableProps}
+          className="exercise-list"
+        >
+          {workoutToday.exercises.map((exercise, index) => (
+            <Draggable key={exercise.name} draggableId={exercise.name} index={index}>
+              {(provided) => (
+                <div
+                  ref={provided.innerRef}
+                  {...provided.draggableProps}
+                  {...provided.dragHandleProps}
+                  className="exercise-card"
+                >
+                  <h3>{exercise.name}</h3>
+                  <ul className="set-list">
+                    {exercise.sets.map((set, setIndex) => (
+                      <li key={setIndex} className="set-item">
+                        <div className="set-inputs">
+                          <input
+                            type="number"
+                            value={userLog[exercise.name]?.[setIndex]?.weight || set.weight || ''}
+                            onChange={(e) =>
+                              handleInputChange(exercise.name, setIndex, 'weight', Number(e.target.value))
+                            }
+                            placeholder="Weight"
+                            className="input-field"
+                          />
+                          <input
+                            type="number"
+                            value={userLog[exercise.name]?.[setIndex]?.reps || set.reps || ''}
+                            onChange={(e) =>
+                              handleInputChange(exercise.name, setIndex, 'reps', Number(e.target.value))
+                            }
+                            placeholder="Reps"
+                            className="input-field"
+                          />
+                          <input
+                            type="number"
+                            value={userLog[exercise.name]?.[setIndex]?.rir || set.rir || ''}
+                            onChange={(e) =>
+                              handleInputChange(exercise.name, setIndex, 'rir', Number(e.target.value))
+                            }
+                            placeholder="RIR"
+                            className="input-field"
+                          />
+                        </div>
+                        <div className="button-group">
+                          <button
+                            onClick={() => handleCalculateWeight(exercise.name, setIndex)}
+                            className="calculate-btn"
+                          >
+                            Calculate Weight
+                          </button>
+                          <button
+                            onClick={() => handleRemoveSet(exercise.name, setIndex)}
+                            className="remove-btn"
+                          >
+                            Remove Set
+                          </button>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                  <button onClick={() => handleRemoveExercise(exercise.name)} className="remove-exercise-btn">
+                    Remove Exercise
+                  </button>
+                </div>
+              )}
+            </Draggable>
+          ))}
+          {provided.placeholder}
         </div>
-      </>
-    ) : (
+      )}
+    </Droppable>
+  ): (
+    // When not editing, just display exercises without drag-and-drop
+    workoutToday.exercises.map((exercise) => (
+      <div key={exercise.name} className="exercise-card">
+        <h3>{exercise.name}</h3>
+        <ul className="set-list">
+          {exercise.sets.map((set, setIndex) => (
+            <li key={setIndex} className="set-item">
+              <div className="set-inputs">
+                <input
+                  type="number"
+                  value={userLog[exercise.name]?.[setIndex]?.weight || set.weight || ''}
+                  onChange={(e) =>
+                    handleInputChange(exercise.name, setIndex, 'weight', Number(e.target.value))
+                  }
+                  placeholder="Weight"
+                  className="input-field"
+                />
+                <input
+                  type="number"
+                  value={userLog[exercise.name]?.[setIndex]?.reps || set.reps || ''}
+                  onChange={(e) =>
+                    handleInputChange(exercise.name, setIndex, 'reps', Number(e.target.value))
+                  }
+                  placeholder="Reps"
+                  className="input-field"
+                />
+                <input
+                  type="number"
+                  value={userLog[exercise.name]?.[setIndex]?.rir || set.rir || ''}
+                  onChange={(e) =>
+                    handleInputChange(exercise.name, setIndex, 'rir', Number(e.target.value))
+                  }
+                  placeholder="RIR"
+                  className="input-field"
+                />
+              </div>
+              <div className="button-group">
+                <button
+                  onClick={() => handleCalculateWeight(exercise.name, setIndex)}
+                  className="calculate-btn"
+                >
+                  Calculate Weight
+                </button>
+                <button
+                  onClick={() => handleRemoveSet(exercise.name, setIndex)}
+                  className="remove-btn"
+                >
+                  Remove Set
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+        <button
+          onClick={() => handleRemoveExercise(exercise.name)}
+          className="remove-exercise-btn"
+        >
+          Remove Exercise
+        </button>
+      </div>
+    ))
+  )
+  }
+</DragDropContext>
+
+
+          <div className="action-buttons">
+            <button onClick={() => setIsModalOpen(true)} className="action-btn">Add Exercise</button>
+            <button onClick={() => setEditing((editing) => !editing)} className="action-btn">
+  {editing ?  'Rearrange Exercises' : 'Finish Rearranging'}
+</button>
+
+          </div>
+        </>
+      ) : (
       <p>No workout for today.</p>
     )}
 

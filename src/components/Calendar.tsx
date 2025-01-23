@@ -61,8 +61,6 @@ const CalendarComponent: React.FC<CalendarProps> = ({ savedWorkouts }) => {
       });
     }
   };
-  
-  
 
   const handleAssignWorkoutsToDays = () => {
     const newAssignedDays = { ...assignedDays };
