@@ -169,6 +169,26 @@ const StartProgrammedLiftPage: React.FC = () => {
     }
   };
 
+  const handleAddSet = (exerciseName: string) => {
+    if (workoutToday) {
+      const updatedExercises = workoutToday.exercises.map((exercise) => {
+        if (normalizeExerciseName(exercise.name) === normalizeExerciseName(exerciseName)) {
+          return {
+            ...exercise,
+            sets: [...exercise.sets, { weight: 1, reps: 10, rir: 2 }],
+          };
+        }
+        return exercise;
+      });
+  
+      setWorkoutToday({
+        ...workoutToday,
+        exercises: updatedExercises,
+      });
+    }
+  };
+  
+
   return (
     <div className="container">
             <ActionBar />
@@ -230,12 +250,15 @@ const StartProgrammedLiftPage: React.FC = () => {
                           />
                         </div>
                         <div className="button-group">
+                        {exercise.logs && exercise.logs.length > 0 && (
                           <button
                             onClick={() => handleCalculateWeight(exercise.name, setIndex)}
                             className="calculate-btn"
                           >
                             Calculate Weight
                           </button>
+                        )}
+
                           <button
                             onClick={() => handleRemoveSet(exercise.name, setIndex)}
                             className="remove-btn"
@@ -249,6 +272,12 @@ const StartProgrammedLiftPage: React.FC = () => {
                   <button onClick={() => handleRemoveExercise(exercise.name)} className="remove-exercise-btn">
                     Remove Exercise
                   </button>
+                  <button
+                              onClick={() => handleAddSet(exercise.name)}
+                              className="add-set-btn"
+                            >
+                              Add Set
+                            </button>
                 </div>
               )}
             </Draggable>
@@ -295,12 +324,15 @@ const StartProgrammedLiftPage: React.FC = () => {
                 />
               </div>
               <div className="button-group">
+              {exercise.logs && exercise.logs.length > 0 && (
                 <button
                   onClick={() => handleCalculateWeight(exercise.name, setIndex)}
                   className="calculate-btn"
                 >
                   Calculate Weight
                 </button>
+              )}
+
                 <button
                   onClick={() => handleRemoveSet(exercise.name, setIndex)}
                   className="remove-btn"
@@ -317,6 +349,12 @@ const StartProgrammedLiftPage: React.FC = () => {
         >
           Remove Exercise
         </button>
+        <button
+            onClick={() => handleAddSet(exercise.name)}
+            className="add-set-btn"
+          >
+            Add Set
+        </button>
       </div>
     ))
   )
@@ -327,7 +365,7 @@ const StartProgrammedLiftPage: React.FC = () => {
           <div className="action-buttons">
             <button onClick={() => setIsModalOpen(true)} className="action-btn">Add Exercise</button>
             <button onClick={() => setEditing((editing) => !editing)} className="action-btn">
-  {editing ?  'Rearrange Exercises' : 'Finish Rearranging'}
+  {!editing ?  'Rearrange Exercises' : 'Finish Rearranging'}
 </button>
 
           </div>

@@ -20,8 +20,8 @@ const HomePage: React.FC = () => {
       <button
         style={{
           padding: '0.5rem 1rem',
-          backgroundColor: '#6200ea',
-          color: '#fff',
+          backgroundColor: '#000',
+          color: '#ffff',
           border: 'none',
           borderRadius: '5px',
           cursor: 'pointer',
@@ -34,7 +34,7 @@ const HomePage: React.FC = () => {
       <button
         style={{
           padding: '0.5rem 1rem',
-          backgroundColor: '#6200ea',
+          backgroundColor: '#000',
           color: '#fff',
           border: 'none',
           borderRadius: '5px',
@@ -48,7 +48,7 @@ const HomePage: React.FC = () => {
       <button
         style={{
           padding: '0.5rem 1rem',
-          backgroundColor: '#6200ea',
+          backgroundColor: '#000',
           color: '#fff',
           border: 'none',
           borderRadius: '5px',
@@ -62,7 +62,7 @@ const HomePage: React.FC = () => {
       <button
         style={{
           padding: '0.5rem 1rem',
-          backgroundColor: '#6200ea',
+          backgroundColor: '#000',
           color: '#fff',
           border: 'none',
           borderRadius: '5px',

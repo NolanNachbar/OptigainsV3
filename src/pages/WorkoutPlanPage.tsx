@@ -16,7 +16,7 @@ const WorkoutPlanPage: React.FC = () => {
   return (
     <div>
       <ActionBar />
-      <div style={{ marginTop: '60px' /* Adjust to match ActionBar height */ }}>
+      <div style={{ marginTop: '60px' }}>
         <CalendarComponent savedWorkouts={savedWorkouts} />
         <WorkoutForm setSavedWorkouts={setSavedWorkouts} />
       </div>
