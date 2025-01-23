@@ -365,7 +365,7 @@ const StartProgrammedLiftPage: React.FC = () => {
           <div className="action-buttons">
             <button onClick={() => setIsModalOpen(true)} className="action-btn">Add Exercise</button>
             <button onClick={() => setEditing((editing) => !editing)} className="action-btn">
-  {!editing ?  'Rearrange Exercises' : 'Finish Rearranging'}
+  {!editing ?  'Finish Rearranging':  'Rearrange Exercises'}
 </button>
 
           </div>
