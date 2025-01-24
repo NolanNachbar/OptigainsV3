@@ -261,7 +261,7 @@ export const preloadWorkouts = () => {
             ],
           },
           {
-            name: "Sus-machine",
+            name: "Hip Adduction",
             sets: [
               { weight: 360, reps: 10, rir: 0 },
               { weight: 275, reps: 10, rir: 3 },
