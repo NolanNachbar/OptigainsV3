@@ -174,3 +174,38 @@
     margin-bottom: 0.5rem;
     font-weight: bold;
   }
+
+
+  .floating-label-container {
+    position: relative;
+    margin-bottom: 16px;
+  }
+  
+  .input-field {
+    width: 100%;
+    padding: 8px 12px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: none;
+    outline: none;
+  }
+  
+  .input-field:focus + .floating-label,
+  .input-field:not(:placeholder-shown) + .floating-label {
+    transform: translateY(-20px);
+    font-size: 12px;
+    color: #007bff;
+  }
+  
+  .floating-label {
+    position: absolute;
+    top: 50%;
+    left: 12px;
+    transform: translateY(-50%);
+    font-size: 16px;
+    color: #aaa;
+    pointer-events: none;
+    transition: all 0.2s ease-in-out;
+  }
+  

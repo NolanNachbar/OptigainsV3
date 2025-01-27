@@ -21,42 +21,59 @@ interface EditProps {
     const [userLog, setUserLog] = useState<Record<string, Set[]>>({});
     const [editing, setEditing] = useState(true);
     const [exerciseName, setExerciseName] = useState<string>('');
-    const [sets, setSets] = useState<{ weight: number; reps: number; rir: number }[]>([{ weight: 1, reps: 10, rir: 2 }]);
+    const [sets, setSets] = useState<{ weight: number; reps: number; rir: number }[]>([{ weight: 1, reps: 10, rir: 0 }]);
     const [isModalOpen, setIsModalOpen] = useState(false);
-  
+    const [history, setHistory] = useState<Workout[]>([]);
+
     useEffect(() => {
       setWorkout(savedWorkout);
     }, [savedWorkout]);
  
-    const handleReorderExercises = (result: DropResult) => {
-        const { source, destination } = result;
-    
-        if (!destination) return;
-    
-        const reorderedExercises = Array.from(workout?.exercises || []);
-        const [removed] = reorderedExercises.splice(source.index, 1);
-        reorderedExercises.splice(destination.index, 0, removed);
-    
-        const updatedWorkout = {
-          ...workout!,
-          exercises: reorderedExercises,
-        };
-    
-        setWorkout(updatedWorkout);
-        onUpdateWorkout(updatedWorkout);
-    
-        const workouts = loadWorkouts();
-        const workoutIndex = workouts.findIndex(w => w.workoutName === updatedWorkout.workoutName);
-        if (workoutIndex !== -1) {
-          workouts[workoutIndex] = updatedWorkout;
-        } else {
-          workouts.push(updatedWorkout);
-        }
-        saveWorkouts(workouts);
-      };
+    const updateWorkoutWithHistory = (updatedWorkout: Workout) => {
+      setHistory((prevHistory) => [...prevHistory, workout!]); // Save current state to history
+      setWorkout(updatedWorkout); // Update workout state
+      onUpdateWorkout(updatedWorkout); // Update parent state
+    };
+  
+    // Undo the latest change
+    const handleUndo = () => {
+      if (history.length > 0) {
+        const previousWorkout = history[history.length - 1]; // Get the latest state from history
+        setHistory((prevHistory) => prevHistory.slice(0, -1)); // Remove the latest state from history
+        setWorkout(previousWorkout); // Restore the previous state
+        onUpdateWorkout(previousWorkout); // Update parent state
+      }
+    };
+
+ const handleReorderExercises = (result: DropResult) => {
+    const { source, destination } = result;
+
+    if (!destination) return;
+
+    const reorderedExercises = Array.from(workout?.exercises || []);
+    const [removed] = reorderedExercises.splice(source.index, 1);
+    reorderedExercises.splice(destination.index, 0, removed);
+
+    const updatedWorkout = {
+      ...workout!,
+      exercises: reorderedExercises,
+    };
+
+    updateWorkoutWithHistory(updatedWorkout);
+
+    const workouts = loadWorkouts();
+    const workoutIndex = workouts.findIndex((w) => w.workoutName === updatedWorkout.workoutName);
+    if (workoutIndex !== -1) {
+      workouts[workoutIndex] = updatedWorkout;
+    } else {
+      workouts.push(updatedWorkout);
+    }
+    saveWorkouts(workouts);
+  };
+
 
   const handleAddExercise = () => {
-    if (exerciseName && sets.every(set => set.weight > 0 && set.reps > 0 && set.rir > 0)) {
+    if (exerciseName && sets.every((set) => set.weight > 0 && set.reps > 0 && set.rir > 0)) {
       const newExercise: Exercise = {
         name: exerciseName,
         sets,
@@ -66,22 +83,19 @@ interface EditProps {
 
       const updatedWorkout = {
         ...workout!,
-        exercises: [...workout?.exercises || [], newExercise],
+        exercises: [...(workout?.exercises || []), newExercise],
       };
 
-      setWorkout(updatedWorkout);
-      onUpdateWorkout(updatedWorkout); // Call the callback to update the parent
+      updateWorkoutWithHistory(updatedWorkout);
       setExerciseName('');
       setSets([{ weight: 1, reps: 10, rir: 2 }]);
 
-      // Save to localStorage
       const workouts = loadWorkouts();
       removeWorkoutFromList(updatedWorkout.workoutName);
       workouts.push(updatedWorkout);
       saveWorkouts(workouts);
     }
   };
-  
   
   const handleInputChange = (exerciseName: string, setIndex: number, field: keyof Set, value: number) => {
     setUserLog((prev) => {
@@ -102,8 +116,6 @@ interface EditProps {
     });
   };
   
-  
-
   const handleCalculateWeight = (exerciseName: string, setIndex: number) => {
     const reps = userLog[exerciseName]?.[setIndex]?.reps || 0;
     const rir = userLog[exerciseName]?.[setIndex]?.rir || 0;
@@ -126,47 +138,35 @@ interface EditProps {
       const updatedExercises = workout.exercises.filter(
         (exercise) => normalizeExerciseName(exercise.name) !== normalizeExerciseName(exerciseName)
       );
-  
-      const updatedWorkout = { ...workout, exercises: updatedExercises };
-      setWorkout(updatedWorkout);
 
-    // Remove the existing workout if it already exists
-    removeWorkoutFromList(updatedWorkout.workoutName);
-    onUpdateWorkout(updatedWorkout);
-    // Add the updated workout to the workouts array
-    handleSaveWorkout();
+      const updatedWorkout = { ...workout, exercises: updatedExercises };
+      updateWorkoutWithHistory(updatedWorkout);
+
+      removeWorkoutFromList(updatedWorkout.workoutName);
+      onUpdateWorkout(updatedWorkout);
+      handleSaveWorkout();
     }
   };
-  
   const handleRemoveSet = (exerciseName: string, setIndex: number) => {
     if (workout) {
-      // Create a copy of the exercises array to avoid mutation
       const updatedExercises = [...workout.exercises];
       const targetExercise = updatedExercises.find(
         (exercise) => normalizeExerciseName(exercise.name) === normalizeExerciseName(exerciseName)
       );
-  
+
       if (targetExercise) {
-        // Remove the set at the specified index from the target exercise
         targetExercise.sets.splice(setIndex, 1);
-  
-        // Update the workout state with the modified exercises array
-        setWorkout({
-          ...workout,
-          exercises: updatedExercises,
-        });
-  
-        // Update the userLog state as well
+
+        const updatedWorkout = { ...workout, exercises: updatedExercises };
+        updateWorkoutWithHistory(updatedWorkout);
+
         setUserLog((prevLog) => ({
           ...prevLog,
           [exerciseName]: prevLog[exerciseName]?.filter((_, idx) => idx !== setIndex),
         }));
-      } else {
-        console.error('Exercise not found in the workout');
       }
     }
   };
-
   const handleSaveWorkout = () => {
     if (workout) {
       const today = new Date().toISOString().split('T')[0];
@@ -203,12 +203,13 @@ interface EditProps {
       const targetExercise = updatedExercises.find(
         (exercise) => normalizeExerciseName(exercise.name) === normalizeExerciseName(exerciseName)
       );
-  
+
       if (targetExercise) {
         targetExercise.sets.push({ weight: 1, reps: 10, rir: 0 });
-  
-        setWorkout({ ...workout, exercises: updatedExercises });
-  
+
+        const updatedWorkout = { ...workout, exercises: updatedExercises };
+        updateWorkoutWithHistory(updatedWorkout);
+
         setUserLog((prevLog) => {
           const updatedLog = { ...prevLog };
           if (!updatedLog[exerciseName]) {
@@ -221,8 +222,6 @@ interface EditProps {
     }
   };
   
-  
-
   return (
     <div className="container">
       <DragDropContext onDragEnd={handleReorderExercises}>
@@ -365,7 +364,6 @@ interface EditProps {
                       {exercise.logs && exercise.logs.length > 0 && (
                         <button
                           onClick={() => {
-                            alert('Calc button clicked');
                             handleCalculateWeight(exercise.name, setIndex);
                           }}
                           className="calculate-btn"
@@ -409,6 +407,10 @@ interface EditProps {
           className="action-btn"
         >
           {editing ? '🔀 Rearrange Exercises' : '✅ Finish Rearranging'}
+        </button>
+        {/* Undo Button */}
+        <button onClick={handleUndo} className="action-btn" disabled={history.length === 0}>
+          ↩️ Undo
         </button>
       </div>
   

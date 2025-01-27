@@ -17,14 +17,30 @@ const StartProgrammedLiftPage: React.FC = () => {
   const [userLog, setUserLog] = useState<Record<string, Set[]>>({});
   const [editing, setEditing] = useState(false);
   const [exerciseName, setExerciseName] = useState<string>('');
-  const [sets, setSets] = useState<{ weight: number; reps: number; rir: number }[]>([{ weight: 1, reps: 10, rir: 2 }]); // Changed to hold an array of sets
+  const [sets, setSets] = useState<{ weight: number; reps: number; rir: number }[]>([{ weight: 1, reps: 10, rir: 0 }]); // Changed to hold an array of sets
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [history, setHistory] = useState<Workout[]>([]);
+  
 
   useEffect(() => {
     const today = new Date().toISOString().split('T')[0];
     const workout = getWorkoutForToday(today);
     setWorkoutToday(workout);
   }, []);
+
+      const updateWorkoutWithHistory = (updatedWorkout: Workout) => {
+        setHistory((prevHistory) => [...prevHistory, workoutToday!]); // Save current state to history
+        setWorkoutToday(updatedWorkout); // Update workout state
+      };
+    
+      // Undo the latest change
+      const handleUndo = () => {
+        if (history.length > 0) {
+          const previousWorkout = history[history.length - 1]; // Get the latest state from history
+          setHistory((prevHistory) => prevHistory.slice(0, -1)); // Remove the latest state from history
+          setWorkoutToday(previousWorkout); // Restore the previous state
+        }
+      };
 
   const handleReorderExercises = (result: DropResult) => {
     const { source, destination } = result;
@@ -38,10 +54,12 @@ const StartProgrammedLiftPage: React.FC = () => {
     reorderedExercises.splice(destination.index, 0, removed);
 
     // Update the workout with the reordered exercises
-    setWorkoutToday({
+    const updatedWorkout = {
       ...workoutToday!,
       exercises: reorderedExercises,
-    });
+    };
+    setWorkoutToday(updatedWorkout);
+    updateWorkoutWithHistory(updatedWorkout);
   };
 
   const handleAddExercise = () => {
@@ -58,8 +76,9 @@ const StartProgrammedLiftPage: React.FC = () => {
           ...workoutToday,
           exercises: [...workoutToday.exercises, newExercise], // Add the new exercise
         };
-  
-        setWorkoutToday(updatedWorkout); // Update the state with the new workout
+
+        setWorkoutToday(updatedWorkout);
+        updateWorkoutWithHistory(updatedWorkout); // Update the state with the new workout
         setExerciseName(''); 
         setSets([{ weight: 1, reps: 10, rir: 0 }]);
         setIsModalOpen(false); // Close the modal after adding the exercise
@@ -105,7 +124,9 @@ const StartProgrammedLiftPage: React.FC = () => {
   const handleRemoveExercise = (exerciseName: string) => {
     if (workoutToday) {
       removeExerciseFromWorkout(workoutToday.workoutName, exerciseName);
-      setWorkoutToday(loadWorkouts().find((w) => w.workoutName === workoutToday.workoutName) || null);
+      const updatedWorkout = loadWorkouts().find((w) => w.workoutName === workoutToday.workoutName) || null;
+      setWorkoutToday(updatedWorkout);
+      if (updatedWorkout) updateWorkoutWithHistory(updatedWorkout);
     }
   };
 
@@ -173,7 +194,7 @@ const StartProgrammedLiftPage: React.FC = () => {
         if (normalizeExerciseName(exercise.name) === normalizeExerciseName(exerciseName)) {
           return {
             ...exercise,
-            sets: [...exercise.sets, { weight: 1, reps: 10, rir: 2 }],
+            sets: [...exercise.sets, { weight: 1, reps: 10, rir: 0 }],
           };
         }
         return exercise;
@@ -365,6 +386,10 @@ const StartProgrammedLiftPage: React.FC = () => {
             <button onClick={() => setEditing((editing) => !editing)} className="action-btn">
   {!editing ?  'Finish Rearranging':  'Rearrange Exercises'}
 </button>
+        {/* Undo Button */}
+        <button onClick={handleUndo} className="action-btn" disabled={history.length === 0}>
+          ↩️ Undo
+        </button>
 
           </div>
         </>
@@ -427,7 +452,7 @@ const StartProgrammedLiftPage: React.FC = () => {
           ))}
 
           {/* Add Set Button */}
-          <button onClick={() => setSets([...sets, { weight: 1, reps: 10, rir: 2 }])} className="add-set-btn">
+          <button onClick={() => setSets([...sets, { weight: 1, reps: 10, rir: 0 }])} className="add-set-btn">
             Add Set
           </button>
 
