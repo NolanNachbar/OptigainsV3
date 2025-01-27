@@ -1,6 +1,6 @@
-import React from 'react';
-import { calculateNextWeight } from '../utils/localStorage';
-import { Exercise } from '../utils/types';
+import React from "react";
+import { calculateNextWeight } from "../utils/localStorage";
+import { Exercise } from "../utils/types";
 
 interface CalculatorProps {
   currentWeight: number;
