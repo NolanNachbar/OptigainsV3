@@ -27,23 +27,31 @@ interface EditProps {
       setWorkout(savedWorkout);
     }, [savedWorkout]);
  
-  const handleReorderExercises = (result: DropResult) => {
-    const { source, destination } = result;
-
-    // If there is no destination, just return
-    if (!destination) return;
-
-    // Reorder the exercises array
-    const reorderedExercises = Array.from(workout?.exercises || []);
-    const [removed] = reorderedExercises.splice(source.index, 1);
-    reorderedExercises.splice(destination.index, 0, removed);
-
-    // Update the workout with the reordered exercises
-    setWorkout({
-      ...workout!,
-      exercises: reorderedExercises,
-    });
-  };
+    const handleReorderExercises = (result: DropResult) => {
+        const { source, destination } = result;
+      
+        // If there is no destination, just return
+        if (!destination) return;
+      
+        // Reorder the exercises array
+        const reorderedExercises = Array.from(workout?.exercises || []);
+        const [removed] = reorderedExercises.splice(source.index, 1);
+        reorderedExercises.splice(destination.index, 0, removed);
+      
+        // Update the workout with the reordered exercises
+        const updatedWorkout = {
+          ...workout!,
+          exercises: reorderedExercises,
+        };
+      
+        setWorkout(updatedWorkout); // Update local state
+        onUpdateWorkout(updatedWorkout); // Update parent state
+        
+        const workouts = loadWorkouts();
+        removeWorkoutFromList(updatedWorkout.workoutName);
+        workouts.push(updatedWorkout);
+        saveWorkouts(workouts);
+    };
 
   const handleAddExercise = () => {
     if (exerciseName && sets.every(set => set.weight > 0 && set.reps > 0 && set.rir > 0)) {
@@ -122,7 +130,7 @@ interface EditProps {
 
     // Remove the existing workout if it already exists
     removeWorkoutFromList(updatedWorkout.workoutName);
-
+    onUpdateWorkout(updatedWorkout);
     // Add the updated workout to the workouts array
     handleSaveWorkout();
     }
@@ -194,8 +202,6 @@ interface EditProps {
       alert('No workout to save.');
     }
   };
-  
-  
   
   const handleAddSet = (exerciseName: string) => {
     if (workout) {
@@ -393,8 +399,17 @@ interface EditProps {
 
           <div className="action-buttons">
             <button onClick={() => setIsModalOpen(true)} className="action-btn">Add Exercise</button>
-            <button onClick={() => {if (workout) {saveWorkouts([workout])}; setEditing((editing) => !editing)}} className="action-btn">
-  {editing ?  'Rearrange Exercises':'Finish Rearranging' }
+            <button
+  onClick={() => {
+    if (workout) {
+      handleSaveWorkout(); // Save the rearranged workout
+      onUpdateWorkout(workout); // Update the parent component's state
+    }
+    setEditing((editing) => !editing); // Toggle the editing state
+  }}
+  className="action-btn"
+>
+  {editing ? 'Rearrange Exercises' : 'Finish Rearranging'}
 </button>
 
           </div>
