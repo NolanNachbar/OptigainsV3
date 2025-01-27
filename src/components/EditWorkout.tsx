@@ -29,29 +29,30 @@ interface EditProps {
  
     const handleReorderExercises = (result: DropResult) => {
         const { source, destination } = result;
-      
-        // If there is no destination, just return
+    
         if (!destination) return;
-      
-        // Reorder the exercises array
+    
         const reorderedExercises = Array.from(workout?.exercises || []);
         const [removed] = reorderedExercises.splice(source.index, 1);
         reorderedExercises.splice(destination.index, 0, removed);
-      
-        // Update the workout with the reordered exercises
+    
         const updatedWorkout = {
           ...workout!,
           exercises: reorderedExercises,
         };
-      
-        setWorkout(updatedWorkout); // Update local state
-        onUpdateWorkout(updatedWorkout); // Update parent state
-        
+    
+        setWorkout(updatedWorkout);
+        onUpdateWorkout(updatedWorkout);
+    
         const workouts = loadWorkouts();
-        removeWorkoutFromList(updatedWorkout.workoutName);
-        workouts.push(updatedWorkout);
+        const workoutIndex = workouts.findIndex(w => w.workoutName === updatedWorkout.workoutName);
+        if (workoutIndex !== -1) {
+          workouts[workoutIndex] = updatedWorkout;
+        } else {
+          workouts.push(updatedWorkout);
+        }
         saveWorkouts(workouts);
-    };
+      };
 
   const handleAddExercise = () => {
     if (exerciseName && sets.every(set => set.weight > 0 && set.reps > 0 && set.rir > 0)) {
@@ -168,8 +169,7 @@ interface EditProps {
   const handleSaveWorkout = () => {
     if (workout) {
       const today = new Date().toISOString().split('T')[0];
-  
-      // Update the exercises with the user log
+
       const updatedWorkout: Workout = {
         ...workout,
         exercises: workout.exercises.map((exercise) => ({
@@ -181,22 +181,15 @@ interface EditProps {
           })),
         })),
       };
-  
-      // Load existing workouts
+
       const workouts = loadWorkouts();
-  
-      // Find and update the existing workout instead of removing it
-      const workoutIndex = workouts.findIndex(
-        (w) => w.workoutName === updatedWorkout.workoutName
-      );
-  
+      const workoutIndex = workouts.findIndex(w => w.workoutName === updatedWorkout.workoutName);
       if (workoutIndex !== -1) {
-        workouts[workoutIndex] = updatedWorkout; // Update the existing workout
+        workouts[workoutIndex] = updatedWorkout;
       } else {
-        workouts.push(updatedWorkout); // Add new workout if not found
+        workouts.push(updatedWorkout);
       }
-  
-      // Save updated workouts back to localStorage
+
       saveWorkouts(workouts);
     } else {
       alert('No workout to save.');
