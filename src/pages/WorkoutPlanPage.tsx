@@ -13,11 +13,15 @@ const WorkoutPlanPage: React.FC = () => {
     setSavedWorkouts(workouts);
   }, []);
 
+  const handleRemoveWorkout = (workout: Workout) => {
+    setSavedWorkouts(prevWorkouts => prevWorkouts.filter(w => w.workoutName !== workout.workoutName));
+  };
+
   return (
     <div>
       <ActionBar />
-      <div style={{ marginTop: '60px' }}>
-        <CalendarComponent savedWorkouts={savedWorkouts} />
+      <div style={{ marginTop: '60px' /* Adjust to match ActionBar height */ }}>
+        <CalendarComponent savedWorkouts={savedWorkouts} onRemoveWorkout={handleRemoveWorkout} />
         <WorkoutForm setSavedWorkouts={setSavedWorkouts} />
       </div>
     </div>

@@ -4,18 +4,20 @@ import 'react-calendar/dist/Calendar.css';
 import { Workout, Exercise } from '../utils/types';
 import { assignWorkoutToDate, getWorkoutsForDate, removeWorkoutFromDate, calculateNextWeight, removeWorkoutFromList} from '../utils/localStorage';
 import '../styles/CalendarComponent.css';
-
+import EditWorkoutComponent from './EditWorkout';
 interface CalendarProps {
   savedWorkouts: Workout[];
+  onRemoveWorkout: (workout: Workout) => void; // Add this line
 }
 
-const CalendarComponent: React.FC<CalendarProps> = ({ savedWorkouts }) => {
+const CalendarComponent: React.FC<CalendarProps> = ({ savedWorkouts, onRemoveWorkout }) => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedWorkouts, setSelectedWorkouts] = useState<Workout[]>([]);
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
   const [assignedDays, setAssignedDays] = useState<Record<string, boolean>>({});
   const [workoutsForToday, setWorkoutsForToday] = useState<Workout[]>([]);
   const [modalWorkout, setModalWorkout] = useState<Workout | null>(null);
+  const [editModal, setModalEdit] = useState(false);
   const [search, setSearch] = useState<string>('');
   
   useEffect(() => {
@@ -25,7 +27,11 @@ const CalendarComponent: React.FC<CalendarProps> = ({ savedWorkouts }) => {
     // Reload assigned days from localStorage when the component mounts or when workouts change
     const storedAssignedDays = JSON.parse(localStorage.getItem('assignedDays') || '{}');
     setAssignedDays(storedAssignedDays);
-  }, [selectedDate]);
+  }, [selectedDate, workoutsForToday, modalWorkout, search, savedWorkouts]);
+
+  const handleUpdateWorkout = (updatedWorkout: Workout) => {
+    setModalWorkout(updatedWorkout); // Update the modalWorkout state
+  };
 
   const handleDateChange = (date: Date) => {
     setSelectedDate(date);
@@ -81,7 +87,6 @@ const CalendarComponent: React.FC<CalendarProps> = ({ savedWorkouts }) => {
     alert(`Workouts assigned to selected days: ${selectedDays.join(', ')}`);
   };
   
-
   const handleRemoveWorkoutFromDate = (workout: Workout, date: string) => {
     // Remove workout from localStorage for that date
     removeWorkoutFromDate(workout.workoutName, date);
@@ -106,19 +111,17 @@ const CalendarComponent: React.FC<CalendarProps> = ({ savedWorkouts }) => {
     setWorkoutsForToday(callback);
   };
 
-  
   const filteredWorkouts = savedWorkouts.filter(workout =>
     workout.workoutName.toLowerCase().includes(search.toLowerCase())
-  );  
+  );
 
   const handleRemoveWorkoutFromList = (workout: Workout) => {
     removeWorkoutFromList(workout.workoutName);
-
     setSelectedWorkouts(prevWorkouts => prevWorkouts.filter(w => w.workoutName !== workout.workoutName));
     setWorkoutsForToday(prevWorkouts => prevWorkouts.filter(w => w.workoutName !== workout.workoutName));
-
-    alert(`${workout.workoutName} has been deleted.`);
+    onRemoveWorkout(workout); // Call the callback to update the parent state
   };
+  
 
   const getRecommendedWeight = (exercise: Exercise, reps: number, rir: number): number => {
     // Calculate the next weight based on reps and rir
@@ -126,7 +129,7 @@ const CalendarComponent: React.FC<CalendarProps> = ({ savedWorkouts }) => {
   
     // Calculate the adjusted reps (6-7 reps + RIR)
     const adjustedReps = reps + rir; // Make sure it's between 6-7 reps
-  
+
     // Calculate the 1RM using Epley
     const oneRm = nextWeight * (1 + 0.0333 * adjustedReps);
   
@@ -145,6 +148,7 @@ const CalendarComponent: React.FC<CalendarProps> = ({ savedWorkouts }) => {
   };
 
   const handleCloseModal = () => {
+    if (!editModal) setModalEdit((editModal) => !editModal);
     setModalWorkout(null);
   };
 
@@ -199,7 +203,7 @@ const CalendarComponent: React.FC<CalendarProps> = ({ savedWorkouts }) => {
       <h4>Saved Workouts</h4>
       
       {/* Search and List of Workouts */}
-<div>
+      <div>
   <label>Search Workouts</label>
   <input
     type="text"
@@ -210,19 +214,19 @@ const CalendarComponent: React.FC<CalendarProps> = ({ savedWorkouts }) => {
 
 <ul>
   {filteredWorkouts.map((workout, index) => (
-    <div key={index}>
-    <input
-      type="checkbox"
-      checked={selectedWorkouts.some(w => w.workoutName === workout.workoutName)}
-      onChange={() => handleWorkoutSelection(workout)}
-    />
-    <span>{workout.workoutName}</span>
-    <button onClick={() => handleViewWorkout(workout)}>View</button>
-    <button onClick={() => handleRemoveWorkoutFromList(workout)}>Delete</button>
-  </div>
+    <li key={index}>
+      <input
+        type="checkbox"
+        checked={selectedWorkouts.some(w => w.workoutName === workout.workoutName)}
+        onChange={() => handleWorkoutSelection(workout)}
+      />
+      <span>{workout.workoutName}</span>
+      <button onClick={() => handleViewWorkout(workout)}>View</button>
+      <button onClick={() => handleRemoveWorkoutFromList(workout)}>Delete</button>
+    </li>
   ))}
-
 </ul>
+
 
 
       {selectedWorkouts.length > 0 && (
@@ -247,10 +251,20 @@ const CalendarComponent: React.FC<CalendarProps> = ({ savedWorkouts }) => {
           </button>
         </>
       )}
-
+      
       {/* Modal to view workout details */}
       {modalWorkout && (
         <div className="modal">
+          {/* Modal to edit workout*/}
+      {!editModal ? (
+        <div>
+        <h2> Edit Workout </h2>
+        <EditWorkoutComponent 
+          savedWorkout={modalWorkout}  // Pass the function to update the workout in the parent
+          onUpdateWorkout={handleUpdateWorkout}
+        />
+        </div>
+      ):(
           <div className="modal-content">
             <h2>{modalWorkout.workoutName}</h2>
             <p>Type: {modalWorkout.workoutType || 'No Type'}</p>
@@ -268,10 +282,14 @@ const CalendarComponent: React.FC<CalendarProps> = ({ savedWorkouts }) => {
                 </li>
               ))}
             </ul>
+          </div>
+            )}
             {/* <button onClick={() => alert('Edit workout functionality to be added.')}>Edit Workout</button> */}
             <button onClick={() => handleRemoveWorkoutFromList(modalWorkout)}>Delete Workout</button>
+            <button onClick={() => setModalEdit((editModal) => !editModal)} className="action-btn">
+  {!editModal ?  'Finish Editing':  'Edit Exercises'}
+</button>
             <button onClick={handleCloseModal}>Close</button>
-          </div>
         </div>
       )}
     </div>

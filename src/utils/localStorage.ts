@@ -31,7 +31,6 @@ export const assignWorkoutToDate = (workoutId: string, date: string) => {
       }
     }
   };
-  
 
 // Get the workouts assigned to a specific day
 export const getWorkoutsForDate = (date: string): Workout[] => {
@@ -88,10 +87,6 @@ export const calculateNextWeight = (exercise: Exercise, reps: number, rir: numbe
     return Math.round(result / 5)*5
 };
   
-  
-  
-  
-
 export const addWorkoutWithNormalizedExercises = (workout: Workout) => {
   const workouts = loadWorkouts();
   const normalizedExercises = workout.exercises.map(newExercise => {
@@ -109,6 +104,7 @@ export const addWorkoutWithNormalizedExercises = (workout: Workout) => {
 
   saveWorkouts([...workouts, newWorkout]);
 };
+
 export const getConsolidatedExercises = (): Exercise[] => {
     const workouts = loadWorkouts();
     const allExercises: Exercise[] = workouts.flatMap(workout => workout.exercises);
@@ -136,7 +132,6 @@ export const getConsolidatedExercises = (): Exercise[] => {
     return Object.values(exerciseMap);
   };
   
-
 export const removeWorkoutFromList = (workoutId: string) => {
   const workouts = loadWorkouts();
   const updatedWorkouts = workouts.filter(workout => workout.workoutName !== workoutId);
@@ -155,8 +150,6 @@ export const editWorkout = (workoutId: string, updatedWorkout: Workout) => {
     console.warn(`Workout with ID ${workoutId} not found.`);
   }
 };
-
-
 
 // Remove an exercise from a workout
 export const removeExerciseFromWorkout = (workoutId: string, exerciseName: string) => {

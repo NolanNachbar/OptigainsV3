@@ -76,7 +76,7 @@ const WorkoutForm: React.FC<WorkoutFormProps> = ({ setSavedWorkouts }) => {
       setExercises(updatedExercises);
       setEditingIndex(null); // Clear editing mode
       setExerciseName('');
-      setSets([{ weight: 1, reps: 10, rir: 2 }]); // Reset to default set
+      setSets([{ weight: 1, reps: 10, rir: 0 }]); // Reset to default set
     } else {
       setFeedback('Please fill all fields with valid values.');
     }
@@ -168,7 +168,7 @@ const WorkoutForm: React.FC<WorkoutFormProps> = ({ setSavedWorkouts }) => {
       ))}
 
       {/* Add Set Button */}
-      <button onClick={() => setSets([...sets, { weight: 1, reps: 10, rir: 2 }])}>Add Set</button>
+      <button onClick={() => setSets([...sets, { weight: 1, reps: 10, rir: 0 }])}>Add Set</button>
 
       {/* Add Exercise Button */}
       <button onClick={handleAddExercise}>Add Exercise</button>

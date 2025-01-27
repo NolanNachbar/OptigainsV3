@@ -1,31 +1,32 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect} from 'react';
 import { 
-  getWorkoutForToday, 
   saveWorkouts, 
   calculateNextWeight, 
   loadWorkouts, 
-  removeExerciseFromWorkout, 
+  removeWorkoutFromList
 } from '../utils/localStorage';
 import { Workout, Exercise, Set } from '../utils/types';
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
-import ActionBar from '../components/Actionbar';
 
 const normalizeExerciseName = (name: string) => name.toUpperCase();
 
-const StartProgrammedLiftPage: React.FC = () => {
-  const [workoutToday, setWorkoutToday] = useState<Workout | null>(null);
-  const [userLog, setUserLog] = useState<Record<string, Set[]>>({});
-  const [editing, setEditing] = useState(false);
-  const [exerciseName, setExerciseName] = useState<string>('');
-  const [sets, setSets] = useState<{ weight: number; reps: number; rir: number }[]>([{ weight: 1, reps: 10, rir: 2 }]); // Changed to hold an array of sets
-  const [isModalOpen, setIsModalOpen] = useState(false)
+interface EditProps {
+    savedWorkout: Workout;
+    onUpdateWorkout: (updatedWorkout: Workout) => void;
+  }
 
-  useEffect(() => {
-    const today = new Date().toISOString().split('T')[0];
-    const workout = getWorkoutForToday(today);
-    setWorkoutToday(workout);
-  }, []);
-
+  const EditWorkoutComponent: React.FC<EditProps> = ({ savedWorkout, onUpdateWorkout }) => {
+    const [workout, setWorkout] = useState<Workout | null>(savedWorkout);
+    const [userLog, setUserLog] = useState<Record<string, Set[]>>({});
+    const [editing, setEditing] = useState(true);
+    const [exerciseName, setExerciseName] = useState<string>('');
+    const [sets, setSets] = useState<{ weight: number; reps: number; rir: number }[]>([{ weight: 1, reps: 10, rir: 2 }]);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+  
+    useEffect(() => {
+      setWorkout(savedWorkout);
+    }, [savedWorkout]);
+ 
   const handleReorderExercises = (result: DropResult) => {
     const { source, destination } = result;
 
@@ -33,64 +34,72 @@ const StartProgrammedLiftPage: React.FC = () => {
     if (!destination) return;
 
     // Reorder the exercises array
-    const reorderedExercises = Array.from(workoutToday?.exercises || []);
+    const reorderedExercises = Array.from(workout?.exercises || []);
     const [removed] = reorderedExercises.splice(source.index, 1);
     reorderedExercises.splice(destination.index, 0, removed);
 
     // Update the workout with the reordered exercises
-    setWorkoutToday({
-      ...workoutToday!,
+    setWorkout({
+      ...workout!,
       exercises: reorderedExercises,
     });
   };
 
   const handleAddExercise = () => {
-    if (exerciseName && sets.every(set => set.weight > 0 && set.reps > 0 && set.rir >= 0)) {
+    if (exerciseName && sets.every(set => set.weight > 0 && set.reps > 0 && set.rir > 0)) {
       const newExercise: Exercise = {
         name: exerciseName,
-        sets: sets,
-        rir: sets[0].rir, 
-        logs: [{ date: new Date().toISOString(), weight: sets[0].weight, reps: sets[0].reps, rir: sets[0].rir }],
+        sets,
+        rir: sets[0].rir,
+        logs: [],
       };
-  
-      if (workoutToday) {
-        const updatedWorkout = {
-          ...workoutToday,
-          exercises: [...workoutToday.exercises, newExercise], // Add the new exercise
-        };
-  
-        setWorkoutToday(updatedWorkout); // Update the state with the new workout
-        setExerciseName(''); 
-        setSets([{ weight: 1, reps: 10, rir: 0 }]);
-        setIsModalOpen(false); // Close the modal after adding the exercise
-      }
-    } else {
-      alert('Please fill all fields with valid values.');
+
+      const updatedWorkout = {
+        ...workout!,
+        exercises: [...workout?.exercises || [], newExercise],
+      };
+
+      setWorkout(updatedWorkout);
+      onUpdateWorkout(updatedWorkout); // Call the callback to update the parent
+      setExerciseName('');
+      setSets([{ weight: 1, reps: 10, rir: 2 }]);
+
+      // Save to localStorage
+      const workouts = loadWorkouts();
+      removeWorkoutFromList(updatedWorkout.workoutName);
+      workouts.push(updatedWorkout);
+      saveWorkouts(workouts);
     }
   };
   
+  
   const handleInputChange = (exerciseName: string, setIndex: number, field: keyof Set, value: number) => {
-    setUserLog((prev) => ({
-      ...prev,
-      [exerciseName]: prev[exerciseName]
-        ? prev[exerciseName].map((set, idx) =>
-            idx === setIndex ? { ...set, [field]: value } : set
-          )
-        : Array.from({ length: workoutToday?.exercises.find((ex) => ex.name === exerciseName)?.sets.length || 1 }, () => ({
-            weight: 0,
-            reps: 0,
-            rir: 0,
-          })),
-    }));
+    setUserLog((prev) => {
+      const updatedLog = { ...prev };
+      if (!updatedLog[exerciseName]) {
+        updatedLog[exerciseName] = workout?.exercises.find((ex) => ex.name === exerciseName)?.sets.map(() => ({
+          weight: 0,
+          reps: 0,
+          rir: 0,
+        })) || [];
+      }
+  
+      if (updatedLog[exerciseName][setIndex]) {
+        updatedLog[exerciseName][setIndex][field] = value;
+      }
+  
+      return updatedLog;
+    });
   };
+  
   
 
   const handleCalculateWeight = (exerciseName: string, setIndex: number) => {
     const reps = userLog[exerciseName]?.[setIndex]?.reps || 0;
     const rir = userLog[exerciseName]?.[setIndex]?.rir || 0;
 
-    if (workoutToday) {
-      const exercise = workoutToday.exercises.find(
+    if (workout) {
+      const exercise = workout.exercises.find(
         (ex) => normalizeExerciseName(ex.name) === normalizeExerciseName(exerciseName)
       );
       if (exercise) {
@@ -101,47 +110,61 @@ const StartProgrammedLiftPage: React.FC = () => {
       }
     }
   };
-
+  
   const handleRemoveExercise = (exerciseName: string) => {
-    if (workoutToday) {
-      removeExerciseFromWorkout(workoutToday.workoutName, exerciseName);
-      setWorkoutToday(loadWorkouts().find((w) => w.workoutName === workoutToday.workoutName) || null);
+    if (workout) {
+      const updatedExercises = workout.exercises.filter(
+        (exercise) => normalizeExerciseName(exercise.name) !== normalizeExerciseName(exerciseName)
+      );
+  
+      const updatedWorkout = { ...workout, exercises: updatedExercises };
+      setWorkout(updatedWorkout);
+
+    // Remove the existing workout if it already exists
+    removeWorkoutFromList(updatedWorkout.workoutName);
+
+    // Add the updated workout to the workouts array
+    handleSaveWorkout();
     }
   };
-
+  
   const handleRemoveSet = (exerciseName: string, setIndex: number) => {
-    if (workoutToday) {
-      const updatedExercises = workoutToday.exercises.map((exercise) => {
-        if (normalizeExerciseName(exercise.name) === normalizeExerciseName(exerciseName)) {
-          return {
-            ...exercise,
-            sets: exercise.sets.filter((_, idx) => idx !== setIndex),
-          };
-        }
-        return exercise;
-      });
+    if (workout) {
+      // Create a copy of the exercises array to avoid mutation
+      const updatedExercises = [...workout.exercises];
+      const targetExercise = updatedExercises.find(
+        (exercise) => normalizeExerciseName(exercise.name) === normalizeExerciseName(exerciseName)
+      );
   
-      setWorkoutToday({
-        ...workoutToday,
-        exercises: updatedExercises,
-      });
+      if (targetExercise) {
+        // Remove the set at the specified index from the target exercise
+        targetExercise.sets.splice(setIndex, 1);
   
-      // Update the log state as well
-      setUserLog((prevLog) => ({
-        ...prevLog,
-        [exerciseName]: prevLog[exerciseName]?.filter((_, idx) => idx !== setIndex),
-      }));
+        // Update the workout state with the modified exercises array
+        setWorkout({
+          ...workout,
+          exercises: updatedExercises,
+        });
+  
+        // Update the userLog state as well
+        setUserLog((prevLog) => ({
+          ...prevLog,
+          [exerciseName]: prevLog[exerciseName]?.filter((_, idx) => idx !== setIndex),
+        }));
+      } else {
+        console.error('Exercise not found in the workout');
+      }
     }
   };
-  
-
 
   const handleSaveWorkout = () => {
-    if (workoutToday) {
+    if (workout) {
       const today = new Date().toISOString().split('T')[0];
+  
+      // Update the exercises with the user log
       const updatedWorkout: Workout = {
-        ...workoutToday,
-        exercises: workoutToday.exercises.map((exercise) => ({
+        ...workout,
+        exercises: workout.exercises.map((exercise) => ({
           ...exercise,
           sets: userLog[exercise.name] || exercise.sets,
           logs: (userLog[exercise.name] || []).map((set) => ({
@@ -150,52 +173,59 @@ const StartProgrammedLiftPage: React.FC = () => {
           })),
         })),
       };
-
+  
+      // Load existing workouts
       const workouts = loadWorkouts();
-      const workoutIndex = workouts.findIndex((workout) => workout.workoutName === workoutToday.workoutName);
-
+  
+      // Find and update the existing workout instead of removing it
+      const workoutIndex = workouts.findIndex(
+        (w) => w.workoutName === updatedWorkout.workoutName
+      );
+  
       if (workoutIndex !== -1) {
-        workouts[workoutIndex] = updatedWorkout;
+        workouts[workoutIndex] = updatedWorkout; // Update the existing workout
       } else {
-        workouts.push(updatedWorkout);
+        workouts.push(updatedWorkout); // Add new workout if not found
       }
-
+  
+      // Save updated workouts back to localStorage
       saveWorkouts(workouts);
-      alert('Workout saved successfully!');
     } else {
       alert('No workout to save.');
     }
   };
-
-  const handleAddSet = (exerciseName: string) => {
-    if (workoutToday) {
-      const updatedExercises = workoutToday.exercises.map((exercise) => {
-        if (normalizeExerciseName(exercise.name) === normalizeExerciseName(exerciseName)) {
-          return {
-            ...exercise,
-            sets: [...exercise.sets, { weight: 1, reps: 10, rir: 2 }],
-          };
-        }
-        return exercise;
-      });
   
-      setWorkoutToday({
-        ...workoutToday,
-        exercises: updatedExercises,
-      });
+  
+  
+  const handleAddSet = (exerciseName: string) => {
+    if (workout) {
+      const updatedExercises = [...workout.exercises];
+      const targetExercise = updatedExercises.find(
+        (exercise) => normalizeExerciseName(exercise.name) === normalizeExerciseName(exerciseName)
+      );
+  
+      if (targetExercise) {
+        targetExercise.sets.push({ weight: 1, reps: 10, rir: 0 });
+  
+        setWorkout({ ...workout, exercises: updatedExercises });
+  
+        setUserLog((prevLog) => {
+          const updatedLog = { ...prevLog };
+          if (!updatedLog[exerciseName]) {
+            updatedLog[exerciseName] = [];
+          }
+          updatedLog[exerciseName].push({ weight: 1, reps: 10, rir: 0 });
+          return updatedLog;
+        });
+      }
     }
   };
+  
   
 
   return (
     <div className="container">
-            <ActionBar />
-            <div style={{ marginTop: '60px' /* Adjust to match ActionBar height */ }}>
-      <h1>Today's Workout</h1>
-      {workoutToday ? (
         <>
-          <h2>{workoutToday.workoutName}</h2>
-
           <DragDropContext onDragEnd={handleReorderExercises}>
   {!editing ? (
     <Droppable droppableId="exercises">
@@ -205,7 +235,7 @@ const StartProgrammedLiftPage: React.FC = () => {
           {...provided.droppableProps}
           className="exercise-list"
         >
-          {workoutToday.exercises.map((exercise, index) => (
+          {workout?.exercises.map((exercise, index) => (
             <Draggable key={exercise.name} draggableId={exercise.name} index={index}>
               {(provided) => (
                 <div
@@ -248,7 +278,7 @@ const StartProgrammedLiftPage: React.FC = () => {
                           />
                         </div>
                         <div className="button-group">
-                        {exercise.logs && exercise.logs.length > 0 && (
+                        {exercise.logs && exercise.logs.length > 1 && (
                           <button
                             onClick={() => handleCalculateWeight(exercise.name, setIndex)}
                             className="calculate-btn"
@@ -286,7 +316,7 @@ const StartProgrammedLiftPage: React.FC = () => {
     </Droppable>
   ): (
     // When not editing, just display exercises without drag-and-drop
-    workoutToday.exercises.map((exercise) => (
+    savedWorkout.exercises.map((exercise) => (
       <div key={exercise.name} className="exercise-card">
         <h3>{exercise.name}</h3>
         <ul className="set-list">
@@ -320,11 +350,11 @@ const StartProgrammedLiftPage: React.FC = () => {
                   placeholder="RIR"
                   className="input-field"
                 />
-              </div>
               <div className="button-group">
               {exercise.logs && exercise.logs.length > 0 && (
                 <button
-                  onClick={() => handleCalculateWeight(exercise.name, setIndex)}
+                  onClick={() =>  {alert('Calc button clicked');
+                    handleCalculateWeight(exercise.name, setIndex)}}
                   className="calculate-btn"
                 >
                   Calculate Weight
@@ -337,6 +367,7 @@ const StartProgrammedLiftPage: React.FC = () => {
                 >
                   Remove Set
                 </button>
+                </div>
               </div>
             </li>
           ))}
@@ -362,15 +393,12 @@ const StartProgrammedLiftPage: React.FC = () => {
 
           <div className="action-buttons">
             <button onClick={() => setIsModalOpen(true)} className="action-btn">Add Exercise</button>
-            <button onClick={() => setEditing((editing) => !editing)} className="action-btn">
-  {!editing ?  'Finish Rearranging':  'Rearrange Exercises'}
+            <button onClick={() => {if (workout) {saveWorkouts([workout])}; setEditing((editing) => !editing)}} className="action-btn">
+  {editing ?  'Rearrange Exercises':'Finish Rearranging' }
 </button>
 
           </div>
         </>
-      ) : (
-      <p>No workout for today.</p>
-    )}
 
     {/* Modal for Adding Exercise */}
     {isModalOpen && (
@@ -427,7 +455,7 @@ const StartProgrammedLiftPage: React.FC = () => {
           ))}
 
           {/* Add Set Button */}
-          <button onClick={() => setSets([...sets, { weight: 1, reps: 10, rir: 2 }])} className="add-set-btn">
+          <button onClick={() => setSets([...sets, { weight: 1, reps: 10, rir: 0 }])} className="add-set-btn">
             Add Set
           </button>
 
@@ -440,7 +468,7 @@ const StartProgrammedLiftPage: React.FC = () => {
 
     <button onClick={handleSaveWorkout} className="save-btn">Save Workout</button>
   </div>
-  </div>
+
 );
 };
-export default StartProgrammedLiftPage;
+export default EditWorkoutComponent;
