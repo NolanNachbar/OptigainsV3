@@ -1,51 +1,61 @@
-import React, { useState, useEffect} from 'react';
-import { 
-  saveWorkouts, 
-  calculateNextWeight, 
-  loadWorkouts, 
-  removeWorkoutFromList
-} from '../utils/localStorage';
-import '../styles/styles.css';
-import { Workout, Exercise, Set } from '../utils/types';
-import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
+import React, { useState, useEffect } from "react";
+import {
+  saveWorkouts,
+  calculateNextWeight,
+  loadWorkouts,
+  removeWorkoutFromList,
+} from "../utils/localStorage";
+import "../styles/styles.css";
+import { Workout, Exercise, Set } from "../utils/types";
+import {
+  DragDropContext,
+  Droppable,
+  Draggable,
+  DropResult,
+} from "react-beautiful-dnd";
 
 const normalizeExerciseName = (name: string) => name.toUpperCase();
 
 interface EditProps {
-    savedWorkout: Workout;
-    onUpdateWorkout: (updatedWorkout: Workout) => void;
-  }
+  savedWorkout: Workout;
+  onUpdateWorkout: (updatedWorkout: Workout) => void;
+}
 
-  const EditWorkoutComponent: React.FC<EditProps> = ({ savedWorkout, onUpdateWorkout }) => {
-    const [workout, setWorkout] = useState<Workout | null>(savedWorkout);
-    const [userLog, setUserLog] = useState<Record<string, Set[]>>({});
-    const [editing, setEditing] = useState(true);
-    const [exerciseName, setExerciseName] = useState<string>('');
-    const [sets, setSets] = useState<{ weight: number; reps: number; rir: number }[]>([{ weight: 1, reps: 10, rir: 0 }]);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [history, setHistory] = useState<Workout[]>([]);
+const EditWorkoutComponent: React.FC<EditProps> = ({
+  savedWorkout,
+  onUpdateWorkout,
+}) => {
+  const [workout, setWorkout] = useState<Workout | null>(savedWorkout);
+  const [userLog, setUserLog] = useState<Record<string, Set[]>>({});
+  const [editing, setEditing] = useState(true);
+  const [exerciseName, setExerciseName] = useState<string>("");
+  const [sets, setSets] = useState<
+    { weight: number; reps: number; rir: number }[]
+  >([{ weight: 1, reps: 10, rir: 0 }]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [history, setHistory] = useState<Workout[]>([]);
 
-    useEffect(() => {
-      setWorkout(savedWorkout);
-    }, [savedWorkout]);
- 
-    const updateWorkoutWithHistory = (updatedWorkout: Workout) => {
-      setHistory((prevHistory) => [...prevHistory, workout!]); // Save current state to history
-      setWorkout(updatedWorkout); // Update workout state
-      onUpdateWorkout(updatedWorkout); // Update parent state
-    };
-  
-    // Undo the latest change
-    const handleUndo = () => {
-      if (history.length > 0) {
-        const previousWorkout = history[history.length - 1]; // Get the latest state from history
-        setHistory((prevHistory) => prevHistory.slice(0, -1)); // Remove the latest state from history
-        setWorkout(previousWorkout); // Restore the previous state
-        onUpdateWorkout(previousWorkout); // Update parent state
-      }
-    };
+  useEffect(() => {
+    setWorkout(savedWorkout);
+  }, [savedWorkout]);
 
- const handleReorderExercises = (result: DropResult) => {
+  const updateWorkoutWithHistory = (updatedWorkout: Workout) => {
+    setHistory((prevHistory) => [...prevHistory, workout!]); // Save current state to history
+    setWorkout(updatedWorkout); // Update workout state
+    onUpdateWorkout(updatedWorkout); // Update parent state
+  };
+
+  // Undo the latest change
+  const handleUndo = () => {
+    if (history.length > 0) {
+      const previousWorkout = history[history.length - 1]; // Get the latest state from history
+      setHistory((prevHistory) => prevHistory.slice(0, -1)); // Remove the latest state from history
+      setWorkout(previousWorkout); // Restore the previous state
+      onUpdateWorkout(previousWorkout); // Update parent state
+    }
+  };
+
+  const handleReorderExercises = (result: DropResult) => {
     const { source, destination } = result;
 
     if (!destination) return;
@@ -62,7 +72,9 @@ interface EditProps {
     updateWorkoutWithHistory(updatedWorkout);
 
     const workouts = loadWorkouts();
-    const workoutIndex = workouts.findIndex((w) => w.workoutName === updatedWorkout.workoutName);
+    const workoutIndex = workouts.findIndex(
+      (w) => w.workoutName === updatedWorkout.workoutName
+    );
     if (workoutIndex !== -1) {
       workouts[workoutIndex] = updatedWorkout;
     } else {
@@ -71,9 +83,11 @@ interface EditProps {
     saveWorkouts(workouts);
   };
 
-
   const handleAddExercise = () => {
-    if (exerciseName && sets.every((set) => set.weight > 0 && set.reps > 0 && set.rir > 0)) {
+    if (
+      exerciseName &&
+      sets.every((set) => set.weight > 0 && set.reps > 0 && set.rir > 0)
+    ) {
       const newExercise: Exercise = {
         name: exerciseName,
         sets,
@@ -87,7 +101,7 @@ interface EditProps {
       };
 
       updateWorkoutWithHistory(updatedWorkout);
-      setExerciseName('');
+      setExerciseName("");
       setSets([{ weight: 1, reps: 10, rir: 2 }]);
 
       const workouts = loadWorkouts();
@@ -96,47 +110,58 @@ interface EditProps {
       saveWorkouts(workouts);
     }
   };
-  
-  const handleInputChange = (exerciseName: string, setIndex: number, field: keyof Set, value: number) => {
+
+  const handleInputChange = (
+    exerciseName: string,
+    setIndex: number,
+    field: keyof Set,
+    value: number
+  ) => {
     setUserLog((prev) => {
       const updatedLog = { ...prev };
       if (!updatedLog[exerciseName]) {
-        updatedLog[exerciseName] = workout?.exercises.find((ex) => ex.name === exerciseName)?.sets.map(() => ({
-          weight: 0,
-          reps: 0,
-          rir: 0,
-        })) || [];
+        updatedLog[exerciseName] =
+          workout?.exercises
+            .find((ex) => ex.name === exerciseName)
+            ?.sets.map(() => ({
+              weight: 0,
+              reps: 0,
+              rir: 0,
+            })) || [];
       }
-  
+
       if (updatedLog[exerciseName][setIndex]) {
         updatedLog[exerciseName][setIndex][field] = value;
       }
-  
+
       return updatedLog;
     });
   };
-  
+
   const handleCalculateWeight = (exerciseName: string, setIndex: number) => {
     const reps = userLog[exerciseName]?.[setIndex]?.reps || 0;
     const rir = userLog[exerciseName]?.[setIndex]?.rir || 0;
 
     if (workout) {
       const exercise = workout.exercises.find(
-        (ex) => normalizeExerciseName(ex.name) === normalizeExerciseName(exerciseName)
+        (ex) =>
+          normalizeExerciseName(ex.name) === normalizeExerciseName(exerciseName)
       );
       if (exercise) {
         const recommendedWeight = calculateNextWeight(exercise, reps, rir);
-        handleInputChange(exerciseName, setIndex, 'weight', recommendedWeight);
+        handleInputChange(exerciseName, setIndex, "weight", recommendedWeight);
       } else {
-        alert('Exercise not found in today’s workout.');
+        alert("Exercise not found in today’s workout.");
       }
     }
   };
-  
+
   const handleRemoveExercise = (exerciseName: string) => {
     if (workout) {
       const updatedExercises = workout.exercises.filter(
-        (exercise) => normalizeExerciseName(exercise.name) !== normalizeExerciseName(exerciseName)
+        (exercise) =>
+          normalizeExerciseName(exercise.name) !==
+          normalizeExerciseName(exerciseName)
       );
 
       const updatedWorkout = { ...workout, exercises: updatedExercises };
@@ -151,7 +176,9 @@ interface EditProps {
     if (workout) {
       const updatedExercises = [...workout.exercises];
       const targetExercise = updatedExercises.find(
-        (exercise) => normalizeExerciseName(exercise.name) === normalizeExerciseName(exerciseName)
+        (exercise) =>
+          normalizeExerciseName(exercise.name) ===
+          normalizeExerciseName(exerciseName)
       );
 
       if (targetExercise) {
@@ -162,14 +189,16 @@ interface EditProps {
 
         setUserLog((prevLog) => ({
           ...prevLog,
-          [exerciseName]: prevLog[exerciseName]?.filter((_, idx) => idx !== setIndex),
+          [exerciseName]: prevLog[exerciseName]?.filter(
+            (_, idx) => idx !== setIndex
+          ),
         }));
       }
     }
   };
   const handleSaveWorkout = () => {
     if (workout) {
-      const today = new Date().toISOString().split('T')[0];
+      const today = new Date().toISOString().split("T")[0];
 
       const updatedWorkout: Workout = {
         ...workout,
@@ -184,7 +213,9 @@ interface EditProps {
       };
 
       const workouts = loadWorkouts();
-      const workoutIndex = workouts.findIndex(w => w.workoutName === updatedWorkout.workoutName);
+      const workoutIndex = workouts.findIndex(
+        (w) => w.workoutName === updatedWorkout.workoutName
+      );
       if (workoutIndex !== -1) {
         workouts[workoutIndex] = updatedWorkout;
       } else {
@@ -193,15 +224,17 @@ interface EditProps {
 
       saveWorkouts(workouts);
     } else {
-      alert('No workout to save.');
+      alert("No workout to save.");
     }
   };
-  
+
   const handleAddSet = (exerciseName: string) => {
     if (workout) {
       const updatedExercises = [...workout.exercises];
       const targetExercise = updatedExercises.find(
-        (exercise) => normalizeExerciseName(exercise.name) === normalizeExerciseName(exerciseName)
+        (exercise) =>
+          normalizeExerciseName(exercise.name) ===
+          normalizeExerciseName(exerciseName)
       );
 
       if (targetExercise) {
@@ -221,7 +254,7 @@ interface EditProps {
       }
     }
   };
-  
+
   return (
     <div className="container">
       <DragDropContext onDragEnd={handleReorderExercises}>
@@ -234,7 +267,11 @@ interface EditProps {
                 className="exercise-list"
               >
                 {workout?.exercises.map((exercise, index) => (
-                  <Draggable key={exercise.name} draggableId={exercise.name} index={index}>
+                  <Draggable
+                    key={exercise.name}
+                    draggableId={exercise.name}
+                    index={index}
+                  >
                     {(provided) => (
                       <div
                         ref={provided.innerRef}
@@ -254,46 +291,88 @@ interface EditProps {
                         <ul className="set-list">
                           {exercise.sets.map((set, setIndex) => (
                             <li key={setIndex} className="set-item">
-                              <div className="set-inputs">
+                              <div className="floating-label-container">
                                 <input
                                   type="number"
-                                  value={userLog[exercise.name]?.[setIndex]?.weight || set.weight || ''}
-                                  onChange={(e) =>
-                                    handleInputChange(exercise.name, setIndex, 'weight', Number(e.target.value))
+                                  value={
+                                    userLog[exercise.name]?.[setIndex]
+                                      ?.weight ||
+                                    set.weight ||
+                                    ""
                                   }
-                                  placeholder="Weight"
+                                  onChange={(e) =>
+                                    handleInputChange(
+                                      exercise.name,
+                                      setIndex,
+                                      "weight",
+                                      Number(e.target.value)
+                                    )
+                                  }
+                                  placeholder=" "
                                   className="input-field"
                                 />
+                                <label className="floating-label">Weight</label>
+                              </div>
+                              <div className="floating-label-container">
                                 <input
                                   type="number"
-                                  value={userLog[exercise.name]?.[setIndex]?.reps || set.reps || ''}
-                                  onChange={(e) =>
-                                    handleInputChange(exercise.name, setIndex, 'reps', Number(e.target.value))
+                                  value={
+                                    userLog[exercise.name]?.[setIndex]?.reps ||
+                                    set.reps ||
+                                    ""
                                   }
-                                  placeholder="Reps"
+                                  onChange={(e) =>
+                                    handleInputChange(
+                                      exercise.name,
+                                      setIndex,
+                                      "reps",
+                                      Number(e.target.value)
+                                    )
+                                  }
+                                  placeholder=" "
                                   className="input-field"
                                 />
+                                <label className="floating-label">Reps</label>
+                              </div>
+                              <div className="floating-label-container">
                                 <input
                                   type="number"
-                                  value={userLog[exercise.name]?.[setIndex]?.rir || set.rir || 0}
-                                  onChange={(e) =>
-                                    handleInputChange(exercise.name, setIndex, 'rir', Number(e.target.value))
+                                  value={
+                                    userLog[exercise.name]?.[setIndex]?.rir ||
+                                    set.rir ||
+                                    0
                                   }
-                                  placeholder="RIR"
+                                  onChange={(e) =>
+                                    handleInputChange(
+                                      exercise.name,
+                                      setIndex,
+                                      "rir",
+                                      Number(e.target.value)
+                                    )
+                                  }
+                                  placeholder=" "
                                   className="input-field"
                                 />
+                                <label className="floating-label">RIR</label>
                               </div>
                               <div className="button-group">
                                 {exercise.logs && exercise.logs.length > 1 && (
                                   <button
-                                    onClick={() => handleCalculateWeight(exercise.name, setIndex)}
+                                    onClick={() =>
+                                      handleCalculateWeight(
+                                        exercise.name,
+                                        setIndex
+                                      )
+                                    }
                                     className="calculate-btn"
                                   >
                                     Calculate
                                   </button>
                                 )}
                                 <button
-                                  onClick={() => handleRemoveSet(exercise.name, setIndex)}
+                                  onClick={() =>
+                                    handleRemoveSet(exercise.name, setIndex)
+                                  }
                                   className="remove-btn"
                                 >
                                   Remove
@@ -304,7 +383,7 @@ interface EditProps {
                         </ul>
                         <button
                           onClick={() => handleAddSet(exercise.name)}
-                          className="add-set-btn"
+                          className="button"
                         >
                           ➕ Add Set
                         </button>
@@ -325,40 +404,74 @@ interface EditProps {
                   onClick={() => handleRemoveExercise(exercise.name)}
                   className="remove-exercise-btn"
                 >
-                  🗑️
+                  Remove
                 </button>
               </div>
               <ul className="set-list">
                 {exercise.sets.map((set, setIndex) => (
                   <li key={setIndex} className="set-item">
-                    <div className="set-inputs">
+                    <div className="floating-label-container">
                       <input
                         type="number"
-                        value={userLog[exercise.name]?.[setIndex]?.weight || set.weight || ''}
-                        onChange={(e) =>
-                          handleInputChange(exercise.name, setIndex, 'weight', Number(e.target.value))
+                        value={
+                          userLog[exercise.name]?.[setIndex]?.weight ||
+                          set.weight ||
+                          ""
                         }
-                        placeholder="Weight"
+                        onChange={(e) =>
+                          handleInputChange(
+                            exercise.name,
+                            setIndex,
+                            "weight",
+                            Number(e.target.value)
+                          )
+                        }
+                        placeholder=" "
                         className="input-field"
                       />
+                      <label className="floating-label">Weight</label>
+                    </div>
+                    <div className="floating-label-container">
                       <input
                         type="number"
-                        value={userLog[exercise.name]?.[setIndex]?.reps || set.reps || ''}
-                        onChange={(e) =>
-                          handleInputChange(exercise.name, setIndex, 'reps', Number(e.target.value))
+                        value={
+                          userLog[exercise.name]?.[setIndex]?.reps ||
+                          set.reps ||
+                          ""
                         }
-                        placeholder="Reps"
+                        onChange={(e) =>
+                          handleInputChange(
+                            exercise.name,
+                            setIndex,
+                            "reps",
+                            Number(e.target.value)
+                          )
+                        }
+                        placeholder=" "
                         className="input-field"
                       />
+                      <label className="floating-label">Reps</label>
+                    </div>
+                    <div className="floating-label-container">
                       <input
                         type="number"
-                        value={userLog[exercise.name]?.[setIndex]?.rir || set.rir || 0}
-                        onChange={(e) =>
-                          handleInputChange(exercise.name, setIndex, 'rir', Number(e.target.value))
+                        value={
+                          userLog[exercise.name]?.[setIndex]?.rir ||
+                          set.rir ||
+                          0
                         }
-                        placeholder="RIR"
+                        onChange={(e) =>
+                          handleInputChange(
+                            exercise.name,
+                            setIndex,
+                            "rir",
+                            Number(e.target.value)
+                          )
+                        }
+                        placeholder=" "
                         className="input-field"
                       />
+                      <label className="floating-label">RIR</label>
                     </div>
                     <div className="button-group">
                       {exercise.logs && exercise.logs.length > 0 && (
@@ -375,7 +488,7 @@ interface EditProps {
                         onClick={() => handleRemoveSet(exercise.name, setIndex)}
                         className="remove-btn"
                       >
-                        Remove
+                        🗑️
                       </button>
                     </div>
                   </li>
@@ -391,7 +504,7 @@ interface EditProps {
           ))
         )}
       </DragDropContext>
-  
+
       <div className="action-buttons">
         <button onClick={() => setIsModalOpen(true)} className="action-btn">
           ➕ Add Exercise
@@ -406,14 +519,18 @@ interface EditProps {
           }}
           className="action-btn"
         >
-          {editing ? '🔀 Rearrange Exercises' : '✅ Finish Rearranging'}
+          {editing ? "🔀 Rearrange Exercises" : "✅ Finish Rearranging"}
         </button>
         {/* Undo Button */}
-        <button onClick={handleUndo} className="action-btn" disabled={history.length === 0}>
+        <button
+          onClick={handleUndo}
+          className="action-btn"
+          disabled={history.length === 0}
+        >
           ↩️ Undo
         </button>
       </div>
-  
+
       {/* Modal for Adding Exercise */}
       {isModalOpen && (
         <div className="modal-overlay">
@@ -428,7 +545,7 @@ interface EditProps {
                 className="input-field"
               />
             </div>
-  
+
             {/* Set Details */}
             {sets.map((set, index) => (
               <div key={index} className="modal-input-group">
@@ -467,26 +584,31 @@ interface EditProps {
                 />
               </div>
             ))}
-  
+
             {/* Add Set Button */}
             <button
-              onClick={() => setSets([...sets, { weight: 1, reps: 10, rir: 0 }])}
+              onClick={() =>
+                setSets([...sets, { weight: 1, reps: 10, rir: 0 }])
+              }
               className="add-set-btn"
             >
               ➕ Add Set
             </button>
-  
+
             {/* Add Exercise Button */}
             <button onClick={handleAddExercise} className="add-exercise-btn">
               Add Exercise
             </button>
-            <button onClick={() => setIsModalOpen(false)} className="close-modal-btn">
+            <button
+              onClick={() => setIsModalOpen(false)}
+              className="close-modal-btn"
+            >
               Close
             </button>
           </div>
         </div>
       )}
-  
+
       <button onClick={handleSaveWorkout} className="save-btn">
         💾 Save Workout
       </button>

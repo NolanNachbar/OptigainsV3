@@ -15,7 +15,7 @@ const normalizeExerciseName = (name: string) => name.toUpperCase();
 const StartProgrammedLiftPage: React.FC = () => {
   const [workoutToday, setWorkoutToday] = useState<Workout | null>(null);
   const [userLog, setUserLog] = useState<Record<string, Set[]>>({});
-  const [editing, setEditing] = useState(false);
+  const [editing, setEditing] = useState(true);
   const [exerciseName, setExerciseName] = useState<string>('');
   const [sets, setSets] = useState<{ weight: number; reps: number; rir: number }[]>([{ weight: 1, reps: 10, rir: 0 }]); // Changed to hold an array of sets
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -49,17 +49,17 @@ const StartProgrammedLiftPage: React.FC = () => {
     if (!destination) return;
 
     // Reorder the exercises array
+
     const reorderedExercises = Array.from(workoutToday?.exercises || []);
     const [removed] = reorderedExercises.splice(source.index, 1);
     reorderedExercises.splice(destination.index, 0, removed);
 
-    // Update the workout with the reordered exercises
     const updatedWorkout = {
       ...workoutToday!,
       exercises: reorderedExercises,
     };
-    setWorkoutToday(updatedWorkout);
     updateWorkoutWithHistory(updatedWorkout);
+    setWorkoutToday(updatedWorkout);
   };
 
   const handleAddExercise = () => {
@@ -182,7 +182,6 @@ const StartProgrammedLiftPage: React.FC = () => {
       }
 
       saveWorkouts(workouts);
-      alert('Workout saved successfully!');
     } else {
       alert('No workout to save.');
     }
@@ -207,7 +206,6 @@ const StartProgrammedLiftPage: React.FC = () => {
     }
   };
   
-
   return (
     <div className="container">
             <ActionBar />
@@ -218,7 +216,7 @@ const StartProgrammedLiftPage: React.FC = () => {
           <h2>{workoutToday.workoutName}</h2>
 
           <DragDropContext onDragEnd={handleReorderExercises}>
-  {!editing ? (
+    {!editing ? (
     <Droppable droppableId="exercises">
       {(provided) => (
         <div
@@ -235,7 +233,15 @@ const StartProgrammedLiftPage: React.FC = () => {
                   {...provided.dragHandleProps}
                   className="exercise-card"
                 >
-                  <h3>{exercise.name}</h3>
+          <div className="exercise-header">
+          <h3>{exercise.name}</h3>
+          <button
+            onClick={() => handleRemoveExercise(exercise.name)}
+            className="remove-exercise-btn"
+          >
+            🗑️
+          </button>
+        </div>
                   <ul className="set-list">
                     {exercise.sets.map((set, setIndex) => (
                       <li key={setIndex} className="set-item">
@@ -280,7 +286,7 @@ const StartProgrammedLiftPage: React.FC = () => {
 
                           <button
                             onClick={() => handleRemoveSet(exercise.name, setIndex)}
-                            className="remove-btn"
+                            className="button"
                           >
                             Remove Set
                           </button>
@@ -288,15 +294,12 @@ const StartProgrammedLiftPage: React.FC = () => {
                       </li>
                     ))}
                   </ul>
-                  <button onClick={() => handleRemoveExercise(exercise.name)} className="remove-exercise-btn">
-                    Remove Exercise
-                  </button>
                   <button
-                              onClick={() => handleAddSet(exercise.name)}
-                              className="add-set-btn"
-                            >
-                              Add Set
-                            </button>
+                    onClick={() => handleAddSet(exercise.name)}
+                    className="button"
+                  >
+                    ➕  Add Set
+                  </button>
                 </div>
               )}
             </Draggable>
@@ -309,7 +312,15 @@ const StartProgrammedLiftPage: React.FC = () => {
     // When not editing, just display exercises without drag-and-drop
     workoutToday.exercises.map((exercise) => (
       <div key={exercise.name} className="exercise-card">
-        <h3>{exercise.name}</h3>
+          <div className="exercise-header">
+          <h3>{exercise.name}</h3>
+          <button
+            onClick={() => handleRemoveExercise(exercise.name)}
+            className="remove-exercise-btn"
+          >
+            🗑️
+          </button>
+        </div>
         <ul className="set-list">
           {exercise.sets.map((set, setIndex) => (
             <li key={setIndex} className="set-item">
@@ -363,16 +374,10 @@ const StartProgrammedLiftPage: React.FC = () => {
           ))}
         </ul>
         <button
-          onClick={() => handleRemoveExercise(exercise.name)}
-          className="remove-exercise-btn"
-        >
-          Remove Exercise
-        </button>
-        <button
             onClick={() => handleAddSet(exercise.name)}
-            className="add-set-btn"
+            className="button"
           >
-            Add Set
+           ➕  Add Set
         </button>
       </div>
     ))
@@ -380,12 +385,19 @@ const StartProgrammedLiftPage: React.FC = () => {
   }
 </DragDropContext>
 
-
           <div className="action-buttons">
-            <button onClick={() => setIsModalOpen(true)} className="action-btn">Add Exercise</button>
-            <button onClick={() => setEditing((editing) => !editing)} className="action-btn">
-  {!editing ?  'Finish Rearranging':  'Rearrange Exercises'}
-</button>
+            <button onClick={() => setIsModalOpen(true)} className="action-btn">➕  Add Exercise</button>
+            <button
+          onClick={() => {
+            if (workoutToday) {
+              handleSaveWorkout();
+            }
+            setEditing((editing) => !editing);
+          }}
+          className="action-btn"
+        >
+          {editing ? '🔀 Rearrange Exercises' : '✅ Finish Rearranging'}
+        </button>
         {/* Undo Button */}
         <button onClick={handleUndo} className="action-btn" disabled={history.length === 0}>
           ↩️ Undo
@@ -457,13 +469,13 @@ const StartProgrammedLiftPage: React.FC = () => {
           </button>
 
           {/* Add Exercise Button */}
-          <button onClick={handleAddExercise} className="add-exercise-btn">Add Exercise</button>
+          <button onClick={handleAddExercise} className="add-exercise-btn">➕ Add Exercise</button>
           <button onClick={() => setIsModalOpen(false)} className="close-modal-btn">Close</button>
         </div>
       </div>
     )}
 
-    <button onClick={handleSaveWorkout} className="save-btn">Save Workout</button>
+    <button onClick={handleSaveWorkout} className="save-btn">💾 Save Workout</button>
   </div>
   </div>
 );

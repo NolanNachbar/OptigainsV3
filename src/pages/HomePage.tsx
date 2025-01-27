@@ -15,7 +15,6 @@ const HomePage: React.FC = () => {
       <img src={OptigainDumbell} alt="Optigain Dumbell Logo" /> 
       {/* Render the SVG as an <img> tag */}
       <h1>Optigains</h1>
-      <p>The tool for optimal gains</p>
 
       <button
         style={{
