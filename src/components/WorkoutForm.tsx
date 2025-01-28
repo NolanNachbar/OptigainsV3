@@ -1,5 +1,9 @@
-import React, { useState } from "react";
-import { saveWorkouts, loadWorkouts } from "../utils/localStorage";
+import React, { useEffect, useState } from "react";
+import {
+  saveWorkouts,
+  loadWorkouts,
+  getConsolidatedExercises,
+} from "../utils/localStorage";
 import { Workout, Exercise } from "../utils/types";
 
 interface WorkoutFormProps {
@@ -11,16 +15,29 @@ const WorkoutForm: React.FC<WorkoutFormProps> = ({ setSavedWorkouts }) => {
   const [workoutType, setWorkoutType] = useState<string>("");
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [exerciseName, setExerciseName] = useState<string>("");
+  const [currentExercise, setCurrentExercise] = useState("");
+  const [suggestions, setSuggestions] = useState<string[]>([]);
   const [sets, setSets] = useState<
     { weight: number; reps: number; rir: number }[]
-  >([{ weight: 1, reps: 10, rir: 2 }]); // Changed to hold an array of sets
+  >([{ weight: 1, reps: 10, rir: 0 }]); // Changed to hold an array of sets
   const [feedback, setFeedback] = useState<string>("");
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
+
+  useEffect(() => {
+    const consolidatedExercises = getConsolidatedExercises();
+    const exerciseNames = consolidatedExercises.map((ex) => ex.name);
+    setSuggestions(exerciseNames);
+  }, []);
+
+  const handleExerciseChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCurrentExercise(e.target.value);
+    setExerciseName(e.target.value); // Update exerciseName as well
+  };
 
   const handleAddExercise = () => {
     if (
       exerciseName &&
-      sets.every((set) => set.weight > 0 && set.reps > 0 && set.rir > 0)
+      sets.every((set) => set.weight > 0 && set.reps > 0 && set.rir >= 0) // Allow rir = 0
     ) {
       const newExercise: Exercise = {
         name: exerciseName,
@@ -37,7 +54,9 @@ const WorkoutForm: React.FC<WorkoutFormProps> = ({ setSavedWorkouts }) => {
       };
       setExercises([...exercises, newExercise]);
       setExerciseName("");
-      setSets([{ weight: 1, reps: 10, rir: 2 }]); // Reset to default set
+      setCurrentExercise(""); // Clear the current exercise input
+      setSets([{ weight: 1, reps: 10, rir: 0 }]); // Reset to default set
+      setFeedback(""); // Clear feedback message
     } else {
       setFeedback("Please fill all fields with valid values.");
     }
@@ -71,6 +90,7 @@ const WorkoutForm: React.FC<WorkoutFormProps> = ({ setSavedWorkouts }) => {
   const handleEditExercise = (index: number) => {
     const exerciseToEdit = exercises[index];
     setExerciseName(exerciseToEdit.name);
+    setCurrentExercise(exerciseToEdit.name); // Set currentExercise for the input field
     setSets(exerciseToEdit.sets); // Populate sets with existing exercise data
     setEditingIndex(index);
   };
@@ -79,7 +99,7 @@ const WorkoutForm: React.FC<WorkoutFormProps> = ({ setSavedWorkouts }) => {
     if (
       editingIndex !== null &&
       exerciseName &&
-      sets.every((set) => set.weight > 0 && set.reps > 0 && set.rir > 0)
+      sets.every((set) => set.weight > 0 && set.reps > 0 && set.rir >= 0) // Allow rir = 0
     ) {
       const updatedExercise: Exercise = {
         name: exerciseName,
@@ -92,7 +112,9 @@ const WorkoutForm: React.FC<WorkoutFormProps> = ({ setSavedWorkouts }) => {
       setExercises(updatedExercises);
       setEditingIndex(null); // Clear editing mode
       setExerciseName("");
+      setCurrentExercise(""); // Clear the current exercise input
       setSets([{ weight: 1, reps: 10, rir: 0 }]); // Reset to default set
+      setFeedback(""); // Clear feedback message
     } else {
       setFeedback("Please fill all fields with valid values.");
     }
@@ -147,14 +169,30 @@ const WorkoutForm: React.FC<WorkoutFormProps> = ({ setSavedWorkouts }) => {
       </div>
 
       {/* Exercise Name */}
-      <div className="floating-label-container">
+      <div style={{ marginBottom: "2rem" }}>
         <input
           type="text"
-          value={exerciseName}
-          onChange={(e) => setExerciseName(e.target.value)}
-          placeholder=" "
+          placeholder="Search or add new exercise"
+          value={currentExercise}
+          onChange={handleExerciseChange}
+          list="exercise-suggestions"
+          style={{
+            padding: "0.5rem",
+            border: "1px solid #ddd",
+            borderRadius: "5px",
+            width: "70%",
+            marginBottom: "1rem",
+            fontSize: "1rem",
+          }}
         />
-        <span className="floating-label">Exercise Name</span>
+        <datalist id="exercise-suggestions">
+          {suggestions.map((suggestion, idx) => (
+            <option key={idx} value={suggestion} />
+          ))}
+        </datalist>
+        <button onClick={handleAddExercise} className="button action">
+          Add Exercise
+        </button>
       </div>
 
       {/* Set Details */}

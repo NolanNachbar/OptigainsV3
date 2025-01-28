@@ -5,23 +5,30 @@ import {
   getConsolidatedExercises,
   calculateNextWeight,
 } from "../utils/localStorage";
-import { Workout, Exercise } from "../utils/types";
+import { Workout, Exercise, Set } from "../utils/types";
 import ActionBar from "../components/Actionbar";
+import {
+  DragDropContext,
+  Droppable,
+  Draggable,
+  DropResult,
+} from "react-beautiful-dnd";
 
 const normalizeExerciseName = (name: string) => name.toUpperCase();
 
 const FreestyleLiftPage: React.FC = () => {
-  const [exercises, setExercises] = useState<Exercise[]>([]); // Start with empty exercises list
+  const [exercises, setExercises] = useState<Exercise[]>([]);
   const [currentExercise, setCurrentExercise] = useState("");
-  const [weight, setWeight] = useState<number | "">("");
-  const [reps, setReps] = useState<number | "">("");
-  const [rir, setRir] = useState<number | "">("");
   const [workoutName, setWorkoutName] = useState("");
-  const [suggestions, setSuggestions] = useState<string[]>([]); // Suggestions for exercise search
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [inputState, setInputState] = useState<
+    Record<string, { weight: number | ""; reps: number | ""; rir: number | "" }>
+  >({});
+  const [history, setHistory] = useState<Exercise[][]>([]);
 
   useEffect(() => {
     const consolidatedExercises = getConsolidatedExercises();
-    const exerciseNames = consolidatedExercises.map((ex) => ex.name); // Extract exercise names for suggestions
+    const exerciseNames = consolidatedExercises.map((ex) => ex.name);
     setSuggestions(exerciseNames);
   }, []);
 
@@ -34,52 +41,57 @@ const FreestyleLiftPage: React.FC = () => {
     if (normalizedExercise) {
       setExercises((prev) => [
         ...prev,
-        { name: normalizedExercise, sets: [], rir: 0 },
+        { name: normalizedExercise, sets: [], rir: -1 },
       ]);
       setCurrentExercise("");
+      setInputState((prev) => ({
+        ...prev,
+        [normalizedExercise]: { weight: "", reps: "", rir: "" },
+      }));
     }
   };
 
-  const handleAddSet = (exerciseName: string) => {
-    const normalizedExerciseName = normalizeExerciseName(exerciseName.trim());
+  const handleInputChange = (
+    exerciseName: string,
+    field: keyof Set,
+    value: number | ""
+  ) => {
+    setInputState((prev) => ({
+      ...prev,
+      [exerciseName]: { ...prev[exerciseName], [field]: value },
+    }));
+  };
 
-    if (!normalizedExerciseName || weight === "" || reps === "" || rir === "") {
-      alert("Please fill in all fields before adding a set.");
+  const handleLogSet = (exerciseName: string) => {
+    const { weight, reps, rir } = inputState[exerciseName];
+    if (weight === "" || reps === "" || rir === "") {
+      alert("Please fill in all fields before logging a set.");
       return;
     }
 
     setExercises((prevExercises) => {
-      const existingExerciseIndex = prevExercises.findIndex(
-        (exercise) =>
-          normalizeExerciseName(exercise.name) === normalizedExerciseName
+      const updatedExercises = prevExercises.map((exercise) =>
+        exercise.name === exerciseName
+          ? {
+              ...exercise,
+              sets: [
+                ...exercise.sets,
+                {
+                  weight: Number(weight),
+                  reps: Number(reps),
+                  rir: Number(rir),
+                },
+              ],
+            }
+          : exercise
       );
-
-      if (existingExerciseIndex !== -1) {
-        const updatedExercises = [...prevExercises];
-        const updatedExercise = { ...updatedExercises[existingExerciseIndex] };
-        updatedExercise.sets = [
-          ...updatedExercise.sets,
-          { weight: Number(weight), reps: Number(reps), rir: Number(rir) },
-        ];
-        updatedExercises[existingExerciseIndex] = updatedExercise;
-        return updatedExercises;
-      }
-
-      return [
-        ...prevExercises,
-        {
-          name: normalizedExerciseName,
-          sets: [
-            { weight: Number(weight), reps: Number(reps), rir: Number(rir) },
-          ],
-          rir: Number(rir),
-        },
-      ];
+      return updatedExercises;
     });
 
-    setWeight("");
-    setReps("");
-    setRir("");
+    setInputState((prev) => ({
+      ...prev,
+      [exerciseName]: { weight: "", reps: "", rir: "" },
+    }));
   };
 
   const handleSaveWorkout = () => {
@@ -118,22 +130,48 @@ const FreestyleLiftPage: React.FC = () => {
     alert("Workout saved successfully!");
   };
 
-  // Handle weight calculation for the selected exercise
   const handleCalculateWeight = (exerciseName: string) => {
+    const { reps, rir } = inputState[exerciseName];
+    if (reps === "" || rir === "") {
+      alert("Please enter valid reps and RIR values.");
+      return;
+    }
+
     const exercise = getConsolidatedExercises().find(
       (ex) =>
         normalizeExerciseName(ex.name) === normalizeExerciseName(exerciseName)
     );
 
-    if (exercise && reps && rir != "") {
+    if (exercise) {
       const calculatedWeight = calculateNextWeight(
         exercise,
         Number(reps),
         Number(rir)
       );
-      setWeight(calculatedWeight); // Update the weight for the new set
-    } else {
-      alert("Please enter valid reps and RIR values.");
+      setInputState((prev) => ({
+        ...prev,
+        [exerciseName]: { ...prev[exerciseName], weight: calculatedWeight },
+      }));
+    }
+  };
+
+  const handleReorderExercises = (result: DropResult) => {
+    const { source, destination } = result;
+    if (!destination) return;
+
+    const reorderedExercises = Array.from(exercises);
+    const [removed] = reorderedExercises.splice(source.index, 1);
+    reorderedExercises.splice(destination.index, 0, removed);
+
+    setHistory((prev) => [...prev, exercises]);
+    setExercises(reorderedExercises);
+  };
+
+  const handleUndo = () => {
+    if (history.length > 0) {
+      const previousExercises = history[history.length - 1];
+      setHistory((prev) => prev.slice(0, -1));
+      setExercises(previousExercises);
     }
   };
 
@@ -148,115 +186,136 @@ const FreestyleLiftPage: React.FC = () => {
           placeholder="Search or add new exercise"
           value={currentExercise}
           onChange={handleExerciseChange}
+          list="exercise-suggestions"
           style={{
             padding: "0.5rem",
             border: "1px solid #ddd",
             borderRadius: "5px",
             width: "70%",
             marginBottom: "1rem",
+            fontSize: "1rem",
           }}
         />
+        <datalist id="exercise-suggestions">
+          {suggestions.map((suggestion, idx) => (
+            <option key={idx} value={suggestion} />
+          ))}
+        </datalist>
         <button onClick={handleAddExercise} className="button action">
           Add Exercise
         </button>
-
-        {currentExercise && (
-          <div
-            style={{
-              marginTop: "1rem",
-              padding: "1rem",
-              border: "1px solid #ddd",
-              borderRadius: "5px",
-            }}
-          >
-            <h4>Suggestions</h4>
-            <ul>
-              {suggestions
-                .filter((name) =>
-                  name.toLowerCase().includes(currentExercise.toLowerCase())
-                )
-                .map((suggestion, idx) => (
-                  <li key={idx} onClick={() => setCurrentExercise(suggestion)}>
-                    {suggestion}
-                  </li>
-                ))}
-            </ul>
-          </div>
-        )}
       </div>
 
-      {exercises.map((exercise) => (
-        <div key={exercise.name} style={{ marginBottom: "2rem" }}>
-          <h3>{exercise.name}</h3>
-          <ul style={{ listStyle: "none", padding: 0 }}>
-            {exercise.sets.map((set, index) => (
-              <li key={index}>
-                Weight: {set.weight} lbs, Reps: {set.reps}, RIR: {set.rir}
-              </li>
-            ))}
-          </ul>
+      <DragDropContext onDragEnd={handleReorderExercises}>
+        <Droppable droppableId="exercises">
+          {(provided) => (
+            <div ref={provided.innerRef} {...provided.droppableProps}>
+              {exercises.map((exercise, index) => (
+                <Draggable
+                  key={exercise.name}
+                  draggableId={exercise.name}
+                  index={index}
+                >
+                  {(provided) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      {...provided.dragHandleProps}
+                      style={{ marginBottom: "2rem" }}
+                    >
+                      <h3>{exercise.name}</h3>
+                      <ul style={{ listStyle: "none", padding: 0 }}>
+                        {exercise.sets.map((set, idx) => (
+                          <li key={idx}>
+                            Weight: {set.weight} lbs, Reps: {set.reps}, RIR:{" "}
+                            {set.rir}
+                          </li>
+                        ))}
+                      </ul>
 
-          <div>
-            <input
-              type="number"
-              placeholder="Weight (lbs)"
-              value={weight}
-              onChange={(e) => setWeight(Number(e.target.value))}
-              style={{
-                padding: "0.5rem",
-                border: "1px solid #ddd",
-                borderRadius: "5px",
-                width: "20%",
-                marginRight: "0.5rem",
-              }}
-            />
-            <input
-              type="number"
-              placeholder="Reps"
-              value={reps}
-              onChange={(e) => setReps(Number(e.target.value))}
-              style={{
-                padding: "0.5rem",
-                border: "1px solid #ddd",
-                borderRadius: "5px",
-                width: "20%",
-                marginRight: "0.5rem",
-              }}
-            />
-            <input
-              type="number"
-              placeholder="RIR"
-              value={rir}
-              onChange={(e) => setRir(Number(e.target.value))}
-              style={{
-                padding: "0.5rem",
-                border: "1px solid #ddd",
-                borderRadius: "5px",
-                width: "20%",
-                marginRight: "0.5rem",
-              }}
-            />
-            <button
-              onClick={() => handleAddSet(exercise.name)}
-              style={{
-                padding: "0.5rem 1rem",
-                backgroundColor: "#6200ea",
-                color: "#fff",
-                border: "none",
-                borderRadius: "5px",
-              }}
-            >
-              Add Set
-            </button>
-            <button
-              onClick={() => handleCalculateWeight(exercise.name)}
-              className="button"
-            >
-              Calculate Weight
-            </button>
-          </div>
-        </div>
-      ))}
+                      <div>
+                        <input
+                          type="number"
+                          placeholder="Weight (lbs)"
+                          value={inputState[exercise.name]?.weight || ""}
+                          onChange={(e) =>
+                            handleInputChange(
+                              exercise.name,
+                              "weight",
+                              Number(e.target.value)
+                            )
+                          }
+                          style={{
+                            padding: "0.5rem",
+                            border: "1px solid #ddd",
+                            borderRadius: "5px",
+                            width: "20%",
+                            marginRight: "0.5rem",
+                            fontSize: "1rem",
+                          }}
+                        />
+                        <input
+                          type="number"
+                          placeholder="Reps"
+                          value={inputState[exercise.name]?.reps || ""}
+                          onChange={(e) =>
+                            handleInputChange(
+                              exercise.name,
+                              "reps",
+                              Number(e.target.value)
+                            )
+                          }
+                          style={{
+                            padding: "0.5rem",
+                            border: "1px solid #ddd",
+                            borderRadius: "5px",
+                            width: "20%",
+                            marginRight: "0.5rem",
+                            fontSize: "1rem",
+                          }}
+                        />
+                        <input
+                          type="number"
+                          placeholder="RIR"
+                          value={inputState[exercise.name]?.rir || ""}
+                          onChange={(e) =>
+                            handleInputChange(
+                              exercise.name,
+                              "rir",
+                              Number(e.target.value)
+                            )
+                          }
+                          style={{
+                            padding: "0.5rem",
+                            border: "1px solid #ddd",
+                            borderRadius: "5px",
+                            width: "20%",
+                            marginRight: "0.5rem",
+                            fontSize: "1rem",
+                          }}
+                        />
+                        <button
+                          onClick={() => handleLogSet(exercise.name)}
+                          className="button action"
+                        >
+                          Log Set
+                        </button>
+                        <button
+                          onClick={() => handleCalculateWeight(exercise.name)}
+                          className="button secondary"
+                        >
+                          Calculate Weight
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
+      </DragDropContext>
 
       <div style={{ marginTop: "2rem" }}>
         <input
@@ -270,10 +329,18 @@ const FreestyleLiftPage: React.FC = () => {
             borderRadius: "5px",
             width: "70%",
             marginBottom: "1rem",
+            fontSize: "1rem",
           }}
         />
-        <button onClick={handleSaveWorkout} className="button action">
+        <button onClick={handleSaveWorkout} className="button primary">
           Save Workout
+        </button>
+        <button
+          onClick={handleUndo}
+          className="button"
+          disabled={history.length === 0}
+        >
+          Undo
         </button>
       </div>
     </div>
