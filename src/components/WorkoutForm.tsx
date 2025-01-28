@@ -103,109 +103,134 @@ const WorkoutForm: React.FC<WorkoutFormProps> = ({ setSavedWorkouts }) => {
       <h3>Create a New Workout</h3>
 
       {/* Workout Name */}
-      <div>
-        <label>Workout Name</label>
+      <div className="floating-label-container">
         <input
           type="text"
           value={workoutName}
           onChange={(e) => setWorkoutName(e.target.value)}
+          placeholder=" "
         />
+        <span className="floating-label">Workout Name</span>
       </div>
 
       {/* Workout Type */}
-      <div>
-        <label>Workout Type (e.g., Push, Pull)</label>
+      <div className="floating-label-container">
         <input
           type="text"
           value={workoutType}
           onChange={(e) => setWorkoutType(e.target.value)}
+          placeholder=" "
         />
+        <span className="floating-label">Workout Type (e.g., Push, Pull)</span>
       </div>
 
       <h4>Exercises</h4>
 
       {/* List of Exercises Added */}
-      <div>
+      <div className="exercise-list">
         {exercises.map((exercise, index) => (
-          <div key={index}>
+          <div key={index} className="exercise-card">
             <p>
               {index + 1}. {exercise.name} - {exercise.sets.length} sets
               (Weight:{" "}
-              {exercise.sets.map((set) => `${set.weight}kg`).join(", ")}, Reps:{" "}
+              {exercise.sets.map((set) => `${set.weight}lbs`).join(", ")}, Reps:{" "}
               {exercise.sets.map((set) => `${set.reps}`).join(", ")})
+            </p>
+            <div className="exercise-actions">
               <button onClick={() => handleEditExercise(index)}>Edit</button>
               <button onClick={() => handleDeleteExercise(index)}>
                 Delete
               </button>
-            </p>
+            </div>
           </div>
         ))}
       </div>
 
       {/* Exercise Name */}
-      <div>
-        <label>Exercise Name: </label>
+      <div className="floating-label-container">
         <input
           type="text"
           value={exerciseName}
           onChange={(e) => setExerciseName(e.target.value)}
+          placeholder=" "
         />
+        <span className="floating-label">Exercise Name</span>
       </div>
 
       {/* Set Details */}
       {sets.map((set, index) => (
-        <div key={index}>
-          <label>Set {index + 1} - Weight: </label>
-          <input
-            type="number"
-            value={set.weight}
-            onChange={(e) => {
-              const updatedSets = [...sets];
-              updatedSets[index].weight = Number(e.target.value);
-              setSets(updatedSets);
-            }}
-          />
-          <label> Reps: </label>
-          <input
-            type="number"
-            value={set.reps}
-            onChange={(e) => {
-              const updatedSets = [...sets];
-              updatedSets[index].reps = Number(e.target.value);
-              setSets(updatedSets);
-            }}
-          />
-          <label> RIR: </label>
-          <input
-            type="number"
-            value={set.rir}
-            onChange={(e) => {
-              const updatedSets = [...sets];
-              updatedSets[index].rir = Number(e.target.value);
-              setSets(updatedSets);
-            }}
-          />
+        <div key={index} className="set-container">
+          <div className="floating-label-container">
+            <input
+              type="number"
+              value={set.weight}
+              onChange={(e) => {
+                const updatedSets = [...sets];
+                updatedSets[index].weight = Number(e.target.value);
+                setSets(updatedSets);
+              }}
+              placeholder=" "
+            />
+            <span className="floating-label">
+              Set {index + 1} - Weight (lbs)
+            </span>
+          </div>
+          <div className="floating-label-container">
+            <input
+              type="number"
+              value={set.reps}
+              onChange={(e) => {
+                const updatedSets = [...sets];
+                updatedSets[index].reps = Number(e.target.value);
+                setSets(updatedSets);
+              }}
+              placeholder=" "
+            />
+            <span className="floating-label">Reps</span>
+          </div>
+          <div className="floating-label-container">
+            <input
+              type="number"
+              value={set.rir}
+              onChange={(e) => {
+                const updatedSets = [...sets];
+                updatedSets[index].rir = Number(e.target.value);
+                setSets(updatedSets);
+              }}
+              placeholder=" "
+            />
+            <span className="floating-label">RIR</span>
+          </div>
         </div>
       ))}
 
       {/* Add Set Button */}
       <button
         onClick={() => setSets([...sets, { weight: 1, reps: 10, rir: 0 }])}
+        className="button primary"
       >
         Add Set
       </button>
 
       {/* Add Exercise Button */}
-      <button onClick={handleAddExercise}>Add Exercise</button>
-      {feedback && <p>{feedback}</p>}
+      <button onClick={handleAddExercise} className="button primary">
+        Add Exercise
+      </button>
+
+      {/* Feedback Message */}
+      {feedback && <p className="feedback">{feedback}</p>}
 
       {/* Update Exercise Button (only shows when editing) */}
       {editingIndex !== null && (
-        <button onClick={handleUpdateExercise}>Update Exercise</button>
+        <button onClick={handleUpdateExercise} className="button secondary">
+          Update Exercise
+        </button>
       )}
 
       {/* Save Workout Button */}
-      <button onClick={handleSaveWorkout}>Save Workout</button>
+      <button onClick={handleSaveWorkout} className="button save">
+        Save Workout
+      </button>
     </div>
   );
 };

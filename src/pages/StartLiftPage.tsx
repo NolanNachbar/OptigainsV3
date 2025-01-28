@@ -15,47 +15,23 @@ const StartLiftPage: React.FC = () => {
   }, []);
 
   return (
-    <div style={{ textAlign: "center", padding: "2rem" }}>
+    <div style={{ textAlign: "center", padding: "4rem" }}>
       <ActionBar />
       <h2>Start Your Lift</h2>
-      <button
-        style={{
-          padding: "0.5rem 1rem",
-          backgroundColor: "#000",
-          color: "#fff",
-          border: "none",
-          borderRadius: "5px",
-          margin: "1rem",
-        }}
-        onClick={() => navigate("/weight-log")}
-      >
+      <button onClick={() => navigate("/weight-log")} className="button action">
         Weigh In
       </button>
       <button
-        style={{
-          padding: "0.5rem 1rem",
-          backgroundColor: "#000",
-          color: "#fff",
-          border: "none",
-          borderRadius: "5px",
-          margin: "1rem",
-        }}
         onClick={() => navigate("/freestyle-lift")}
+        className="button action"
       >
         Start Freestyle Lift
       </button>
 
       {workoutToday ? (
         <button
-          style={{
-            padding: "0.5rem 1rem",
-            backgroundColor: "#000",
-            color: "#fff",
-            border: "none",
-            borderRadius: "5px",
-            margin: "1rem",
-          }}
           onClick={() => navigate("/start-programmed-lift")}
+          className="button action"
         >
           Start Programmed Lift
         </button>

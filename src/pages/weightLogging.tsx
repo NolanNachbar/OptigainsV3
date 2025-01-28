@@ -102,24 +102,25 @@ const WeightLibrary: React.FC = () => {
             placeholder="Enter weight"
             style={{ marginRight: "10px" }}
           />
-          <button onClick={handleAddWeight}>Log Weight</button>
+          <button onClick={handleAddWeight} className="button action">
+            Log Weight
+          </button>
         </div>
 
         {weights.length > 0 && (
           <>
             <h2>Progress</h2>
             <Line data={getProgressData()} />
+            <h2>Weigh-in History</h2>
+            <ul>
+              {weights.map((weight, index) => (
+                <li key={index}>
+                  {weight.date}: {weight.weight} lbs
+                </li>
+              ))}
+            </ul>
           </>
         )}
-
-        <h2>Weigh-in History</h2>
-        <ul>
-          {weights.map((weight, index) => (
-            <li key={index}>
-              {weight.date}: {weight.weight} lbs
-            </li>
-          ))}
-        </ul>
       </div>
     </div>
   );

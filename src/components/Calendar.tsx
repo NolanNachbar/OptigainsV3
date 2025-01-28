@@ -245,33 +245,50 @@ const CalendarComponent: React.FC<CalendarProps> = ({
       <h4>Saved Workouts</h4>
 
       {/* Search and List of Workouts */}
-      <div>
-        <label>Search Workouts</label>
-        <input
-          type="text"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+      <div className="workout-container">
+        <h4>Saved Workouts</h4>
+        <div>
+          <label>Search Workouts</label>
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+        <div className="workout-scroll-container">
+          <ul className="workout-list">
+            {filteredWorkouts.map((workout, index) => (
+              <li key={index} className="workout-card">
+                <div className="workout-info">
+                  <input
+                    type="checkbox"
+                    checked={selectedWorkouts.some(
+                      (w) => w.workoutName === workout.workoutName
+                    )}
+                    onChange={() => handleWorkoutSelection(workout)}
+                    className="workout-checkbox"
+                  />
+                  <span className="workout-name">{workout.workoutName}</span>
+                </div>
+                <div className="workout-actions">
+                  <button
+                    onClick={() => handleViewWorkout(workout)}
+                    className="button action view-button"
+                  >
+                    View
+                  </button>
+                  <button
+                    onClick={() => handleRemoveWorkoutFromList(workout)}
+                    className="button action delete-button"
+                  >
+                    🗑️ Delete
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
-
-      <ul>
-        {filteredWorkouts.map((workout, index) => (
-          <li key={index}>
-            <input
-              type="checkbox"
-              checked={selectedWorkouts.some(
-                (w) => w.workoutName === workout.workoutName
-              )}
-              onChange={() => handleWorkoutSelection(workout)}
-            />
-            <span>{workout.workoutName}</span>
-            <button onClick={() => handleViewWorkout(workout)}>View</button>
-            <button onClick={() => handleRemoveWorkoutFromList(workout)}>
-              Delete
-            </button>
-          </li>
-        ))}
-      </ul>
 
       {selectedWorkouts.length > 0 && (
         <>

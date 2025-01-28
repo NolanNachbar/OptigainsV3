@@ -17,57 +17,26 @@ const HomePage: React.FC = () => {
       <h1>Optigains</h1>
 
       <button
-        style={{
-          padding: "0.5rem 1rem",
-          backgroundColor: "#000",
-          color: "#ffff",
-          border: "none",
-          borderRadius: "5px",
-          cursor: "pointer",
-        }}
         onClick={() => navigate("/workout-plan")}
+        className="button primary"
       >
         Workout Plan
       </button>
 
       <button
-        style={{
-          padding: "0.5rem 1rem",
-          backgroundColor: "#000",
-          color: "#fff",
-          border: "none",
-          borderRadius: "5px",
-          cursor: "pointer",
-        }}
         onClick={() => navigate("/start-lift")}
+        className="button primary"
       >
         Check In
       </button>
 
-      <button
-        style={{
-          padding: "0.5rem 1rem",
-          backgroundColor: "#000",
-          color: "#fff",
-          border: "none",
-          borderRadius: "5px",
-          cursor: "pointer",
-        }}
-        onClick={() => navigate("/calc-page")}
-      >
+      <button onClick={() => navigate("/calc-page")} className="button primary">
         Weight Calculator
       </button>
 
       <button
-        style={{
-          padding: "0.5rem 1rem",
-          backgroundColor: "#000",
-          color: "#fff",
-          border: "none",
-          borderRadius: "5px",
-          cursor: "pointer",
-        }}
         onClick={() => navigate("/library-page")}
+        className="button primary"
       >
         Exercise Library
       </button>

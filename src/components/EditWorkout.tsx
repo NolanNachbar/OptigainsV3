@@ -486,7 +486,7 @@ const EditWorkoutComponent: React.FC<EditProps> = ({
                       )}
                       <button
                         onClick={() => handleRemoveSet(exercise.name, setIndex)}
-                        className="remove-btn"
+                        className="button"
                       >
                         🗑️
                       </button>
@@ -496,7 +496,7 @@ const EditWorkoutComponent: React.FC<EditProps> = ({
               </ul>
               <button
                 onClick={() => handleAddSet(exercise.name)}
-                className="add-set-btn"
+                className="button"
               >
                 ➕ Add Set
               </button>

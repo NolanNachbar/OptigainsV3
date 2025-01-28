@@ -68,6 +68,10 @@ const StartProgrammedLiftPage: React.FC = () => {
     setWorkoutToday(updatedWorkout);
   };
 
+  // const handleExerciseChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   setCurrentExercise(e.target.value);
+  // };
+
   const handleAddExercise = () => {
     if (
       exerciseName &&

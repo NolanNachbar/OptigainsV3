@@ -1,21 +1,25 @@
 /* Global styles */
 :root {
-  --background: #1e1e1e; /* Dark background */
-  --text: #e0e0e0; /* Light text */
-  --primary: #4caf50; /* Primary color (green) */
-  --secondary: #2196f3; /* Secondary color (blue) */
-  --danger: #f44336; /* Danger color (red) */
-  --border: #333; /* Border color */
-  --card-background: #2a2a2a; /* Card background */
-  --input-background: #333; /* Input background */
-  --input-text: #e0e0e0; /* Input text */
-  --shadow: rgba(0, 0, 0, 0.5); /* Shadow color */
+  --background: #121212; /* Darker background */
+  --text: #c0c0c0; /* Slightly lighter text */
+  --primary: #007bff; /* Navy blue */
+  --secondary: #001f3f; /* Bright blue */
+  --danger: #dc3545; /* Red */
+  --border: #222; /* Darker border */
+  --card-background: #181818; /* Darker card background */
+  --input-background: #222; /* Darker input background */
+  --input-text: #c0c0c0; /* Input text */
+  --shadow: rgba(0, 0, 0, 0.7); /* Slightly darker shadow */
 }
 
 body {
-  background-color: var(--background);
-  color: var(--text);
-  font-family: "Arial", sans-serif;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: var(--background); /* Set background color */
 }
 
 .container {
@@ -123,13 +127,14 @@ h2 {
 }
 
 .button.primary {
-  background-color: var(--primary);
-  color: rgba(255, 255, 255, 0.015);
+  background-color: var(--secondary);
+  /* color: rgba(255, 255, 255, 0.015); */
+  color: rgb(255, 255, 255);
 }
 
 .button.secondary {
   background-color: var(--secondary);
-  color: white;
+  color: rgba(255, 255, 255, 0);
 }
 
 .button.danger {
@@ -209,13 +214,158 @@ h2 {
   color: #c2c2c2;
 }
 
+/* Floating Label Container */
+.floating-label-container {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.floating-label-container input {
+  width: 100%;
+  padding: 10px 10px 10px 5px;
+  display: block;
+  border: none;
+  border-bottom: 2px solid var(--border);
+  background: transparent;
+  outline: none;
+  font-size: 16px;
+  color: var(--text);
+}
+
+.floating-label-container input:focus ~ .floating-label,
+.floating-label-container input:not(:placeholder-shown) ~ .floating-label {
+  top: -20px;
+  font-size: 12px;
+  color: var(--primary);
+}
+
 .floating-label {
   position: absolute;
-  top: 50%;
-  left: 12px;
-  transform: translateY(-50%);
+  top: 10px;
+  left: 5px;
   font-size: 16px;
-  color: #aaa;
+  color: var(--text);
   pointer-events: none;
   transition: all 0.2s ease-in-out;
+}
+
+/* Set Container */
+.set-container {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* Workout Container */
+.workout-container {
+  max-width: 400px; /* Narrower container */
+  width: 100%;
+  margin: 1rem auto;
+  padding: 1rem;
+  background-color: var(--card-background);
+  border-radius: 8px;
+  box-shadow: 0 2px 4px var(--shadow);
+}
+
+/* Scrollable Workout List */
+.workout-scroll-container {
+  max-height: 300px; /* Fixed height for scrollable area */
+  overflow-y: auto; /* Enable vertical scrolling */
+  margin-top: 1rem;
+  padding-right: 0.5rem; /* Add padding to avoid overlap with scrollbar */
+}
+
+/* Workout List */
+.workout-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Workout Card */
+.workout-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--input-background);
+  padding: 0.75rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px var(--shadow);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.workout-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px var(--shadow);
+}
+
+.workout-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.workout-checkbox {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.workout-name {
+  font-size: 0.9rem;
+  color: var(--text);
+}
+
+.workout-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.button.action {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.view-button {
+  background-color: var(--secondary);
+  color: white;
+}
+
+.delete-button {
+  background-color: var(--danger);
+  color: white;
+}
+
+.button.action:hover {
+  opacity: 0.9;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .workout-container {
+    max-width: 100%; /* Full width on mobile */
+    padding: 0.5rem;
+  }
+
+  .workout-scroll-container {
+    max-height: 200px; /* Smaller scrollable area on mobile */
+  }
+
+  .workout-card {
+    padding: 0.5rem;
+  }
+
+  .workout-name {
+    font-size: 0.8rem;
+  }
+
+  .button.action {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.8rem;
+  }
 }
