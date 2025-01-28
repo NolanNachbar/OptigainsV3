@@ -277,7 +277,7 @@ const FreestyleLiftPage: React.FC = () => {
                         <input
                           type="number"
                           placeholder="RIR"
-                          value={inputState[exercise.name]?.rir || ""}
+                          value={inputState[exercise.name]?.rir || undefined}
                           onChange={(e) =>
                             handleInputChange(
                               exercise.name,
