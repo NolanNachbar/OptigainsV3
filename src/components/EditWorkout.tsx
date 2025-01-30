@@ -102,6 +102,17 @@ const EditWorkoutComponent: React.FC<EditProps> = ({
 
       updateWorkoutWithHistory(updatedWorkout);
 
+      // Initialize userLog for the new exercise
+      setUserLog((prevLog) => {
+        const updatedLog = { ...prevLog };
+        updatedLog[exerciseName] = sets.map(() => ({
+          weight: 1,
+          reps: 10,
+          rir: 0,
+        }));
+        return updatedLog;
+      });
+
       onUpdateWorkout(updatedWorkout);
       handleSaveWorkout();
       setExerciseName("");
@@ -114,23 +125,6 @@ const EditWorkoutComponent: React.FC<EditProps> = ({
       setIsModalOpen(false);
     }
   };
-
-  // const handleRemoveExercise = (exerciseName: string) => {
-  //   if (workout) {
-  //     const updatedExercises = workout.exercises.filter(
-  //       (exercise) =>
-  //         normalizeExerciseName(exercise.name) !==
-  //         normalizeExerciseName(exerciseName)
-  //     );
-
-  //     const updatedWorkout = { ...workout, exercises: updatedExercises };
-  //     updateWorkoutWithHistory(updatedWorkout);
-
-  //     removeWorkoutFromList(updatedWorkout.workoutName);
-  //     onUpdateWorkout(updatedWorkout);
-  //     handleSaveWorkout();
-  //   }
-  // };
 
   const handleInputChange = (
     exerciseName: string,

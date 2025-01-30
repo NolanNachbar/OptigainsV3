@@ -429,13 +429,13 @@ export const preloadWorkouts = () => {
         {
           name: "Leg Press",
           sets: [
-            { weight: 755, reps: 3, rir: 0 },
-            { weight: 580, reps: 10, rir: 0 },
+            { weight: 45, reps: 3, rir: 0 },
+            { weight: 35, reps: 10, rir: 0 },
           ],
           rir: 0,
           logs: [
-            { date: "2025-01-16", weight: 755, reps: 3, rir: 0 },
-            { date: "2025-01-10", weight: 580, reps: 10, rir: 0 },
+            { date: "2025-01-16", weight: 45, reps: 3, rir: 0 },
+            { date: "2025-01-10", weight: 35, reps: 10, rir: 0 },
           ],
         },
         {
@@ -513,12 +513,12 @@ export const preloadWorkouts = () => {
         {
           name: "Squat",
           sets: [
-            { weight: 225, reps: 15, rir: -1 },
+            { weight: 225, reps: 15, rir: 0 },
             { weight: 290, reps: 3, rir: 0 },
           ],
-          rir: -1,
+          rir: 0,
           logs: [
-            { date: "2025-01-16", weight: 225, reps: 15, rir: -1 },
+            { date: "2025-01-16", weight: 225, reps: 15, rir: 0 },
             { date: "2025-01-16", weight: 290, reps: 3, rir: 0 },
           ],
         },
