@@ -112,7 +112,7 @@ const StartProgrammedLiftPage: React.FC = () => {
     exerciseName: string,
     setIndex: number,
     field: keyof Set,
-    value: number
+    value: string
   ) => {
     setUserLog((prev) => ({
       ...prev,
@@ -136,8 +136,8 @@ const StartProgrammedLiftPage: React.FC = () => {
   };
 
   const handleCalculateWeight = (exerciseName: string, setIndex: number) => {
-    const reps = userLog[exerciseName]?.[setIndex]?.reps || 0;
-    const rir = userLog[exerciseName]?.[setIndex]?.rir || 0;
+    const reps = Number(userLog[exerciseName]?.[setIndex]?.reps || 0);
+    const rir = Number(userLog[exerciseName]?.[setIndex]?.rir || 0);
 
     if (workoutToday) {
       const exercise = workoutToday.exercises.find(
@@ -145,8 +145,17 @@ const StartProgrammedLiftPage: React.FC = () => {
           normalizeExerciseName(ex.name) === normalizeExerciseName(exerciseName)
       );
       if (exercise) {
-        const recommendedWeight = calculateNextWeight(exercise, reps, rir);
-        handleInputChange(exerciseName, setIndex, "weight", recommendedWeight);
+        const recommendedWeight = calculateNextWeight(
+          exercise,
+          Number(reps),
+          Number(rir)
+        );
+        handleInputChange(
+          exerciseName,
+          setIndex,
+          "weight",
+          String(recommendedWeight)
+        );
       } else {
         alert("Exercise not found in today’s workout.");
       }
@@ -308,7 +317,7 @@ const StartProgrammedLiftPage: React.FC = () => {
                                             exercise.name,
                                             setIndex,
                                             "weight",
-                                            Number(e.target.value)
+                                            e.target.value
                                           )
                                         }
                                         placeholder="Weight"
@@ -327,7 +336,7 @@ const StartProgrammedLiftPage: React.FC = () => {
                                             exercise.name,
                                             setIndex,
                                             "reps",
-                                            Number(e.target.value)
+                                            e.target.value
                                           )
                                         }
                                         placeholder="Reps"
@@ -346,7 +355,7 @@ const StartProgrammedLiftPage: React.FC = () => {
                                             exercise.name,
                                             setIndex,
                                             "rir",
-                                            Number(e.target.value)
+                                            e.target.value
                                           )
                                         }
                                         placeholder="RIR"
@@ -427,7 +436,7 @@ const StartProgrammedLiftPage: React.FC = () => {
                                   exercise.name,
                                   setIndex,
                                   "weight",
-                                  Number(e.target.value)
+                                  e.target.value
                                 )
                               }
                               placeholder="Weight"
@@ -445,7 +454,7 @@ const StartProgrammedLiftPage: React.FC = () => {
                                   exercise.name,
                                   setIndex,
                                   "reps",
-                                  Number(e.target.value)
+                                  e.target.value
                                 )
                               }
                               placeholder="Reps"
@@ -463,7 +472,7 @@ const StartProgrammedLiftPage: React.FC = () => {
                                   exercise.name,
                                   setIndex,
                                   "rir",
-                                  Number(e.target.value)
+                                  e.target.value
                                 )
                               }
                               placeholder="RIR"

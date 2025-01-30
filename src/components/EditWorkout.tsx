@@ -136,7 +136,7 @@ const EditWorkoutComponent: React.FC<EditProps> = ({
     exerciseName: string,
     setIndex: number,
     field: keyof Set,
-    value: number
+    value: string
   ) => {
     setUserLog((prev) => {
       const updatedLog = { ...prev };
@@ -152,7 +152,7 @@ const EditWorkoutComponent: React.FC<EditProps> = ({
       }
 
       if (updatedLog[exerciseName][setIndex]) {
-        updatedLog[exerciseName][setIndex][field] = value;
+        updatedLog[exerciseName][setIndex][field] = Number(value);
       }
 
       return updatedLog;
@@ -170,7 +170,12 @@ const EditWorkoutComponent: React.FC<EditProps> = ({
       );
       if (exercise) {
         const recommendedWeight = calculateNextWeight(exercise, reps, rir);
-        handleInputChange(exerciseName, setIndex, "weight", recommendedWeight);
+        handleInputChange(
+          exerciseName,
+          setIndex,
+          "weight",
+          String(recommendedWeight)
+        );
       } else {
         alert("Exercise not found in today’s workout.");
       }
@@ -259,16 +264,20 @@ const EditWorkoutComponent: React.FC<EditProps> = ({
       );
 
       if (targetExercise) {
+        // Add the new set to the exercise
         targetExercise.sets.push({ weight: 1, reps: 10, rir: 0 });
 
+        // Update the workout state
         const updatedWorkout = { ...workout, exercises: updatedExercises };
         updateWorkoutWithHistory(updatedWorkout);
 
+        // Update the userLog state to include the new set
         setUserLog((prevLog) => {
           const updatedLog = { ...prevLog };
           if (!updatedLog[exerciseName]) {
             updatedLog[exerciseName] = [];
           }
+          // Add a new entry for the new set with default values
           updatedLog[exerciseName].push({ weight: 1, reps: 10, rir: 0 });
           return updatedLog;
         });
@@ -326,7 +335,7 @@ const EditWorkoutComponent: React.FC<EditProps> = ({
                                       exercise.name,
                                       setIndex,
                                       "weight",
-                                      Number(e.target.value)
+                                      e.target.value
                                     )
                                   }
                                   placeholder=" "
@@ -347,7 +356,7 @@ const EditWorkoutComponent: React.FC<EditProps> = ({
                                       exercise.name,
                                       setIndex,
                                       "reps",
-                                      Number(e.target.value)
+                                      e.target.value
                                     )
                                   }
                                   placeholder=" "
@@ -368,7 +377,7 @@ const EditWorkoutComponent: React.FC<EditProps> = ({
                                       exercise.name,
                                       setIndex,
                                       "rir",
-                                      Number(e.target.value)
+                                      e.target.value
                                     )
                                   }
                                   placeholder=" "
@@ -444,7 +453,7 @@ const EditWorkoutComponent: React.FC<EditProps> = ({
                             exercise.name,
                             setIndex,
                             "weight",
-                            Number(e.target.value)
+                            e.target.value
                           )
                         }
                         placeholder=" "
@@ -465,7 +474,7 @@ const EditWorkoutComponent: React.FC<EditProps> = ({
                             exercise.name,
                             setIndex,
                             "reps",
-                            Number(e.target.value)
+                            e.target.value
                           )
                         }
                         placeholder=" "
@@ -486,7 +495,7 @@ const EditWorkoutComponent: React.FC<EditProps> = ({
                             exercise.name,
                             setIndex,
                             "rir",
-                            Number(e.target.value)
+                            e.target.value
                           )
                         }
                         placeholder=" "

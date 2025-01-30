@@ -1,6 +1,13 @@
 // src/utils/localStorage.js
 
 import { Workout, Exercise, bodyWeight } from "./types";
+// import { createClient } from "@supabase/supabase-js";
+// import * as dotenv from "dotenv";
+// dotenv.config();
+
+// const supabaseUrl = process.env.REACT_APP_SUPABASE_URL as string;
+// const supabaseKey = process.env.SUPABASE_KEY as string;
+// const supabase = createClient(supabaseUrl, supabaseKey);
 
 // Save workouts to local storage
 export const saveWorkouts = (workouts: Workout[]) => {
@@ -63,6 +70,7 @@ export const removeWorkoutFromDate = (workoutId: string, date: string) => {
     saveWorkouts(workouts);
   }
 };
+
 export const calculateNextWeight = (
   exercise: Exercise,
   reps: number,
