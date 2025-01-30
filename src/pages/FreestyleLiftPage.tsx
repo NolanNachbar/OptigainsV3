@@ -54,7 +54,7 @@ const FreestyleLiftPage: React.FC = () => {
   const handleInputChange = (
     exerciseName: string,
     field: keyof Set,
-    value: number | ""
+    value: string
   ) => {
     setInputState((prev) => ({
       ...prev,
@@ -242,7 +242,7 @@ const FreestyleLiftPage: React.FC = () => {
                             handleInputChange(
                               exercise.name,
                               "weight",
-                              Number(e.target.value)
+                              e.target.value
                             )
                           }
                           style={{
@@ -262,7 +262,7 @@ const FreestyleLiftPage: React.FC = () => {
                             handleInputChange(
                               exercise.name,
                               "reps",
-                              Number(e.target.value)
+                              e.target.value
                             )
                           }
                           style={{
@@ -282,7 +282,7 @@ const FreestyleLiftPage: React.FC = () => {
                             handleInputChange(
                               exercise.name,
                               "rir",
-                              Number(e.target.value)
+                              e.target.value
                             )
                           }
                           style={{

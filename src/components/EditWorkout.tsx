@@ -304,7 +304,7 @@ const EditWorkoutComponent: React.FC<EditProps> = ({
                           <h3>{exercise.name}</h3>
                           <button
                             onClick={() => handleRemoveExercise(exercise.name)}
-                            className="remove-exercise-btn"
+                            className="button"
                           >
                             🗑️
                           </button>
@@ -394,7 +394,7 @@ const EditWorkoutComponent: React.FC<EditProps> = ({
                                   onClick={() =>
                                     handleRemoveSet(exercise.name, setIndex)
                                   }
-                                  className="remove-btn"
+                                  className="button"
                                 >
                                   Remove
                                 </button>
@@ -500,14 +500,14 @@ const EditWorkoutComponent: React.FC<EditProps> = ({
                           onClick={() => {
                             handleCalculateWeight(exercise.name, setIndex);
                           }}
-                          className="calculate-btn"
+                          className="button primary"
                         >
                           Calculate
                         </button>
                       )}
                       <button
                         onClick={() => handleRemoveSet(exercise.name, setIndex)}
-                        className="button"
+                        className="button primary"
                       >
                         🗑️
                       </button>
