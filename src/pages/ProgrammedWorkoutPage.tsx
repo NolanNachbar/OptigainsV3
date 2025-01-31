@@ -5,6 +5,7 @@ import {
   calculateNextWeight,
   loadWorkouts,
   removeExerciseFromWorkout,
+  getConsolidatedExercises,
 } from "../utils/localStorage";
 import { Workout, Exercise, Set } from "../utils/types";
 import {
@@ -22,6 +23,7 @@ const StartProgrammedLiftPage: React.FC = () => {
   const [userLog, setUserLog] = useState<Record<string, Set[]>>({});
   const [editing, setEditing] = useState(true);
   const [exerciseName, setExerciseName] = useState<string>("");
+  const [suggestions, setSuggestions] = useState<string[]>([]);
   const [sets, setSets] = useState<
     { weight: number; reps: number; rir: number }[]
   >([{ weight: 1, reps: 10, rir: 0 }]); // Changed to hold an array of sets
@@ -32,6 +34,9 @@ const StartProgrammedLiftPage: React.FC = () => {
     const today = new Date().toISOString().split("T")[0];
     const workout = getWorkoutForToday(today);
     setWorkoutToday(workout);
+    const consolidatedExercises = getConsolidatedExercises();
+    const exerciseNames = consolidatedExercises.map((ex) => ex.name);
+    setSuggestions(exerciseNames);
   }, []);
 
   const updateWorkoutWithHistory = (updatedWorkout: Workout) => {
@@ -261,7 +266,7 @@ const StartProgrammedLiftPage: React.FC = () => {
   return (
     <div className="container">
       <ActionBar />
-      <div style={{ marginTop: "60px" /* Adjust to match ActionBar height */ }}>
+      <div style={{ marginTop: "60px" }}>
         <h1>Today's Workout</h1>
         {workoutToday ? (
           <>
@@ -557,8 +562,15 @@ const StartProgrammedLiftPage: React.FC = () => {
                   type="text"
                   value={exerciseName}
                   onChange={(e) => setExerciseName(e.target.value)}
+                  list="exercise-suggestions" // Link to the datalist
                   className="input-field"
                 />
+                {/* Datalist for exercise suggestions */}
+                <datalist id="exercise-suggestions">
+                  {suggestions.map((suggestion, idx) => (
+                    <option key={idx} value={suggestion} />
+                  ))}
+                </datalist>
               </div>
 
               {/* Set Details */}
