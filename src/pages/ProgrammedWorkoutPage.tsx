@@ -29,6 +29,13 @@ const StartProgrammedLiftPage: React.FC = () => {
   >([{ weight: 1, reps: 10, rir: 0 }]); // Changed to hold an array of sets
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [history, setHistory] = useState<Workout[]>([]);
+  const [inputState, setInputState] = useState<
+    Record<string, { weight: string; reps: string; rir: string }[]>
+  >({});
+  const [loggedSets, setLoggedSets] = useState<Record<string, boolean[]>>({});
+  const [lastLog, setLastLogged] = useState<
+    Record<string, { weight: string; reps: string; rir: string }[]>
+  >({});
 
   useEffect(() => {
     const today = new Date().toISOString().split("T")[0];
@@ -37,6 +44,26 @@ const StartProgrammedLiftPage: React.FC = () => {
     const consolidatedExercises = getConsolidatedExercises();
     const exerciseNames = consolidatedExercises.map((ex) => ex.name);
     setSuggestions(exerciseNames);
+
+    if (workout) {
+      const initialState: Record<
+        string,
+        { weight: string; reps: string; rir: string }[]
+      > = {};
+      const loggedState: Record<string, boolean[]> = {};
+
+      workout.exercises.forEach((exercise) => {
+        initialState[exercise.name] = exercise.sets.map(() => ({
+          weight: "",
+          reps: "",
+          rir: "",
+        }));
+        loggedState[exercise.name] = exercise.sets.map(() => false); // Initialize all sets as not logged
+      });
+
+      setInputState(initialState);
+      setLoggedSets(loggedState);
+    }
   }, []);
 
   const updateWorkoutWithHistory = (updatedWorkout: Workout) => {
@@ -99,18 +126,89 @@ const StartProgrammedLiftPage: React.FC = () => {
       if (workoutToday) {
         const updatedWorkout = {
           ...workoutToday,
-          exercises: [...workoutToday.exercises, newExercise], // Add the new exercise
+          exercises: [...workoutToday.exercises, newExercise],
         };
 
         setWorkoutToday(updatedWorkout);
-        updateWorkoutWithHistory(updatedWorkout); // Update the state with the new workout
+        updateWorkoutWithHistory(updatedWorkout);
+
+        // Initialize inputState for the new exercise
+        setInputState((prev) => ({
+          ...prev,
+          [exerciseName]: sets.map(() => ({ weight: "", reps: "", rir: "" })),
+        }));
+
         setExerciseName("");
         setSets([{ weight: 1, reps: 10, rir: 0 }]);
-        setIsModalOpen(false); // Close the modal after adding the exercise
+        setIsModalOpen(false);
       }
     } else {
       alert("Please fill all fields with valid values.");
     }
+  };
+  const handleLogSet = (exerciseName: string, setIndex: number) => {
+    const setInput = inputState[exerciseName]?.[setIndex];
+    if (
+      !setInput ||
+      setInput.weight === "" ||
+      setInput.reps === "" ||
+      setInput.rir === ""
+    ) {
+      alert("Please fill in all fields before logging a set.");
+      return;
+    }
+
+    setWorkoutToday((prevWorkout) => {
+      if (!prevWorkout) return prevWorkout;
+
+      const updatedExercises = prevWorkout.exercises.map((exercise) =>
+        exercise.name === exerciseName
+          ? {
+              ...exercise,
+              sets: exercise.sets.map((set, idx) =>
+                idx === setIndex
+                  ? {
+                      ...set,
+                      weight: Number(setInput.weight),
+                      reps: Number(setInput.reps),
+                      rir: Number(setInput.rir),
+                    }
+                  : set
+              ),
+            }
+          : exercise
+      );
+
+      return {
+        ...prevWorkout,
+        exercises: updatedExercises,
+      };
+    });
+
+    // Mark the set as logged
+    setLoggedSets((prev) => ({
+      ...prev,
+      [exerciseName]: prev[exerciseName].map((logged, idx) =>
+        idx === setIndex ? true : logged
+      ),
+    }));
+
+    // Clear the input fields for the logged set
+    setInputState((prev) => ({
+      ...prev,
+      [exerciseName]: prev[exerciseName].map((set, idx) =>
+        idx === setIndex ? { weight: "", reps: "", rir: "" } : set
+      ),
+    }));
+  };
+
+  const toggleEditSet = (exerciseName: string, setIndex: number) => {
+    setLoggedSets((prev) => ({
+      ...prev,
+      [exerciseName]: prev[exerciseName].map((logged, idx) =>
+        idx === setIndex ? !logged : logged
+      ),
+    }));
   };
 
   const handleInputChange = (
@@ -119,51 +217,76 @@ const StartProgrammedLiftPage: React.FC = () => {
     field: keyof Set,
     value: string
   ) => {
-    setUserLog((prev) => ({
+    setInputState((prev) => ({
       ...prev,
-      [exerciseName]: prev[exerciseName]
-        ? prev[exerciseName].map((set, idx) =>
-            idx === setIndex ? { ...set, [field]: value } : set
-          )
-        : Array.from(
-            {
-              length:
-                workoutToday?.exercises.find((ex) => ex.name === exerciseName)
-                  ?.sets.length || 1,
-            },
-            () => ({
-              weight: 0,
-              reps: 0,
-              rir: 0,
-            })
-          ),
+      [exerciseName]: prev[exerciseName].map((set, idx) =>
+        idx === setIndex ? { ...set, [field]: value } : set
+      ),
     }));
   };
 
-  const handleCalculateWeight = (exerciseName: string, setIndex: number) => {
-    const reps = Number(userLog[exerciseName]?.[setIndex]?.reps || 0);
-    const rir = Number(userLog[exerciseName]?.[setIndex]?.rir || 0);
+  const handleShowLastSet = (exerciseName: string) => {
+    const allWorkouts = loadWorkouts(); // Load all workouts from local storage
+    let lastLogSet: Set | null = null;
 
-    if (workoutToday) {
-      const exercise = workoutToday.exercises.find(
-        (ex) =>
-          normalizeExerciseName(ex.name) === normalizeExerciseName(exerciseName)
-      );
-      if (exercise) {
-        const recommendedWeight = calculateNextWeight(
-          exercise,
-          Number(reps),
-          Number(rir)
-        );
-        handleInputChange(
-          exerciseName,
-          setIndex,
-          "weight",
-          String(recommendedWeight)
-        );
-      } else {
-        alert("Exercise not found in today’s workout.");
-      }
+    // Iterate through all workouts to find the last logged set for the exercise
+    allWorkouts.forEach((workout) => {
+      workout.exercises.forEach((exercise) => {
+        if (
+          normalizeExerciseName(exercise.name) ===
+          normalizeExerciseName(exerciseName)
+        ) {
+          if (exercise.logs && exercise.logs.length > 0) {
+            const lastSet = exercise.logs[exercise.logs.length - 1];
+            if (!lastLogSet) {
+              lastLogSet = lastSet;
+            }
+          }
+        }
+      });
+    });
+
+    if (lastLogSet) {
+      setLastLogged((prev) => ({
+        ...prev,
+        [exerciseName]: [
+          {
+            weight: String(lastLogSet?.weight),
+            reps: String(lastLogSet?.reps),
+            rir: String(lastLogSet?.rir),
+          },
+        ],
+      }));
+    } else {
+      alert("No logged sets found for this exercise.");
+    }
+  };
+
+  const handleCalculateWeight = (exerciseName: string, setIndex: number) => {
+    const setInput = inputState[exerciseName]?.[setIndex];
+    if (!setInput) return;
+
+    const reps = Number(setInput.reps || 0);
+    const rir = Number(setInput.rir || null);
+
+    if (reps === 0 || rir === null) {
+      alert("Please enter valid reps");
+      return;
+    }
+
+    const exercise = workoutToday?.exercises.find(
+      (ex) =>
+        normalizeExerciseName(ex.name) === normalizeExerciseName(exerciseName)
+    );
+
+    if (exercise) {
+      const calculatedWeight = calculateNextWeight(exercise, reps, rir);
+      setInputState((prev) => ({
+        ...prev,
+        [exerciseName]: prev[exerciseName].map((set, idx) =>
+          idx === setIndex ? { ...set, weight: String(calculatedWeight) } : set
+        ),
+      }));
     }
   };
 
@@ -260,6 +383,20 @@ const StartProgrammedLiftPage: React.FC = () => {
         ...workoutToday,
         exercises: updatedExercises,
       });
+
+      // Update inputState and loggedSets for the new set
+      setInputState((prev) => ({
+        ...prev,
+        [exerciseName]: [
+          ...(prev[exerciseName] || []),
+          { weight: "", reps: "", rir: "" },
+        ],
+      }));
+
+      setLoggedSets((prev) => ({
+        ...prev,
+        [exerciseName]: [...(prev[exerciseName] || []), false],
+      }));
     }
   };
 
@@ -306,6 +443,27 @@ const StartProgrammedLiftPage: React.FC = () => {
                                 </button>
                               </div>
                               <ul className="set-list">
+                                {/* Display Last Logged Set */}
+                                {lastLog[exercise.name] && (
+                                  <div className="last-logged-set">
+                                    <h4>Last Logged Set:</h4>
+                                    <div className="logged-set">
+                                      <span>
+                                        {" "}
+                                        Weight:{" "}
+                                        {lastLog[exercise.name][0].weight} lbs
+                                      </span>
+                                      <span>
+                                        {" "}
+                                        Reps: {lastLog[exercise.name][0].reps}
+                                      </span>
+                                      <span>
+                                        {" "}
+                                        RIR: {lastLog[exercise.name][0].rir}
+                                      </span>
+                                    </div>
+                                  </div>
+                                )}
                                 {exercise.sets.map((set, setIndex) => (
                                   <li key={setIndex} className="set-item">
                                     <div className="set-inputs">
@@ -377,7 +535,7 @@ const StartProgrammedLiftPage: React.FC = () => {
                                                 setIndex
                                               )
                                             }
-                                            className="calculate-btn"
+                                            className="button primary"
                                           >
                                             Calculate Weight
                                           </button>
@@ -390,7 +548,7 @@ const StartProgrammedLiftPage: React.FC = () => {
                                             setIndex
                                           )
                                         }
-                                        className="button"
+                                        className="button primary"
                                       >
                                         Remove Set
                                       </button>
@@ -425,82 +583,123 @@ const StartProgrammedLiftPage: React.FC = () => {
                         🗑️
                       </button>
                     </div>
+                    {/* Display Last Logged Set */}
+                    {lastLog[exercise.name] && (
+                      <div className="last-logged-set">
+                        <b>Last Logged Set:</b>
+                        <div className="set-details">
+                          {" "}
+                          <span>
+                            Weight: {lastLog[exercise.name][0].weight} lbs
+                          </span>
+                          <span> Reps: {lastLog[exercise.name][0].reps}</span>
+                          <span> RIR: {lastLog[exercise.name][0].rir}</span>
+                        </div>
+                      </div>
+                    )}
                     <ul className="set-list">
                       {exercise.sets.map((set, setIndex) => (
                         <li key={setIndex} className="set-item">
-                          <div className="set-inputs">
-                            <input
-                              type="number"
-                              value={
-                                userLog[exercise.name]?.[setIndex]?.weight ||
-                                set.weight ||
-                                ""
-                              }
-                              onChange={(e) =>
-                                handleInputChange(
-                                  exercise.name,
-                                  setIndex,
-                                  "weight",
-                                  e.target.value
-                                )
-                              }
-                              placeholder="Weight"
-                              className="input-field"
-                            />
-                            <input
-                              type="number"
-                              value={
-                                userLog[exercise.name]?.[setIndex]?.reps ||
-                                set.reps ||
-                                ""
-                              }
-                              onChange={(e) =>
-                                handleInputChange(
-                                  exercise.name,
-                                  setIndex,
-                                  "reps",
-                                  e.target.value
-                                )
-                              }
-                              placeholder="Reps"
-                              className="input-field"
-                            />
-                            <input
-                              type="number"
-                              value={
-                                userLog[exercise.name]?.[setIndex]?.rir ||
-                                set.rir ||
-                                0
-                              }
-                              onChange={(e) =>
-                                handleInputChange(
-                                  exercise.name,
-                                  setIndex,
-                                  "rir",
-                                  e.target.value
-                                )
-                              }
-                              placeholder="RIR"
-                              className="input-field"
-                            />
-                          </div>
-                          <div className="button-group">
-                            {exercise.logs && exercise.logs.length > 0 && (
+                          {loggedSets[exercise.name]?.[setIndex] ? (
+                            // Display logged set as read-only
+                            <div className="logged-set">
+                              <span> Weight: {set.weight} lbs</span>
+                              <span> Reps: {set.reps}</span>
+                              <span> RIR: {set.rir}</span>
                               <button
                                 onClick={() =>
-                                  handleCalculateWeight(exercise.name, setIndex)
+                                  toggleEditSet(exercise.name, setIndex)
                                 }
-                                className="calculate-btn"
+                                className="button-primary"
                               >
-                                Calculate Weight
+                                ✏️
                               </button>
+                            </div>
+                          ) : (
+                            // Display editable inputs for unlogged sets
+                            <div className="set-inputs">
+                              <input
+                                type="number"
+                                placeholder="Weight (lbs)"
+                                value={
+                                  inputState[exercise.name]?.[setIndex]
+                                    ?.weight || ""
+                                }
+                                onChange={(e) =>
+                                  handleInputChange(
+                                    exercise.name,
+                                    setIndex,
+                                    "weight",
+                                    e.target.value
+                                  )
+                                }
+                                className="input-field"
+                              />
+                              <input
+                                type="number"
+                                placeholder="Reps"
+                                value={
+                                  inputState[exercise.name]?.[setIndex]?.reps ||
+                                  ""
+                                }
+                                onChange={(e) =>
+                                  handleInputChange(
+                                    exercise.name,
+                                    setIndex,
+                                    "reps",
+                                    e.target.value
+                                  )
+                                }
+                                className="input-field"
+                              />
+                              <input
+                                type="number"
+                                placeholder="RIR"
+                                value={
+                                  inputState[exercise.name]?.[setIndex]?.rir ||
+                                  ""
+                                }
+                                onChange={(e) =>
+                                  handleInputChange(
+                                    exercise.name,
+                                    setIndex,
+                                    "rir",
+                                    e.target.value
+                                  )
+                                }
+                                className="input-field"
+                              />
+                            </div>
+                          )}
+                          <div className="button-group">
+                            {!loggedSets[exercise.name]?.[setIndex] && (
+                              <>
+                                <button
+                                  onClick={() =>
+                                    handleCalculateWeight(
+                                      exercise.name,
+                                      setIndex
+                                    )
+                                  }
+                                  className="button primary"
+                                >
+                                  Calculate Weight
+                                </button>
+                                <button
+                                  onClick={() =>
+                                    handleLogSet(exercise.name, setIndex)
+                                  }
+                                  className="button action"
+                                >
+                                  Log Set
+                                </button>
+                              </>
                             )}
-
                             <button
                               onClick={() =>
                                 handleRemoveSet(exercise.name, setIndex)
                               }
-                              className="remove-btn"
+                              className="button primary"
                             >
                               Remove Set
                             </button>
@@ -513,6 +712,12 @@ const StartProgrammedLiftPage: React.FC = () => {
                       className="button"
                     >
                       ➕ Add Set
+                    </button>
+                    <button
+                      onClick={() => handleShowLastSet(exercise.name)}
+                      className="button action"
+                    >
+                      Show Last Logged Set
                     </button>
                   </div>
                 ))
@@ -562,17 +767,15 @@ const StartProgrammedLiftPage: React.FC = () => {
                   type="text"
                   value={exerciseName}
                   onChange={(e) => setExerciseName(e.target.value)}
-                  list="exercise-suggestions" // Link to the datalist
+                  list="exercise-suggestions"
                   className="input-field"
                 />
-                {/* Datalist for exercise suggestions */}
                 <datalist id="exercise-suggestions">
                   {suggestions.map((suggestion, idx) => (
                     <option key={idx} value={suggestion} />
                   ))}
                 </datalist>
               </div>
-
               {/* Set Details */}
               {sets.map((set, index) => (
                 <div key={index} className="set-input-group">
@@ -611,8 +814,6 @@ const StartProgrammedLiftPage: React.FC = () => {
                   />
                 </div>
               ))}
-
-              {/* Add Set Button */}
               <button
                 onClick={() =>
                   setSets([...sets, { weight: 1, reps: 10, rir: 0 }])
@@ -621,8 +822,6 @@ const StartProgrammedLiftPage: React.FC = () => {
               >
                 Add Set
               </button>
-
-              {/* Add Exercise Button */}
               <button onClick={handleAddExercise} className="add-exercise-btn">
                 ➕ Add Exercise
               </button>
