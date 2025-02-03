@@ -100,10 +100,6 @@ const StartProgrammedLiftPage: React.FC = () => {
     setWorkoutToday(updatedWorkout);
   };
 
-  // const handleExerciseChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   setCurrentExercise(e.target.value);
-  // };
-
   const handleAddExercise = () => {
     if (
       exerciseName &&
@@ -138,6 +134,12 @@ const StartProgrammedLiftPage: React.FC = () => {
           [exerciseName]: sets.map(() => ({ weight: "", reps: "", rir: "" })),
         }));
 
+        // Initialize loggedSets for the new exercise
+        setLoggedSets((prev) => ({
+          ...prev,
+          [exerciseName]: sets.map(() => false), // Initialize all sets as not logged
+        }));
+
         setExerciseName("");
         setSets([{ weight: 1, reps: 10, rir: 0 }]);
         setIsModalOpen(false);
@@ -146,6 +148,7 @@ const StartProgrammedLiftPage: React.FC = () => {
       alert("Please fill all fields with valid values.");
     }
   };
+
   const handleLogSet = (exerciseName: string, setIndex: number) => {
     const setInput = inputState[exerciseName]?.[setIndex];
     if (
@@ -188,9 +191,13 @@ const StartProgrammedLiftPage: React.FC = () => {
     // Mark the set as logged
     setLoggedSets((prev) => ({
       ...prev,
-      [exerciseName]: prev[exerciseName].map((logged, idx) =>
-        idx === setIndex ? true : logged
-      ),
+      [exerciseName]: prev[exerciseName]
+        ? prev[exerciseName].map((logged, idx) =>
+            idx === setIndex ? true : logged
+          )
+        : Array(sets.length)
+            .fill(false)
+            .map((_, idx) => (idx === setIndex ? true : false)), // Handle new exercises
     }));
 
     // Clear the input fields for the logged set
@@ -224,7 +231,6 @@ const StartProgrammedLiftPage: React.FC = () => {
       ),
     }));
   };
-
   const handleShowLastSet = (exerciseName: string) => {
     const allWorkouts = loadWorkouts(); // Load all workouts from local storage
     let lastLogSet: Set | null = null;
@@ -237,10 +243,11 @@ const StartProgrammedLiftPage: React.FC = () => {
           normalizeExerciseName(exerciseName)
         ) {
           if (exercise.logs && exercise.logs.length > 0) {
-            const lastSet = exercise.logs[exercise.logs.length - 1];
-            if (!lastLogSet) {
-              lastLogSet = lastSet;
-            }
+            exercise.logs.forEach((log) => {
+              if (!lastLogSet) {
+                lastLogSet = log;
+              }
+            });
           }
         }
       });
