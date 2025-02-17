@@ -6,6 +6,7 @@ import {
   loadWorkouts,
   removeExerciseFromWorkout,
   getConsolidatedExercises,
+  lastSet,
 } from "../utils/localStorage";
 import { Workout, Exercise, Set } from "../utils/types";
 import {
@@ -178,6 +179,15 @@ const StartProgrammedLiftPage: React.FC = () => {
                     }
                   : set
               ),
+              logs: [
+                ...(exercise.logs || []),
+                {
+                  date: new Date().toISOString().split("T")[0], // Log the current date
+                  weight: Number(setInput.weight),
+                  reps: Number(setInput.reps),
+                  rir: Number(setInput.rir),
+                },
+              ],
             }
           : exercise
       );
@@ -231,36 +241,36 @@ const StartProgrammedLiftPage: React.FC = () => {
       ),
     }));
   };
+
   const handleShowLastSet = (exerciseName: string) => {
     const allWorkouts = loadWorkouts(); // Load all workouts from local storage
-    let lastLogSet: Set | null = null;
+    let lastLogSet: { weight: number; reps: number; rir: number } | null = null;
 
-    // Iterate through all workouts to find the last logged set for the exercise
-    allWorkouts.forEach((workout) => {
-      workout.exercises.forEach((exercise) => {
+    // Find the last logged set using the new lastSet function
+    for (const workout of allWorkouts) {
+      for (const exercise of workout.exercises) {
         if (
           normalizeExerciseName(exercise.name) ===
           normalizeExerciseName(exerciseName)
         ) {
-          if (exercise.logs && exercise.logs.length > 0) {
-            exercise.logs.forEach((log) => {
-              if (!lastLogSet) {
-                lastLogSet = log;
-              }
-            });
+          const last = lastSet(exercise);
+          if (last) {
+            lastLogSet = last;
+            break; // Exit early once the last set is found
           }
         }
-      });
-    });
+      }
+      if (lastLogSet) break;
+    }
 
     if (lastLogSet) {
       setLastLogged((prev) => ({
         ...prev,
         [exerciseName]: [
           {
-            weight: String(lastLogSet?.weight),
-            reps: String(lastLogSet?.reps),
-            rir: String(lastLogSet?.rir),
+            weight: String(lastLogSet.weight),
+            reps: String(lastLogSet.reps),
+            rir: String(lastLogSet.rir),
           },
         ],
       }));
@@ -341,16 +351,12 @@ const StartProgrammedLiftPage: React.FC = () => {
 
   const handleSaveWorkout = () => {
     if (workoutToday) {
-      const today = new Date().toISOString().split("T")[0];
       const updatedWorkout: Workout = {
         ...workoutToday,
         exercises: workoutToday.exercises.map((exercise) => ({
           ...exercise,
-          sets: userLog[exercise.name] || exercise.sets,
-          logs: (userLog[exercise.name] || []).map((set) => ({
-            ...set,
-            date: today,
-          })),
+          sets: exercise.sets,
+          logs: exercise.logs || [], // Ensure logs are included
         })),
       };
 
@@ -590,13 +596,14 @@ const StartProgrammedLiftPage: React.FC = () => {
                         🗑️
                       </button>
                     </div>
+
                     {/* Display Last Logged Set */}
                     {lastLog[exercise.name] && (
                       <div className="last-logged-set">
-                        <b>Last Logged Set:</b>
-                        <div className="set-details">
-                          {" "}
+                        <h4>Last Logged Set:</h4>
+                        <div className="logged-set">
                           <span>
+                            {" "}
                             Weight: {lastLog[exercise.name][0].weight} lbs
                           </span>
                           <span> Reps: {lastLog[exercise.name][0].reps}</span>
@@ -604,6 +611,7 @@ const StartProgrammedLiftPage: React.FC = () => {
                         </div>
                       </div>
                     )}
+
                     <ul className="set-list">
                       {exercise.sets.map((set, setIndex) => (
                         <li key={setIndex} className="set-item">
@@ -679,29 +687,29 @@ const StartProgrammedLiftPage: React.FC = () => {
                             </div>
                           )}
                           <div className="button-group">
-                            {!loggedSets[exercise.name]?.[setIndex] && (
-                              <>
-                                <button
-                                  onClick={() =>
-                                    handleCalculateWeight(
-                                      exercise.name,
-                                      setIndex
-                                    )
-                                  }
-                                  className="button primary"
-                                >
-                                  Calculate Weight
-                                </button>
-                                <button
-                                  onClick={() =>
-                                    handleLogSet(exercise.name, setIndex)
-                                  }
-                                  className="button action"
-                                >
-                                  Log Set
-                                </button>
-                              </>
+                            {/* Conditionally render the "Calculate Weight" button */}
+                            {lastSet(exercise) == null && (
+                              <button
+                                onClick={() =>
+                                  handleCalculateWeight(exercise.name, setIndex)
+                                }
+                                className="button primary"
+                              >
+                                Calculate Weight
+                              </button>
                             )}
+
+                            {!loggedSets[exercise.name]?.[setIndex] && (
+                              <button
+                                onClick={() =>
+                                  handleLogSet(exercise.name, setIndex)
+                                }
+                                className="button action"
+                              >
+                                Log Set
+                              </button>
+                            )}
+
                             <button
                               onClick={() =>
                                 handleRemoveSet(exercise.name, setIndex)
@@ -720,12 +728,15 @@ const StartProgrammedLiftPage: React.FC = () => {
                     >
                       ➕ Add Set
                     </button>
-                    <button
-                      onClick={() => handleShowLastSet(exercise.name)}
-                      className="button action"
-                    >
-                      Show Last Logged Set
-                    </button>
+                    {/* Conditionally render the "Show Last Logged Set" button */}
+                    {lastSet(exercise) !== null && (
+                      <button
+                        onClick={() => handleShowLastSet(exercise.name)}
+                        className="button action"
+                      >
+                        Show Last Logged Set
+                      </button>
+                    )}
                   </div>
                 ))
               )}

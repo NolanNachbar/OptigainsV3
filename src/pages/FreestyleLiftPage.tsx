@@ -41,7 +41,7 @@ const FreestyleLiftPage: React.FC = () => {
     if (normalizedExercise) {
       setExercises((prev) => [
         ...prev,
-        { name: normalizedExercise, sets: [], rir: -1 },
+        { name: normalizedExercise, sets: [], rir: 0 },
       ]);
       setCurrentExercise("");
       setInputState((prev) => ({

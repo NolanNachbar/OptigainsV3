@@ -373,15 +373,10 @@ h2 {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 1rem; /* Adds spacing between elements */
+  gap: 1rem;
   margin-bottom: 1rem;
   padding: 1rem;
   border-radius: 5px;
-}
-
-.last-logged-set h4 {
-  margin-bottom: 0;
-  white-space: nowrap; /* Prevents wrapping on "Last Logged Set:" */
 }
 
 .logged-set span {

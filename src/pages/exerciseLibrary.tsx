@@ -46,7 +46,6 @@ const ExerciseLibrary: React.FC = () => {
   const handleSelectExercise = (exercise: Exercise) => {
     setSelectedExercise(exercise);
   };
-
   const getProgressData = (exercise: Exercise) => {
     if (!exercise.logs || exercise.logs.length === 0) return null;
 

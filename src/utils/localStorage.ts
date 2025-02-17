@@ -71,6 +71,33 @@ export const removeWorkoutFromDate = (workoutId: string, date: string) => {
   }
 };
 
+export const lastSet = (
+  exercise: Exercise
+): { weight: number; reps: number; rir: number } | null => {
+  if (!exercise.logs || exercise.logs.length === 0) {
+    console.warn(`No logs available for exercise: ${exercise.name}`);
+    return null; // Return null to indicate no previous logs exist
+  }
+
+  const lastLog = exercise.logs[exercise.logs.length - 1];
+
+  if (
+    !lastLog ||
+    typeof lastLog.weight === "undefined" ||
+    typeof lastLog.reps === "undefined" ||
+    typeof lastLog.rir === "undefined"
+  ) {
+    console.warn(`Invalid log data for exercise: ${exercise.name}`);
+    return null; // Return null if data is invalid
+  }
+
+  return {
+    weight: lastLog.weight,
+    reps: lastLog.reps,
+    rir: lastLog.rir,
+  };
+};
+
 export const calculateNextWeight = (
   exercise: Exercise,
   reps: number,
