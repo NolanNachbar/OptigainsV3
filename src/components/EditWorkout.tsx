@@ -4,7 +4,7 @@ import {
   calculateNextWeight,
   loadWorkouts,
   removeWorkoutFromList,
-} from "../utils/localStorage";
+} from "../utils/SupaBase";
 import "../styles/styles.css";
 import { Workout, Exercise, Set } from "../utils/types";
 import {
@@ -13,6 +13,7 @@ import {
   Draggable,
   DropResult,
 } from "react-beautiful-dnd";
+import { useUser } from "@clerk/clerk-react";
 
 const normalizeExerciseName = (name: string) => name.toUpperCase();
 
@@ -25,6 +26,7 @@ const EditWorkoutComponent: React.FC<EditProps> = ({
   savedWorkout,
   onUpdateWorkout,
 }) => {
+  const { user } = useUser();
   const [workout, setWorkout] = useState<Workout | null>(savedWorkout);
   const [userLog, setUserLog] = useState<Record<string, Set[]>>({});
   const [editing, setEditing] = useState(true);
@@ -55,10 +57,10 @@ const EditWorkoutComponent: React.FC<EditProps> = ({
     }
   };
 
-  const handleReorderExercises = (result: DropResult) => {
+  const handleReorderExercises = async (result: DropResult) => {
     const { source, destination } = result;
 
-    if (!destination) return;
+    if (!destination || !user) return;
 
     const reorderedExercises = Array.from(workout?.exercises || []);
     const [removed] = reorderedExercises.splice(source.index, 1);
@@ -71,7 +73,7 @@ const EditWorkoutComponent: React.FC<EditProps> = ({
 
     updateWorkoutWithHistory(updatedWorkout);
 
-    const workouts = loadWorkouts();
+    const workouts = await loadWorkouts(user);
     const workoutIndex = workouts.findIndex(
       (w) => w.workoutName === updatedWorkout.workoutName
     );
@@ -80,13 +82,14 @@ const EditWorkoutComponent: React.FC<EditProps> = ({
     } else {
       workouts.push(updatedWorkout);
     }
-    saveWorkouts(workouts);
+    await saveWorkouts(workouts, user); // Save to Supabase
   };
 
-  const handleAddExercise = () => {
+  const handleAddExercise = async () => {
     if (
       exerciseName &&
-      sets.every((set) => set.weight > 0 && set.reps > 0 && set.rir >= 0)
+      sets.every((set) => set.weight > 0 && set.reps > 0 && set.rir >= 0) &&
+      user
     ) {
       const newExercise: Exercise = {
         name: exerciseName,
@@ -114,14 +117,9 @@ const EditWorkoutComponent: React.FC<EditProps> = ({
       });
 
       onUpdateWorkout(updatedWorkout);
-      handleSaveWorkout();
+      await handleSaveWorkout(); // Save to Supabase
       setExerciseName("");
       setSets([{ weight: 1, reps: 10, rir: 0 }]);
-
-      const workouts = loadWorkouts();
-      removeWorkoutFromList(updatedWorkout.workoutName);
-      workouts.push(updatedWorkout);
-      saveWorkouts(workouts);
       setIsModalOpen(false);
     }
   };
@@ -176,8 +174,8 @@ const EditWorkoutComponent: React.FC<EditProps> = ({
     }
   };
 
-  const handleRemoveExercise = (exerciseName: string) => {
-    if (workout) {
+  const handleRemoveExercise = async (exerciseName: string) => {
+    if (workout && user) {
       const updatedExercises = workout.exercises.filter(
         (exercise) =>
           normalizeExerciseName(exercise.name) !==
@@ -187,13 +185,14 @@ const EditWorkoutComponent: React.FC<EditProps> = ({
       const updatedWorkout = { ...workout, exercises: updatedExercises };
       updateWorkoutWithHistory(updatedWorkout);
 
-      removeWorkoutFromList(updatedWorkout.workoutName);
+      await removeWorkoutFromList(updatedWorkout.workoutName, user); // Remove from Supabase
       onUpdateWorkout(updatedWorkout);
-      handleSaveWorkout();
+      await handleSaveWorkout(); // Save to Supabase
     }
   };
-  const handleRemoveSet = (exerciseName: string, setIndex: number) => {
-    if (workout) {
+
+  const handleRemoveSet = async (exerciseName: string, setIndex: number) => {
+    if (workout && user) {
       const updatedExercises = [...workout.exercises];
       const targetExercise = updatedExercises.find(
         (exercise) =>
@@ -213,11 +212,14 @@ const EditWorkoutComponent: React.FC<EditProps> = ({
             (_, idx) => idx !== setIndex
           ),
         }));
+
+        await saveWorkouts([updatedWorkout], user); // Save to Supabase
       }
     }
   };
-  const handleSaveWorkout = () => {
-    if (workout) {
+
+  const handleSaveWorkout = async () => {
+    if (workout && user) {
       const today = new Date().toISOString().split("T")[0];
 
       const updatedWorkout: Workout = {
@@ -232,24 +234,14 @@ const EditWorkoutComponent: React.FC<EditProps> = ({
         })),
       };
 
-      const workouts = loadWorkouts();
-      const workoutIndex = workouts.findIndex(
-        (w) => w.workoutName === updatedWorkout.workoutName
-      );
-      if (workoutIndex !== -1) {
-        workouts[workoutIndex] = updatedWorkout;
-      } else {
-        workouts.push(updatedWorkout);
-      }
-
-      saveWorkouts(workouts);
+      await saveWorkouts([updatedWorkout], user); // Save to Supabase
     } else {
-      alert("No workout to save.");
+      alert("No workout to save or user not authenticated.");
     }
   };
 
-  const handleAddSet = (exerciseName: string) => {
-    if (workout) {
+  const handleAddSet = async (exerciseName: string) => {
+    if (workout && user) {
       const updatedExercises = [...workout.exercises];
       const targetExercise = updatedExercises.find(
         (exercise) =>
@@ -258,23 +250,21 @@ const EditWorkoutComponent: React.FC<EditProps> = ({
       );
 
       if (targetExercise) {
-        // Add the new set to the exercise
         targetExercise.sets.push({ weight: 1, reps: 10, rir: 0 });
 
-        // Update the workout state
         const updatedWorkout = { ...workout, exercises: updatedExercises };
         updateWorkoutWithHistory(updatedWorkout);
 
-        // Update the userLog state to include the new set
         setUserLog((prevLog) => {
           const updatedLog = { ...prevLog };
           if (!updatedLog[exerciseName]) {
             updatedLog[exerciseName] = [];
           }
-          // Add a new entry for the new set with default values
           updatedLog[exerciseName].push({ weight: 1, reps: 10, rir: 0 });
           return updatedLog;
         });
+
+        await saveWorkouts([updatedWorkout], user); // Save to Supabase
       }
     }
   };

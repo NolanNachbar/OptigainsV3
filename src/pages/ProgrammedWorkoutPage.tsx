@@ -7,7 +7,7 @@ import {
   removeExerciseFromWorkout,
   getConsolidatedExercises,
   lastSet,
-} from "../utils/localStorage";
+} from "../utils/SupaBase";
 import { Workout, Exercise, Set } from "../utils/types";
 import {
   DragDropContext,
@@ -16,10 +16,12 @@ import {
   DropResult,
 } from "react-beautiful-dnd";
 import ActionBar from "../components/Actionbar";
+import { useUser } from "@clerk/clerk-react";
 
 const normalizeExerciseName = (name: string) => name.toUpperCase();
 
 const StartProgrammedLiftPage: React.FC = () => {
+  const { user } = useUser();
   const [workoutToday, setWorkoutToday] = useState<Workout | null>(null);
   const [userLog, setUserLog] = useState<Record<string, Set[]>>({});
   const [editing, setEditing] = useState(true);
@@ -40,32 +42,39 @@ const StartProgrammedLiftPage: React.FC = () => {
 
   useEffect(() => {
     const today = new Date().toISOString().split("T")[0];
-    const workout = getWorkoutForToday(today);
-    setWorkoutToday(workout);
-    const consolidatedExercises = getConsolidatedExercises();
-    const exerciseNames = consolidatedExercises.map((ex) => ex.name);
-    setSuggestions(exerciseNames);
+    const fetchWorkout = async () => {
+      if (user) {
+        const workout = await getWorkoutForToday(today, user);
+        setWorkoutToday(workout);
 
-    if (workout) {
-      const initialState: Record<
-        string,
-        { weight: string; reps: string; rir: string }[]
-      > = {};
-      const loggedState: Record<string, boolean[]> = {};
+        const consolidatedExercises = await getConsolidatedExercises(user);
+        const exerciseNames = consolidatedExercises.map((ex) => ex.name);
+        setSuggestions(exerciseNames);
 
-      workout.exercises.forEach((exercise) => {
-        initialState[exercise.name] = exercise.sets.map(() => ({
-          weight: "",
-          reps: "",
-          rir: "",
-        }));
-        loggedState[exercise.name] = exercise.sets.map(() => false); // Initialize all sets as not logged
-      });
+        if (workout) {
+          const initialState: Record<
+            string,
+            { weight: string; reps: string; rir: string }[]
+          > = {};
+          const loggedState: Record<string, boolean[]> = {};
 
-      setInputState(initialState);
-      setLoggedSets(loggedState);
-    }
-  }, []);
+          workout.exercises.forEach((exercise) => {
+            initialState[exercise.name] = exercise.sets.map(() => ({
+              weight: "",
+              reps: "",
+              rir: "",
+            }));
+            loggedState[exercise.name] = exercise.sets.map(() => false);
+          });
+
+          setInputState(initialState);
+          setLoggedSets(loggedState);
+        }
+      }
+    };
+
+    fetchWorkout();
+  }, [user]);
 
   const updateWorkoutWithHistory = (updatedWorkout: Workout) => {
     setHistory((prevHistory) => [...prevHistory, workoutToday!]); // Save current state to history
@@ -242,40 +251,42 @@ const StartProgrammedLiftPage: React.FC = () => {
     }));
   };
 
-  const handleShowLastSet = (exerciseName: string) => {
-    const allWorkouts = loadWorkouts(); // Load all workouts from local storage
-    let lastLogSet: { weight: number; reps: number; rir: number } | null = null;
+  const handleShowLastSet = async (exerciseName: string) => {
+    if (user) {
+      const allWorkouts = await loadWorkouts(user);
+      let lastLogSet: { weight: number; reps: number; rir: number } | null =
+        null;
 
-    // Find the last logged set using the new lastSet function
-    for (const workout of allWorkouts) {
-      for (const exercise of workout.exercises) {
-        if (
-          normalizeExerciseName(exercise.name) ===
-          normalizeExerciseName(exerciseName)
-        ) {
-          const last = lastSet(exercise);
-          if (last) {
-            lastLogSet = last;
-            break; // Exit early once the last set is found
+      for (const workout of allWorkouts) {
+        for (const exercise of workout.exercises) {
+          if (
+            normalizeExerciseName(exercise.name) ===
+            normalizeExerciseName(exerciseName)
+          ) {
+            const last = lastSet(exercise);
+            if (last) {
+              lastLogSet = last;
+              break;
+            }
           }
         }
+        if (lastLogSet) break;
       }
-      if (lastLogSet) break;
-    }
 
-    if (lastLogSet) {
-      setLastLogged((prev) => ({
-        ...prev,
-        [exerciseName]: [
-          {
-            weight: String(lastLogSet.weight),
-            reps: String(lastLogSet.reps),
-            rir: String(lastLogSet.rir),
-          },
-        ],
-      }));
-    } else {
-      alert("No logged sets found for this exercise.");
+      if (lastLogSet) {
+        setLastLogged((prev) => ({
+          ...prev,
+          [exerciseName]: [
+            {
+              weight: String(lastLogSet.weight),
+              reps: String(lastLogSet.reps),
+              rir: String(lastLogSet.rir),
+            },
+          ],
+        }));
+      } else {
+        alert("No logged sets found for this exercise.");
+      }
     }
   };
 
@@ -307,13 +318,18 @@ const StartProgrammedLiftPage: React.FC = () => {
     }
   };
 
-  const handleRemoveExercise = (exerciseName: string) => {
-    if (workoutToday) {
-      removeExerciseFromWorkout(workoutToday.workoutName, exerciseName);
-      const updatedWorkout =
-        loadWorkouts().find(
-          (w) => w.workoutName === workoutToday.workoutName
-        ) || null;
+  const handleRemoveExercise = async (exerciseName: string) => {
+    if (workoutToday && user) {
+      await removeExerciseFromWorkout(
+        workoutToday.workoutName,
+        exerciseName,
+        user
+      );
+      const updatedWorkout = await loadWorkouts(user).then(
+        (workouts) =>
+          workouts.find((w) => w.workoutName === workoutToday.workoutName) ||
+          null
+      );
       setWorkoutToday(updatedWorkout);
       if (updatedWorkout) updateWorkoutWithHistory(updatedWorkout);
     }
@@ -349,31 +365,21 @@ const StartProgrammedLiftPage: React.FC = () => {
     }
   };
 
-  const handleSaveWorkout = () => {
-    if (workoutToday) {
+  const handleSaveWorkout = async () => {
+    if (workoutToday && user) {
       const updatedWorkout: Workout = {
         ...workoutToday,
         exercises: workoutToday.exercises.map((exercise) => ({
           ...exercise,
           sets: exercise.sets,
-          logs: exercise.logs || [], // Ensure logs are included
+          logs: exercise.logs || [],
         })),
       };
 
-      const workouts = loadWorkouts();
-      const workoutIndex = workouts.findIndex(
-        (workout) => workout.workoutName === workoutToday.workoutName
-      );
-
-      if (workoutIndex !== -1) {
-        workouts[workoutIndex] = updatedWorkout;
-      } else {
-        workouts.push(updatedWorkout);
-      }
-
-      saveWorkouts(workouts);
+      await saveWorkouts([updatedWorkout], user);
+      alert("Workout saved successfully!");
     } else {
-      alert("No workout to save.");
+      alert("No workout to save or user not authenticated.");
     }
   };
 

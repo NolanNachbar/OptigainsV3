@@ -1,25 +1,50 @@
-// src/utils/localStorage.js
+// src/utils/SupaBase.ts
 
 import { Workout, Exercise, bodyWeight } from "./types";
+import supabase from "./supabaseClient.d"; // Import the Supabase client
+import { UserResource } from "@clerk/types"; // Import UserResource instead of User
+// Save workouts to Supabase
+export const saveWorkouts = async (workouts: Workout[], user: UserResource) => {
+  const { data, error } = await supabase.from("workouts").upsert(
+    workouts.map((workout) => ({
+      ...workout,
+      user_id: user.id, // Associate the workout with the user
+    }))
+  );
 
-// Save workouts to local storage
-export const saveWorkouts = (workouts: Workout[]) => {
-  localStorage.setItem("workouts", JSON.stringify(workouts));
+  if (error) {
+    console.error("Error saving workouts:", error);
+    throw error;
+  }
+
+  return data;
 };
 
-// Load workouts from local storage
-export const loadWorkouts = (): Workout[] => {
-  const workouts = localStorage.getItem("workouts");
-  return workouts ? JSON.parse(workouts) : [];
+// Load workouts from Supabase
+export const loadWorkouts = async (user: UserResource): Promise<Workout[]> => {
+  const { data, error } = await supabase
+    .from("workouts")
+    .select("*")
+    .eq("user_id", user.id);
+
+  if (error) {
+    console.error("Error loading workouts:", error);
+    throw error;
+  }
+
+  return data || [];
 };
 
 // Normalize exercise name to uppercase
 export const normalizeExerciseName = (name: string) => name.toUpperCase();
 
 // Assign a workout to a specific date
-// src/utils/localStorage.js
-export const assignWorkoutToDate = (workoutId: string, date: string) => {
-  const workouts = loadWorkouts();
+export const assignWorkoutToDate = async (
+  workoutId: string,
+  date: string,
+  user: UserResource
+) => {
+  const workouts = await loadWorkouts(user);
   const workoutIndex = workouts.findIndex(
     (workout) => workout.workoutName === workoutId
   );
@@ -29,20 +54,26 @@ export const assignWorkoutToDate = (workoutId: string, date: string) => {
     // If workout is not already assigned to the day, add it
     if (!workout.assignedDays.includes(date)) {
       workout.assignedDays.push(date);
-      saveWorkouts(workouts);
+      await saveWorkouts(workouts, user);
     }
   }
 };
 
 // Get the workouts assigned to a specific day
-export const getWorkoutsForDate = (date: string): Workout[] => {
-  const workouts = loadWorkouts();
+export const getWorkoutsForDate = async (
+  date: string,
+  user: UserResource
+): Promise<Workout[]> => {
+  const workouts = await loadWorkouts(user);
   return workouts.filter((workout) => workout.assignedDays.includes(date));
 };
 
 // Get the workout assigned for today
-export const getWorkoutForToday = (today: string): Workout | null => {
-  const workouts = loadWorkouts();
+export const getWorkoutForToday = async (
+  today: string,
+  user: UserResource
+): Promise<Workout | null> => {
+  const workouts = await loadWorkouts(user);
   const workout = workouts.find((workout) =>
     workout.assignedDays.includes(today)
   );
@@ -50,8 +81,12 @@ export const getWorkoutForToday = (today: string): Workout | null => {
 };
 
 // Remove a workout from a specific date
-export const removeWorkoutFromDate = (workoutId: string, date: string) => {
-  const workouts = loadWorkouts();
+export const removeWorkoutFromDate = async (
+  workoutId: string,
+  date: string,
+  user: UserResource
+) => {
+  const workouts = await loadWorkouts(user);
   const workoutIndex = workouts.findIndex(
     (workout) => workout.workoutName === workoutId
   );
@@ -60,10 +95,11 @@ export const removeWorkoutFromDate = (workoutId: string, date: string) => {
     workouts[workoutIndex].assignedDays = workouts[
       workoutIndex
     ].assignedDays.filter((d) => d !== date);
-    saveWorkouts(workouts);
+    await saveWorkouts(workouts, user);
   }
 };
 
+// Get the last set of an exercise
 export const lastSet = (
   exercise: Exercise
 ): { weight: number; reps: number; rir: number } | null => {
@@ -91,6 +127,7 @@ export const lastSet = (
   };
 };
 
+// Calculate the next weight for an exercise
 export const calculateNextWeight = (
   exercise: Exercise,
   reps: number,
@@ -135,8 +172,12 @@ export const calculateNextWeight = (
   return Math.round(result / 5) * 5;
 };
 
-export const addWorkoutWithNormalizedExercises = (workout: Workout) => {
-  const workouts = loadWorkouts();
+// Add a workout with normalized exercises
+export const addWorkoutWithNormalizedExercises = async (
+  workout: Workout,
+  user: UserResource
+) => {
+  const workouts = await loadWorkouts(user);
   const normalizedExercises = workout.exercises.map((newExercise) => {
     const normalizedName = normalizeExerciseName(newExercise.name);
     return {
@@ -150,11 +191,14 @@ export const addWorkoutWithNormalizedExercises = (workout: Workout) => {
     exercises: normalizedExercises,
   };
 
-  saveWorkouts([...workouts, newWorkout]);
+  await saveWorkouts([...workouts, newWorkout], user);
 };
 
-export const getConsolidatedExercises = (): Exercise[] => {
-  const workouts = loadWorkouts();
+// Get consolidated exercises
+export const getConsolidatedExercises = async (
+  user: UserResource
+): Promise<Exercise[]> => {
+  const workouts = await loadWorkouts(user);
   const allExercises: Exercise[] = workouts.flatMap(
     (workout) => workout.exercises
   );
@@ -182,35 +226,44 @@ export const getConsolidatedExercises = (): Exercise[] => {
   return Object.values(exerciseMap);
 };
 
-export const removeWorkoutFromList = (workoutId: string) => {
-  const workouts = loadWorkouts();
+// Remove a workout from the list
+export const removeWorkoutFromList = async (
+  workoutId: string,
+  user: UserResource
+) => {
+  const workouts = await loadWorkouts(user);
   const updatedWorkouts = workouts.filter(
     (workout) => workout.workoutName !== workoutId
   );
-  saveWorkouts(updatedWorkouts);
+  await saveWorkouts(updatedWorkouts, user);
 };
 
-// Update workouts to support editing exercises and sets
-export const editWorkout = (workoutId: string, updatedWorkout: Workout) => {
-  const workouts = loadWorkouts();
+// Edit a workout
+export const editWorkout = async (
+  workoutId: string,
+  updatedWorkout: Workout,
+  user: UserResource
+) => {
+  const workouts = await loadWorkouts(user);
   const workoutIndex = workouts.findIndex(
     (workout) => workout.workoutName === workoutId
   );
 
   if (workoutIndex !== -1) {
     workouts[workoutIndex] = { ...workouts[workoutIndex], ...updatedWorkout };
-    saveWorkouts(workouts);
+    await saveWorkouts(workouts, user);
   } else {
     console.warn(`Workout with ID ${workoutId} not found.`);
   }
 };
 
 // Remove an exercise from a workout
-export const removeExerciseFromWorkout = (
+export const removeExerciseFromWorkout = async (
   workoutId: string,
-  exerciseName: string
+  exerciseName: string,
+  user: UserResource
 ) => {
-  const workouts = loadWorkouts();
+  const workouts = await loadWorkouts(user);
   const workout = workouts.find((workout) => workout.workoutName === workoutId);
 
   if (workout) {
@@ -219,77 +272,132 @@ export const removeExerciseFromWorkout = (
         normalizeExerciseName(exercise.name) !==
         normalizeExerciseName(exerciseName)
     );
-    saveWorkouts(workouts);
+    await saveWorkouts(workouts, user);
   } else {
     console.warn(`Workout with ID ${workoutId} not found.`);
   }
 };
 
-// Save weights to localStorage
-export const saveWeights = (weights: bodyWeight[]) => {
-  localStorage.setItem("weights", JSON.stringify(weights));
+// Save weights to Supabase
+export const saveWeights = async (
+  weights: bodyWeight[],
+  user: UserResource
+) => {
+  if (!user) throw new Error("User not authenticated");
+
+  const { data, error } = await supabase.from("weights").upsert(
+    weights.map((weight) => ({
+      ...weight,
+      user_id: user.id, // Associate the weight with the user
+    }))
+  );
+
+  if (error) {
+    console.error("Error saving weights:", error);
+    throw error;
+  }
+
+  return data;
 };
 
 // Rearrange exercises within a workout
-export const rearrangeExercisesInWorkout = (
+export const rearrangeExercisesInWorkout = async (
   workoutId: string,
-  newOrder: Exercise[]
+  newOrder: Exercise[],
+  user: UserResource
 ) => {
-  const workouts = loadWorkouts();
+  const workouts = await loadWorkouts(user);
   const workout = workouts.find((workout) => workout.workoutName === workoutId);
 
   if (workout) {
     workout.exercises = newOrder;
-    saveWorkouts(workouts);
+    await saveWorkouts(workouts, user);
   } else {
     console.warn(`Workout with ID ${workoutId} not found.`);
   }
 };
 
 // // Preload some default workouts for testing purposes
-// export const preloadWorkouts = () => {
-//     const existingWorkouts = loadWorkouts();
-//     if (existingWorkouts.length > 0) return; // Don't overwrite existing workouts
+// export const preloadWorkouts = async (user: UserResource) => {
+//   // Check if the user already has workouts
+//   const { data: existingWorkouts, error: fetchError } = await supabase
+//     .from("workouts")
+//     .select("*")
+//     .eq("user_id", user.id);
 
-//     const defaultWorkouts: Workout[] = [
-//       {
-//         workoutName: "Full Body",
-//         assignedDays: ["2025-01-16"],
-//         exercises: [
-//           {
-//             name: "BENCH PRESS",
-//             sets: [
-//               { weight: 130, reps: 10, rir: 0 },
-//               { weight: 125, reps: 10, rir: 0 },
-//             ],
-//             rir: 0,
-//             logs: [
-//               { date: "2025-01-15", weight: 130, reps: 10, rir: 0 },
-//               { date: "2025-01-10", weight: 125, reps: 10, rir: 0 },
-//             ],
-//           },
-//           {
-//             name: "SQUAT",
-//             sets: [
-//               { weight: 180, reps: 8, rir: 0 },
-//               { weight: 175, reps: 8, rir: 0 },
-//             ],
-//             rir: 1,
-//             logs: [
-//               { date: "2025-01-15", weight: 180, reps: 8, rir: 0 },
-//               { date: "2025-01-10", weight: 175, reps: 8, rir: 0 },
-//             ],
-//           },
-//         ],
-//       },
-//     ];
+//   if (fetchError) {
+//     console.error("Error fetching existing workouts:", fetchError);
+//     throw fetchError;
+//   }
 
-//     saveWorkouts(defaultWorkouts); // Save default workouts if none exist
-//   };
+//   // Don't overwrite existing workouts
+//   if (existingWorkouts && existingWorkouts.length > 0) return;
 
-export const preloadWorkouts = () => {
-  const existingWorkouts = loadWorkouts();
-  if (existingWorkouts.length > 0) return; // Don't overwrite existing workouts
+//   // Define default workouts
+//   const defaultWorkouts: Workout[] = [
+//     {
+//       workoutName: "Full Body",
+//       assignedDays: ["2025-01-16"],
+//       exercises: [
+//         {
+//           name: "BENCH PRESS",
+//           sets: [
+//             { weight: 130, reps: 10, rir: 0 },
+//             { weight: 125, reps: 10, rir: 0 },
+//           ],
+//           rir: 0,
+//           logs: [
+//             { date: "2025-01-15", weight: 130, reps: 10, rir: 0 },
+//             { date: "2025-01-10", weight: 125, reps: 10, rir: 0 },
+//           ],
+//         },
+//         {
+//           name: "SQUAT",
+//           sets: [
+//             { weight: 180, reps: 8, rir: 0 },
+//             { weight: 175, reps: 8, rir: 0 },
+//           ],
+//           rir: 1,
+//           logs: [
+//             { date: "2025-01-15", weight: 180, reps: 8, rir: 0 },
+//             { date: "2025-01-10", weight: 175, reps: 8, rir: 0 },
+//           ],
+//         },
+//       ],
+//     },
+//   ];
+
+//   // Save default workouts to Supabase
+//   const { data, error } = await supabase.from("workouts").insert(
+//     defaultWorkouts.map((workout) => ({
+//       ...workout,
+//       user_id: user.id, // Associate the workout with the user
+//     }))
+//   );
+
+//   if (error) {
+//     console.error("Error saving default workouts:", error);
+//     throw error;
+//   }
+
+//   console.log("Default workouts preloaded:", data);
+// };
+
+// Preload some default workouts for testing purposes
+export const preloadWorkouts = async (user: UserResource) => {
+  // Check if the user already has workouts
+  const { data: existingWorkouts, error: fetchError } = await supabase
+    .from("workouts")
+    .select("*")
+    .eq("user_id", user.id);
+
+  if (fetchError) {
+    console.error("Error fetching existing workouts:", fetchError);
+    throw fetchError;
+  }
+
+  // Don't overwrite existing workouts
+  if (existingWorkouts && existingWorkouts.length > 0) return;
 
   const defaultWorkouts: Workout[] = [
     {
@@ -606,5 +714,18 @@ export const preloadWorkouts = () => {
     },
   ];
 
-  saveWorkouts(defaultWorkouts);
+  // Save default workouts to Supabase
+  const { data, error } = await supabase.from("workouts").insert(
+    defaultWorkouts.map((workout) => ({
+      ...workout,
+      user_id: user.id, // Associate the workout with the user
+    }))
+  );
+
+  if (error) {
+    console.error("Error saving default workouts:", error);
+    throw error;
+  }
+
+  console.log("Default workouts preloaded:", data);
 };

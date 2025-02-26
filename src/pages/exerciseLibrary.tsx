@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { getConsolidatedExercises } from "../utils/localStorage";
+import React, { useState, useEffect, useCallback } from "react";
+import { getConsolidatedExercises } from "../utils/SupaBase";
 import { Exercise } from "../utils/types";
 import { Line } from "react-chartjs-2";
 import {
@@ -22,26 +22,25 @@ ChartJS.register(
   Tooltip,
   Legend
 );
+import { useUser } from "@clerk/clerk-react";
 
 const ExerciseLibrary: React.FC = () => {
+  const { user } = useUser();
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(
     null
   );
 
-  const loadExercises = () => {
-    const consolidatedExercises = getConsolidatedExercises();
+  // Memoize loadExercises with useCallback
+  const loadExercises = useCallback(async () => {
+    if (!user) return;
+    const consolidatedExercises = await getConsolidatedExercises(user);
     setExercises(consolidatedExercises);
-  };
+  }, [user]); // Add user as a dependency
 
   useEffect(() => {
     loadExercises();
-    // Reload whenever localStorage is updated
-    window.addEventListener("storage", loadExercises);
-    return () => {
-      window.removeEventListener("storage", loadExercises);
-    };
-  }, []);
+  }, [loadExercises]);
 
   const handleSelectExercise = (exercise: Exercise) => {
     setSelectedExercise(exercise);

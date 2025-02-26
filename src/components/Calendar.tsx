@@ -8,9 +8,10 @@ import {
   removeWorkoutFromDate,
   calculateNextWeight,
   removeWorkoutFromList,
-} from "../utils/localStorage";
+} from "../utils/SupaBase";
 import "../styles/CalendarComponent.css";
 import EditWorkoutComponent from "./EditWorkout";
+import { useUser } from "@clerk/clerk-react";
 interface CalendarProps {
   savedWorkouts: Workout[];
   onRemoveWorkout: (workout: Workout) => void; // Add this line
@@ -20,6 +21,8 @@ const CalendarComponent: React.FC<CalendarProps> = ({
   savedWorkouts,
   onRemoveWorkout,
 }) => {
+  const { user } = useUser();
+
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedWorkouts, setSelectedWorkouts] = useState<Workout[]>([]);
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
@@ -30,17 +33,18 @@ const CalendarComponent: React.FC<CalendarProps> = ({
   const [search, setSearch] = useState<string>("");
 
   useEffect(() => {
-    // Fetch assigned workouts for the selected date
-    const workouts = getWorkoutsForDate(
-      selectedDate.toISOString().split("T")[0]
-    );
-    setWorkoutsForToday(workouts);
-    // Reload assigned days from localStorage when the component mounts or when workouts change
-    const storedAssignedDays = JSON.parse(
-      localStorage.getItem("assignedDays") || "{}"
-    );
-    setAssignedDays(storedAssignedDays);
-  }, [selectedDate, workoutsForToday, modalWorkout, search, savedWorkouts]);
+    if (!user) return; // Ensure user is authenticated
+
+    const fetchWorkouts = async () => {
+      const workouts = await getWorkoutsForDate(
+        selectedDate.toISOString().split("T")[0],
+        user
+      );
+      setWorkoutsForToday(workouts);
+    };
+
+    fetchWorkouts();
+  }, [selectedDate, user, modalWorkout, search, savedWorkouts]); // Add `user` to dependencies
 
   const handleUpdateWorkout = (updatedWorkout: Workout) => {
     setModalWorkout(updatedWorkout); // Update the modalWorkout state
@@ -64,13 +68,15 @@ const CalendarComponent: React.FC<CalendarProps> = ({
     }
   };
 
-  const handleDaySelection = (date: Date) => {
+  const handleDaySelection = async (date: Date) => {
     const selectedDateStr = date.toISOString().split("T")[0]; // Get the date in YYYY-MM-DD format
 
     if (selectedWorkouts.length === 0) {
       // If no workout is selected, show all workouts for the selected day
-      const workouts = getWorkoutsForDate(selectedDateStr);
-      setWorkoutsForToday(workouts);
+      if (user) {
+        const workouts = await getWorkoutsForDate(selectedDateStr, user); // Pass the user object
+        setWorkoutsForToday(workouts);
+      }
     } else {
       // Toggle selection of the day
       setSelectedDays((prevSelectedDays) => {
@@ -83,66 +89,58 @@ const CalendarComponent: React.FC<CalendarProps> = ({
     }
   };
 
-  const handleAssignWorkoutsToDays = () => {
+  const handleAssignWorkoutsToDays = async () => {
+    if (!user) return; // Ensure user is authenticated
+
     const newAssignedDays = { ...assignedDays };
 
-    selectedDays.forEach((day) => {
-      selectedWorkouts.forEach((workout) => {
-        assignWorkoutToDate(workout.workoutName, day); // Save to localStorage
+    for (const day of selectedDays) {
+      for (const workout of selectedWorkouts) {
+        await assignWorkoutToDate(workout.workoutName, day, user);
         if (!newAssignedDays[day]) newAssignedDays[day] = true;
-      });
-    });
+      }
+    }
 
-    setAssignedDays(newAssignedDays); // Update UI state
-    setSelectedDays([]); // Clear the selected days
-
-    // Save the updated assignedDays to localStorage
-    localStorage.setItem("assignedDays", JSON.stringify(newAssignedDays));
-
+    setAssignedDays(newAssignedDays);
+    setSelectedDays([]);
     alert(`Workouts assigned to selected days: ${selectedDays.join(", ")}`);
   };
 
-  const handleRemoveWorkoutFromDate = (workout: Workout, date: string) => {
-    // Remove workout from localStorage for that date
-    removeWorkoutFromDate(workout.workoutName, date);
+  const handleRemoveWorkoutFromDate = async (
+    workout: Workout,
+    date: string
+  ) => {
+    if (!user) return; // Ensure user is authenticated
 
-    // Update workoutsForToday state using a callback function
-    updateWorkoutsForToday((workouts) =>
-      workouts.filter((w) => w.workoutName !== workout.workoutName)
-    );
+    await removeWorkoutFromDate(workout.workoutName, date, user);
 
-    // Check if the day still has any workouts assigned
+    // Update workoutsForToday state
+    const updatedWorkouts = await getWorkoutsForDate(date, user);
+    setWorkoutsForToday(updatedWorkouts);
+
+    // Update assignedDays
     const updatedAssignedDays = { ...assignedDays };
-    const workoutsForThisDay = getWorkoutsForDate(date); // Get updated workouts for that day
-    if (workoutsForThisDay.length === 0) {
-      // If there are no workouts left for this day, remove the marker
+    if (updatedWorkouts.length === 0) {
       delete updatedAssignedDays[date];
     }
-
-    // Update the assignedDays state and save it to localStorage
     setAssignedDays(updatedAssignedDays);
-    localStorage.setItem("assignedDays", JSON.stringify(updatedAssignedDays));
-  };
-
-  const updateWorkoutsForToday = (
-    callback: (workouts: Workout[]) => Workout[]
-  ) => {
-    setWorkoutsForToday(callback);
   };
 
   const filteredWorkouts = savedWorkouts.filter((workout) =>
     workout.workoutName.toLowerCase().includes(search.toLowerCase())
   );
 
-  const handleRemoveWorkoutFromList = (workout: Workout) => {
-    removeWorkoutFromList(workout.workoutName);
+  const handleRemoveWorkoutFromList = async (workout: Workout) => {
+    if (!user) return; // Ensure user is authenticated
+
+    await removeWorkoutFromList(workout.workoutName, user);
     setSelectedWorkouts((prevWorkouts) =>
       prevWorkouts.filter((w) => w.workoutName !== workout.workoutName)
     );
     setWorkoutsForToday((prevWorkouts) =>
       prevWorkouts.filter((w) => w.workoutName !== workout.workoutName)
     );
-    onRemoveWorkout(workout); // Call the callback to update the parent state
+    onRemoveWorkout(workout);
   };
 
   const getRecommendedWeight = (

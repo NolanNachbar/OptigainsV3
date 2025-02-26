@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
 import {
-  loadWorkouts,
   saveWorkouts,
   getConsolidatedExercises,
   calculateNextWeight,
-} from "../utils/localStorage";
+} from "../utils/SupaBase";
 import { Workout, Exercise, Set } from "../utils/types";
 import ActionBar from "../components/Actionbar";
 import {
@@ -13,10 +12,12 @@ import {
   Draggable,
   DropResult,
 } from "react-beautiful-dnd";
+import { useUser } from "@clerk/clerk-react";
 
 const normalizeExerciseName = (name: string) => name.toUpperCase();
 
 const FreestyleLiftPage: React.FC = () => {
+  const { user } = useUser(); // Get the current user
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [currentExercise, setCurrentExercise] = useState("");
   const [workoutName, setWorkoutName] = useState("");
@@ -27,10 +28,15 @@ const FreestyleLiftPage: React.FC = () => {
   const [history, setHistory] = useState<Exercise[][]>([]);
 
   useEffect(() => {
-    const consolidatedExercises = getConsolidatedExercises();
-    const exerciseNames = consolidatedExercises.map((ex) => ex.name);
-    setSuggestions(exerciseNames);
-  }, []);
+    if (user) {
+      const loadExercises = async () => {
+        const exercises = await getConsolidatedExercises(user);
+        const exerciseNames = exercises.map((ex) => ex.name);
+        setSuggestions(exerciseNames);
+      };
+      loadExercises();
+    }
+  }, [user]);
 
   const handleExerciseChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCurrentExercise(e.target.value);
@@ -94,9 +100,14 @@ const FreestyleLiftPage: React.FC = () => {
     }));
   };
 
-  const handleSaveWorkout = () => {
+  const handleSaveWorkout = async () => {
     if (!workoutName.trim()) {
       alert("Please enter a workout name.");
+      return;
+    }
+
+    if (!user) {
+      alert("User not authenticated.");
       return;
     }
 
@@ -123,21 +134,31 @@ const FreestyleLiftPage: React.FC = () => {
       assignedDays: [today],
     };
 
-    saveWorkouts([...loadWorkouts(), newWorkout]);
-
-    setExercises([]);
-    setWorkoutName("");
-    alert("Workout saved successfully!");
+    try {
+      await saveWorkouts([newWorkout], user); // Save to Supabase
+      setExercises([]);
+      setWorkoutName("");
+      alert("Workout saved successfully!");
+    } catch (error) {
+      console.error("Error saving workout:", error);
+      alert("Failed to save workout.");
+    }
   };
 
-  const handleCalculateWeight = (exerciseName: string) => {
+  const handleCalculateWeight = async (exerciseName: string) => {
     const { reps, rir } = inputState[exerciseName];
     if (reps === "" || rir === "") {
       alert("Please enter valid reps and RIR values.");
       return;
     }
 
-    const exercise = getConsolidatedExercises().find(
+    if (!user) {
+      alert("User not authenticated.");
+      return;
+    }
+
+    const exercises = await getConsolidatedExercises(user);
+    const exercise = exercises.find(
       (ex) =>
         normalizeExerciseName(ex.name) === normalizeExerciseName(exerciseName)
     );

@@ -3,14 +3,16 @@ import {
   saveWorkouts,
   loadWorkouts,
   getConsolidatedExercises,
-} from "../utils/localStorage";
+} from "../utils/SupaBase";
 import { Workout, Exercise } from "../utils/types";
+import { useUser } from "@clerk/clerk-react"; // Import Clerk's useUser hook
 
 interface WorkoutFormProps {
   setSavedWorkouts: React.Dispatch<React.SetStateAction<Workout[]>>;
 }
 
 const WorkoutForm: React.FC<WorkoutFormProps> = ({ setSavedWorkouts }) => {
+  const { user } = useUser(); // Get the current user
   const [workoutName, setWorkoutName] = useState<string>("");
   const [workoutType, setWorkoutType] = useState<string>("");
   const [exercises, setExercises] = useState<Exercise[]>([]);
@@ -24,10 +26,20 @@ const WorkoutForm: React.FC<WorkoutFormProps> = ({ setSavedWorkouts }) => {
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
   useEffect(() => {
-    const consolidatedExercises = getConsolidatedExercises();
-    const exerciseNames = consolidatedExercises.map((ex) => ex.name);
-    setSuggestions(exerciseNames);
-  }, []);
+    const fetchSuggestions = async () => {
+      if (user) {
+        try {
+          const consolidatedExercises = await getConsolidatedExercises(user);
+          const exerciseNames = consolidatedExercises.map((ex) => ex.name);
+          setSuggestions(exerciseNames);
+        } catch (error) {
+          console.error("Error fetching suggestions:", error);
+        }
+      }
+    };
+
+    fetchSuggestions();
+  }, [user]); // Add user as a dependency
 
   const handleExerciseChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCurrentExercise(e.target.value);
@@ -37,32 +49,35 @@ const WorkoutForm: React.FC<WorkoutFormProps> = ({ setSavedWorkouts }) => {
   const handleAddExercise = () => {
     if (
       exerciseName &&
-      sets.every((set) => set.weight > 0 && set.reps > 0 && set.rir >= 0) // Allow rir = 0
+      sets.every((set) => set.weight > 0 && set.reps > 0 && set.rir >= 0)
     ) {
       const newExercise: Exercise = {
         name: exerciseName,
         sets: sets,
-        rir: sets[0].rir, // Assume RIR is consistent across sets for now
-        logs: [
-          {
-            date: new Date().toISOString(),
-            weight: sets[0].weight,
-            reps: sets[0].reps,
-            rir: sets[0].rir,
-          },
-        ],
+        rir: sets[0].rir,
+        logs: sets.map((set) => ({
+          date: new Date().toISOString(),
+          weight: set.weight,
+          reps: set.reps,
+          rir: set.rir,
+        })),
       };
       setExercises([...exercises, newExercise]);
       setExerciseName("");
-      setCurrentExercise(""); // Clear the current exercise input
-      setSets([{ weight: 1, reps: 10, rir: 0 }]); // Reset to default set
-      setFeedback(""); // Clear feedback message
+      setCurrentExercise("");
+      setSets([{ weight: 1, reps: 10, rir: 0 }]);
+      setFeedback("");
     } else {
       setFeedback("Please fill all fields with valid values.");
     }
   };
 
-  const handleSaveWorkout = () => {
+  const handleSaveWorkout = async () => {
+    if (!user) {
+      setFeedback("Please log in to save workouts.");
+      return;
+    }
+
     if (workoutName && workoutType && exercises.length > 0) {
       const newWorkout: Workout = {
         workoutName,
@@ -70,13 +85,19 @@ const WorkoutForm: React.FC<WorkoutFormProps> = ({ setSavedWorkouts }) => {
         exercises,
         assignedDays: [],
       };
-      const savedWorkouts = [...loadWorkouts(), newWorkout];
-      saveWorkouts(savedWorkouts);
-      setSavedWorkouts(savedWorkouts); // Update the saved workouts state
-      setWorkoutName("");
-      setWorkoutType("");
-      setExercises([]);
-      setFeedback("Workout saved successfully!");
+
+      try {
+        const savedWorkouts = await loadWorkouts(user); // Load workouts from Supabase
+        await saveWorkouts([...savedWorkouts, newWorkout], user); // Save to Supabase
+        setSavedWorkouts([...savedWorkouts, newWorkout]); // Update state
+        setWorkoutName("");
+        setWorkoutType("");
+        setExercises([]);
+        setFeedback("Workout saved successfully!");
+      } catch (error) {
+        console.error("Error saving workout:", error);
+        setFeedback("Failed to save workout. Please try again.");
+      }
     } else {
       setFeedback("Please fill all fields and add exercises before saving.");
     }
@@ -90,8 +111,8 @@ const WorkoutForm: React.FC<WorkoutFormProps> = ({ setSavedWorkouts }) => {
   const handleEditExercise = (index: number) => {
     const exerciseToEdit = exercises[index];
     setExerciseName(exerciseToEdit.name);
-    setCurrentExercise(exerciseToEdit.name); // Set currentExercise for the input field
-    setSets(exerciseToEdit.sets); // Populate sets with existing exercise data
+    setCurrentExercise(exerciseToEdit.name);
+    setSets(exerciseToEdit.sets);
     setEditingIndex(index);
   };
 
@@ -99,22 +120,23 @@ const WorkoutForm: React.FC<WorkoutFormProps> = ({ setSavedWorkouts }) => {
     if (
       editingIndex !== null &&
       exerciseName &&
-      sets.every((set) => set.weight > 0 && set.reps > 0 && set.rir >= 0) // Allow rir = 0
+      sets.every((set) => set.weight > 0 && set.reps > 0 && set.rir >= 0)
     ) {
       const updatedExercise: Exercise = {
         name: exerciseName,
         sets: sets,
-        rir: sets[0].rir, // Assume RIR is consistent across sets for now
+        rir: sets[0].rir,
+        logs: exercises[editingIndex].logs, // Preserve existing logs
       };
       const updatedExercises = exercises.map((exercise, index) =>
         index === editingIndex ? updatedExercise : exercise
       );
       setExercises(updatedExercises);
-      setEditingIndex(null); // Clear editing mode
+      setEditingIndex(null);
       setExerciseName("");
-      setCurrentExercise(""); // Clear the current exercise input
-      setSets([{ weight: 1, reps: 10, rir: 0 }]); // Reset to default set
-      setFeedback(""); // Clear feedback message
+      setCurrentExercise("");
+      setSets([{ weight: 1, reps: 10, rir: 0 }]);
+      setFeedback("");
     } else {
       setFeedback("Please fill all fields with valid values.");
     }
