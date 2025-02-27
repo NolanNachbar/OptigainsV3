@@ -1,7 +1,7 @@
 // src/utils/SupaBase.ts
 
 import { Workout, Exercise, bodyWeight } from "./types";
-import { supabase } from "c:/Users/UW-User/lifting-app-mvp/src/utils/supabaseClient"; // Import the Supabase client
+import { supabase } from "./supabaseClient"; // Import the Supabase client
 import { UserResource } from "@clerk/types"; // Import UserResource instead of User
 // Save workouts to Supabase
 export const saveWorkouts = async (workouts: Workout[], user: UserResource) => {
