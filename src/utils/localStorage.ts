@@ -21,14 +21,14 @@ export const normalizeExerciseName = (name: string) => name.toUpperCase();
 export const assignWorkoutToDate = (workoutId: string, date: string) => {
   const workouts = loadWorkouts();
   const workoutIndex = workouts.findIndex(
-    (workout) => workout.workoutName === workoutId
+    (workout) => workout.Workout_name === workoutId
   );
 
   if (workoutIndex !== -1) {
     const workout = workouts[workoutIndex];
     // If workout is not already assigned to the day, add it
-    if (!workout.assignedDays.includes(date)) {
-      workout.assignedDays.push(date);
+    if (!workout.Assigned_days.includes(date)) {
+      workout.Assigned_days.push(date);
       saveWorkouts(workouts);
     }
   }
@@ -37,14 +37,14 @@ export const assignWorkoutToDate = (workoutId: string, date: string) => {
 // Get the workouts assigned to a specific day
 export const getWorkoutsForDate = (date: string): Workout[] => {
   const workouts = loadWorkouts();
-  return workouts.filter((workout) => workout.assignedDays.includes(date));
+  return workouts.filter((workout) => workout.Assigned_days.includes(date));
 };
 
 // Get the workout assigned for today
 export const getWorkoutForToday = (today: string): Workout | null => {
   const workouts = loadWorkouts();
   const workout = workouts.find((workout) =>
-    workout.assignedDays.includes(today)
+    workout.Assigned_days.includes(today)
   );
   return workout || null;
 };
@@ -53,13 +53,13 @@ export const getWorkoutForToday = (today: string): Workout | null => {
 export const removeWorkoutFromDate = (workoutId: string, date: string) => {
   const workouts = loadWorkouts();
   const workoutIndex = workouts.findIndex(
-    (workout) => workout.workoutName === workoutId
+    (workout) => workout.Workout_name === workoutId
   );
 
   if (workoutIndex !== -1) {
-    workouts[workoutIndex].assignedDays = workouts[
+    workouts[workoutIndex].Assigned_days = workouts[
       workoutIndex
-    ].assignedDays.filter((d) => d !== date);
+    ].Assigned_days.filter((d) => d !== date);
     saveWorkouts(workouts);
   }
 };
@@ -185,7 +185,7 @@ export const getConsolidatedExercises = (): Exercise[] => {
 export const removeWorkoutFromList = (workoutId: string) => {
   const workouts = loadWorkouts();
   const updatedWorkouts = workouts.filter(
-    (workout) => workout.workoutName !== workoutId
+    (workout) => workout.Workout_name !== workoutId
   );
   saveWorkouts(updatedWorkouts);
 };
@@ -194,7 +194,7 @@ export const removeWorkoutFromList = (workoutId: string) => {
 export const editWorkout = (workoutId: string, updatedWorkout: Workout) => {
   const workouts = loadWorkouts();
   const workoutIndex = workouts.findIndex(
-    (workout) => workout.workoutName === workoutId
+    (workout) => workout.Workout_name === workoutId
   );
 
   if (workoutIndex !== -1) {
@@ -211,7 +211,9 @@ export const removeExerciseFromWorkout = (
   exerciseName: string
 ) => {
   const workouts = loadWorkouts();
-  const workout = workouts.find((workout) => workout.workoutName === workoutId);
+  const workout = workouts.find(
+    (workout) => workout.Workout_name === workoutId
+  );
 
   if (workout) {
     workout.exercises = workout.exercises.filter(
@@ -236,7 +238,9 @@ export const rearrangeExercisesInWorkout = (
   newOrder: Exercise[]
 ) => {
   const workouts = loadWorkouts();
-  const workout = workouts.find((workout) => workout.workoutName === workoutId);
+  const workout = workouts.find(
+    (workout) => workout.Workout_name === workoutId
+  );
 
   if (workout) {
     workout.exercises = newOrder;
@@ -253,8 +257,8 @@ export const rearrangeExercisesInWorkout = (
 
 //     const defaultWorkouts: Workout[] = [
 //       {
-//         workoutName: "Full Body",
-//         assignedDays: ["2025-01-16"],
+//         Workout_name: "Full Body",
+//         Assigned_days: ["2025-01-16"],
 //         exercises: [
 //           {
 //             name: "BENCH PRESS",
@@ -293,8 +297,8 @@ export const preloadWorkouts = () => {
 
   const defaultWorkouts: Workout[] = [
     {
-      workoutName: "FB1",
-      assignedDays: ["2025-01-16"],
+      Workout_name: "FB1",
+      Assigned_days: ["2025-01-16"],
       exercises: [
         {
           name: "Chest-Supported Row",
@@ -383,8 +387,8 @@ export const preloadWorkouts = () => {
       ],
     },
     {
-      workoutName: "FB2",
-      assignedDays: ["2025-01-16"],
+      Workout_name: "FB2",
+      Assigned_days: ["2025-01-16"],
       exercises: [
         {
           name: "Machine Hammer Curl",
@@ -473,8 +477,8 @@ export const preloadWorkouts = () => {
       ],
     },
     {
-      workoutName: "Upper",
-      assignedDays: ["2025-01-16"],
+      Workout_name: "Upper",
+      Assigned_days: ["2025-01-16"],
       exercises: [
         {
           name: "Machine shoulder press",
@@ -527,8 +531,8 @@ export const preloadWorkouts = () => {
       ],
     },
     {
-      workoutName: "Lower",
-      assignedDays: ["2025-01-16"],
+      Workout_name: "Lower",
+      Assigned_days: ["2025-01-16"],
       exercises: [
         {
           name: "Squat",

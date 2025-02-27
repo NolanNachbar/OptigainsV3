@@ -3,14 +3,20 @@
 import { Workout, Exercise, bodyWeight } from "./types";
 import { supabase } from "./supabaseClient"; // Import the Supabase client
 import { UserResource } from "@clerk/types"; // Import UserResource instead of User
-// Save workouts to Supabase
+import { v5 as uuidv5 } from "uuid";
+
 export const saveWorkouts = async (workouts: Workout[], user: UserResource) => {
-  const { data, error } = await supabase.from("workouts").upsert(
-    workouts.map((workout) => ({
-      ...workout,
-      user_id: user.id, // Associate the workout with the user
-    }))
-  );
+  // Generate a UUID from the Clerk user ID
+  const userIdAsUuid = uuidv5(user.id, uuidv5.URL); // Use UUID v5 to generate a deterministic UUID
+
+  const workoutsToSave = workouts.map((workout) => ({
+    ...workout,
+    user_id: userIdAsUuid, // Use the generated UUID
+  }));
+
+  const { data, error } = await supabase
+    .from("workouts")
+    .upsert(workoutsToSave, { onConflict: "id" });
 
   if (error) {
     console.error("Error saving workouts:", error);
@@ -22,10 +28,12 @@ export const saveWorkouts = async (workouts: Workout[], user: UserResource) => {
 
 // Load workouts from Supabase
 export const loadWorkouts = async (user: UserResource): Promise<Workout[]> => {
+  const userIdAsUuid = uuidv5(user.id, uuidv5.URL); // Generate UUID from Clerk user ID
+
   const { data, error } = await supabase
     .from("workouts")
     .select("*")
-    .eq("user_id", user.id);
+    .eq("user_id", userIdAsUuid); // Use the generated UUID
 
   if (error) {
     console.error("Error loading workouts:", error);
@@ -34,7 +42,6 @@ export const loadWorkouts = async (user: UserResource): Promise<Workout[]> => {
 
   return data || [];
 };
-
 // Normalize exercise name to uppercase
 export const normalizeExerciseName = (name: string) => name.toUpperCase();
 
@@ -46,14 +53,14 @@ export const assignWorkoutToDate = async (
 ) => {
   const workouts = await loadWorkouts(user);
   const workoutIndex = workouts.findIndex(
-    (workout) => workout.workoutName === workoutId
+    (workout) => workout.Workout_name === workoutId
   );
 
   if (workoutIndex !== -1) {
     const workout = workouts[workoutIndex];
     // If workout is not already assigned to the day, add it
-    if (!workout.assignedDays.includes(date)) {
-      workout.assignedDays.push(date);
+    if (!workout.Assigned_days.includes(date)) {
+      workout.Assigned_days.push(date);
       await saveWorkouts(workouts, user);
     }
   }
@@ -65,7 +72,7 @@ export const getWorkoutsForDate = async (
   user: UserResource
 ): Promise<Workout[]> => {
   const workouts = await loadWorkouts(user);
-  return workouts.filter((workout) => workout.assignedDays.includes(date));
+  return workouts.filter((workout) => workout.Assigned_days.includes(date));
 };
 
 // Get the workout assigned for today
@@ -74,10 +81,11 @@ export const getWorkoutForToday = async (
   user: UserResource
 ): Promise<Workout | null> => {
   const workouts = await loadWorkouts(user);
-  const workout = workouts.find((workout) =>
-    workout.assignedDays.includes(today)
+  if (!workouts || workouts.length === 0) return null; // Prevent errors
+
+  return (
+    workouts.find((workout) => workout.Assigned_days.includes(today)) || null
   );
-  return workout || null;
 };
 
 // Remove a workout from a specific date
@@ -88,13 +96,13 @@ export const removeWorkoutFromDate = async (
 ) => {
   const workouts = await loadWorkouts(user);
   const workoutIndex = workouts.findIndex(
-    (workout) => workout.workoutName === workoutId
+    (workout) => workout.Workout_name === workoutId
   );
 
   if (workoutIndex !== -1) {
-    workouts[workoutIndex].assignedDays = workouts[
+    workouts[workoutIndex].Assigned_days = workouts[
       workoutIndex
-    ].assignedDays.filter((d) => d !== date);
+    ].Assigned_days.filter((d) => d !== date);
     await saveWorkouts(workouts, user);
   }
 };
@@ -233,7 +241,7 @@ export const removeWorkoutFromList = async (
 ) => {
   const workouts = await loadWorkouts(user);
   const updatedWorkouts = workouts.filter(
-    (workout) => workout.workoutName !== workoutId
+    (workout) => workout.Workout_name !== workoutId
   );
   await saveWorkouts(updatedWorkouts, user);
 };
@@ -246,7 +254,7 @@ export const editWorkout = async (
 ) => {
   const workouts = await loadWorkouts(user);
   const workoutIndex = workouts.findIndex(
-    (workout) => workout.workoutName === workoutId
+    (workout) => workout.Workout_name === workoutId
   );
 
   if (workoutIndex !== -1) {
@@ -264,7 +272,9 @@ export const removeExerciseFromWorkout = async (
   user: UserResource
 ) => {
   const workouts = await loadWorkouts(user);
-  const workout = workouts.find((workout) => workout.workoutName === workoutId);
+  const workout = workouts.find(
+    (workout) => workout.Workout_name === workoutId
+  );
 
   if (workout) {
     workout.exercises = workout.exercises.filter(
@@ -307,7 +317,9 @@ export const rearrangeExercisesInWorkout = async (
   user: UserResource
 ) => {
   const workouts = await loadWorkouts(user);
-  const workout = workouts.find((workout) => workout.workoutName === workoutId);
+  const workout = workouts.find(
+    (workout) => workout.Workout_name === workoutId
+  );
 
   if (workout) {
     workout.exercises = newOrder;
@@ -315,6 +327,74 @@ export const rearrangeExercisesInWorkout = async (
   } else {
     console.warn(`Workout with ID ${workoutId} not found.`);
   }
+};
+
+// Preload some default workouts for testing purposes
+export const preloadWorkouts = async (user: UserResource) => {
+  const userIdAsUuid = uuidv5(user.id, uuidv5.URL); // Generate UUID from Clerk user ID
+
+  // Check if the user already has workouts
+  const { data: existingWorkouts, error: fetchError } = await supabase
+    .from("workouts")
+    .select("*")
+    .eq("user_id", userIdAsUuid); // Use the generated UUID
+
+  if (fetchError) {
+    console.error("Error fetching existing workouts:", fetchError);
+    throw fetchError;
+  }
+
+  // Don't overwrite existing workouts
+  if (existingWorkouts && existingWorkouts.length > 0) return;
+
+  // Define default workouts
+  const defaultWorkouts: Workout[] = [
+    {
+      Workout_name: "Full Body",
+      Assigned_days: ["2025-01-16"],
+      exercises: [
+        {
+          name: "BENCH PRESS",
+          sets: [
+            { weight: 130, reps: 10, rir: 0 },
+            { weight: 125, reps: 10, rir: 0 },
+          ],
+          rir: 0,
+          logs: [
+            { date: "2025-01-15", weight: 130, reps: 10, rir: 0 },
+            { date: "2025-01-10", weight: 125, reps: 10, rir: 0 },
+          ],
+        },
+        {
+          name: "SQUAT",
+          sets: [
+            { weight: 180, reps: 8, rir: 0 },
+            { weight: 175, reps: 8, rir: 0 },
+          ],
+          rir: 1,
+          logs: [
+            { date: "2025-01-15", weight: 180, reps: 8, rir: 0 },
+            { date: "2025-01-10", weight: 175, reps: 8, rir: 0 },
+          ],
+        },
+      ],
+    },
+  ];
+
+  // Save default workouts to Supabase
+  const { data, error } = await supabase.from("workouts").insert(
+    defaultWorkouts.map((workout) => ({
+      ...workout,
+      user_id: userIdAsUuid, // Use the generated UUID
+    }))
+  );
+
+  if (error) {
+    console.error("Error saving default workouts:", error);
+    throw error;
+  }
+
+  console.log("Default workouts preloaded:", data);
 };
 
 // // Preload some default workouts for testing purposes
@@ -333,34 +413,315 @@ export const rearrangeExercisesInWorkout = async (
 //   // Don't overwrite existing workouts
 //   if (existingWorkouts && existingWorkouts.length > 0) return;
 
-//   // Define default workouts
 //   const defaultWorkouts: Workout[] = [
 //     {
-//       workoutName: "Full Body",
-//       assignedDays: ["2025-01-16"],
+//       Workout_name: "FB1",
+//       Assigned_days: ["2025-01-16"],
 //       exercises: [
 //         {
-//           name: "BENCH PRESS",
+//           name: "Chest-Supported Row",
 //           sets: [
-//             { weight: 130, reps: 10, rir: 0 },
-//             { weight: 125, reps: 10, rir: 0 },
+//             { weight: 415, reps: 9, rir: 0 },
+//             { weight: 320, reps: 10, rir: 0 },
 //           ],
 //           rir: 0,
 //           logs: [
-//             { date: "2025-01-15", weight: 130, reps: 10, rir: 0 },
-//             { date: "2025-01-10", weight: 125, reps: 10, rir: 0 },
+//             { date: "2025-01-16", weight: 415, reps: 10, rir: 0 },
+//             { date: "2025-01-10", weight: 320, reps: 10, rir: 0 },
 //           ],
 //         },
 //         {
-//           name: "SQUAT",
+//           name: "Incline Medium Grip Bench Press",
 //           sets: [
-//             { weight: 180, reps: 8, rir: 0 },
-//             { weight: 175, reps: 8, rir: 0 },
+//             { weight: 290, reps: 10, rir: 0 },
+//             { weight: 225, reps: 10, rir: 0 },
 //           ],
-//           rir: 1,
+//           rir: 0,
 //           logs: [
-//             { date: "2025-01-15", weight: 180, reps: 8, rir: 0 },
-//             { date: "2025-01-10", weight: 175, reps: 8, rir: 0 },
+//             { date: "2025-01-16", weight: 290, reps: 10, rir: 0 },
+//             { date: "2025-01-10", weight: 225, reps: 10, rir: 0 },
+//           ],
+//         },
+//         {
+//           name: "Hip Adduction",
+//           sets: [
+//             { weight: 360, reps: 10, rir: 0 },
+//             { weight: 275, reps: 10, rir: 0 },
+//           ],
+//           rir: 0,
+//           logs: [
+//             { date: "2025-01-16", weight: 360, reps: 10, rir: 0 },
+//             { date: "2025-01-10", weight: 275, reps: 10, rir: 0 },
+//           ],
+//         },
+//         {
+//           name: "Cable Tricep Pushdown",
+//           sets: [
+//             { weight: 45, reps: 10, rir: 0 },
+//             { weight: 35, reps: 10, rir: 0 },
+//           ],
+//           rir: 0,
+//           logs: [
+//             { date: "2025-01-16", weight: 45, reps: 10, rir: 0 },
+//             { date: "2025-01-10", weight: 35, reps: 10, rir: 0 },
+//           ],
+//         },
+//         {
+//           name: "Leg extensions",
+//           sets: [
+//             { weight: 400, reps: 10, rir: 0 },
+//             { weight: 310, reps: 10, rir: 0 },
+//           ],
+//           rir: 0,
+//           logs: [
+//             { date: "2025-01-16", weight: 400, reps: 10, rir: 0 },
+//             { date: "2025-01-10", weight: 310, reps: 10, rir: 0 },
+//           ],
+//         },
+//         {
+//           name: "Machine lateral raises",
+//           sets: [
+//             { weight: 150, reps: 10, rir: 0 },
+//             { weight: 115, reps: 10, rir: 0 },
+//           ],
+//           rir: 0,
+//           logs: [
+//             { date: "2025-01-16", weight: 150, reps: 3, rir: 0 },
+//             { date: "2025-01-10", weight: 115, reps: 10, rir: 0 },
+//           ],
+//         },
+//         {
+//           name: "Kelso shrugs",
+//           sets: [
+//             { weight: 275, reps: 3, rir: 0 },
+//             { weight: 210, reps: 10, rir: 0 },
+//           ],
+//           rir: 0,
+//           logs: [
+//             { date: "2025-01-16", weight: 275, reps: 3, rir: 0 },
+//             { date: "2025-01-10", weight: 210, reps: 10, rir: 0 },
+//           ],
+//         },
+//       ],
+//     },
+//     {
+//       Workout_name: "FB2",
+//       Assigned_days: ["2025-01-16"],
+//       exercises: [
+//         {
+//           name: "Machine Hammer Curl",
+//           sets: [
+//             { weight: 155, reps: 3, rir: 0 },
+//             { weight: 120, reps: 10, rir: 0 },
+//           ],
+//           rir: 0,
+//           logs: [
+//             { date: "2025-01-16", weight: 155, reps: 3, rir: 0 },
+//             { date: "2025-01-10", weight: 120, reps: 10, rir: 0 },
+//           ],
+//         },
+//         {
+//           name: "Medium Grip Bench Press",
+//           sets: [
+//             { weight: 265, reps: 3, rir: 0 },
+//             { weight: 205, reps: 10, rir: 0 },
+//           ],
+//           rir: 0,
+//           logs: [
+//             { date: "2025-01-16", weight: 265, reps: 3, rir: 0 },
+//             { date: "2025-01-10", weight: 205, reps: 10, rir: 0 },
+//           ],
+//         },
+//         {
+//           name: "Stiff Legged Deadlift",
+//           sets: [
+//             { weight: 305, reps: 3, rir: 0 },
+//             { weight: 235, reps: 10, rir: 0 },
+//           ],
+//           rir: 0,
+//           logs: [
+//             { date: "2025-01-16", weight: 305, reps: 3, rir: 0 },
+//             { date: "2025-01-10", weight: 235, reps: 10, rir: 0 },
+//           ],
+//         },
+//         {
+//           name: "Normal Grip Pulldown",
+//           sets: [
+//             { weight: 210, reps: 3, rir: 0 },
+//             { weight: 160, reps: 10, rir: 0 },
+//           ],
+//           rir: 0,
+//           logs: [
+//             { date: "2025-01-16", weight: 210, reps: 3, rir: 0 },
+//             { date: "2025-01-10", weight: 160, reps: 10, rir: 0 },
+//           ],
+//         },
+//         {
+//           name: "Cable Tricep Pushdown",
+//           sets: [
+//             { weight: 45, reps: 3, rir: 0 },
+//             { weight: 35, reps: 10, rir: 0 },
+//           ],
+//           rir: 0,
+//           logs: [
+//             { date: "2025-01-16", weight: 45, reps: 3, rir: 0 },
+//             { date: "2025-01-10", weight: 35, reps: 10, rir: 0 },
+//           ],
+//         },
+//         {
+//           name: "Leg Press",
+//           sets: [
+//             { weight: 45, reps: 3, rir: 0 },
+//             { weight: 35, reps: 10, rir: 0 },
+//           ],
+//           rir: 0,
+//           logs: [
+//             { date: "2025-01-16", weight: 45, reps: 3, rir: 0 },
+//             { date: "2025-01-10", weight: 35, reps: 10, rir: 0 },
+//           ],
+//         },
+//         {
+//           name: "Behind the back cuff lat raises",
+//           sets: [
+//             { weight: 25, reps: 3, rir: 0 },
+//             { weight: 20, reps: 10, rir: 0 },
+//           ],
+//           rir: 0,
+//           logs: [
+//             { date: "2025-01-16", weight: 25, reps: 3, rir: 0 },
+//             { date: "2025-01-10", weight: 20, reps: 10, rir: 0 },
+//           ],
+//         },
+//       ],
+//     },
+//     {
+//       Workout_name: "Upper",
+//       Assigned_days: ["2025-01-16"],
+//       exercises: [
+//         {
+//           name: "Machine shoulder press",
+//           sets: [
+//             { weight: 250, reps: 3, rir: 0 },
+//             { weight: 195, reps: 10, rir: 0 },
+//           ],
+//           rir: 0,
+//           logs: [
+//             { date: "2025-01-16", weight: 250, reps: 3, rir: 0 },
+//             { date: "2025-01-10", weight: 195, reps: 10, rir: 0 },
+//           ],
+//         },
+//         {
+//           name: "Normal Grip Pulldown",
+//           sets: [
+//             { weight: 230, reps: 3, rir: 0 },
+//             { weight: 175, reps: 10, rir: 0 },
+//           ],
+//           rir: 0,
+//           logs: [
+//             { date: "2025-01-16", weight: 230, reps: 3, rir: 0 },
+//             { date: "2025-01-10", weight: 175, reps: 10, rir: 0 },
+//           ],
+//         },
+//         {
+//           name: "Machine Curls",
+//           sets: [
+//             { weight: 145, reps: 3, rir: 0 },
+//             { weight: 110, reps: 10, rir: 0 },
+//           ],
+//           rir: 0,
+//           logs: [
+//             { date: "2025-01-16", weight: 145, reps: 3, rir: 0 },
+//             { date: "2025-01-10", weight: 110, reps: 10, rir: 0 },
+//           ],
+//         },
+//         {
+//           name: "Leg Press",
+//           sets: [
+//             { weight: 750, reps: 3, rir: 0 },
+//             { weight: 585, reps: 10, rir: 0 },
+//           ],
+//           rir: 0,
+//           logs: [
+//             { date: "2025-01-16", weight: 750, reps: 3, rir: 0 },
+//             { date: "2025-01-10", weight: 585, reps: 10, rir: 0 },
+//           ],
+//         },
+//       ],
+//     },
+//     {
+//       Workout_name: "Lower",
+//       Assigned_days: ["2025-01-16"],
+//       exercises: [
+//         {
+//           name: "Squat",
+//           sets: [
+//             { weight: 225, reps: 15, rir: 0 },
+//             { weight: 290, reps: 3, rir: 0 },
+//           ],
+//           rir: 0,
+//           logs: [
+//             { date: "2025-01-16", weight: 225, reps: 15, rir: 0 },
+//             { date: "2025-01-16", weight: 290, reps: 3, rir: 0 },
+//           ],
+//         },
+//         {
+//           name: "Seated Leg Curl",
+//           sets: [
+//             { weight: 175, reps: 15, rir: 0 },
+//             { weight: 230, reps: 3, rir: 0 },
+//           ],
+//           rir: 0,
+//           logs: [
+//             { date: "2025-01-16", weight: 175, reps: 15, rir: 0 },
+//             { date: "2025-01-16", weight: 230, reps: 3, rir: 0 },
+//           ],
+//         },
+//         {
+//           name: "Leg extensions",
+//           sets: [
+//             { weight: 260, reps: 10, rir: 0 },
+//             { weight: 340, reps: 3, rir: 0 },
+//           ],
+//           rir: 0,
+//           logs: [
+//             { date: "2025-01-16", weight: 260, reps: 10, rir: 0 },
+//             { date: "2025-01-16", weight: 340, reps: 3, rir: 0 },
+//           ],
+//         },
+//         {
+//           name: "Sus-machine",
+//           sets: [
+//             { weight: 225, reps: 3, rir: 0 },
+//             { weight: 295, reps: 3, rir: 0 },
+//           ],
+//           rir: 0,
+//           logs: [
+//             { date: "2025-01-16", weight: 225, reps: 3, rir: 0 },
+//             { date: "2025-01-16", weight: 295, reps: 3, rir: 0 },
+//           ],
+//         },
+//         {
+//           name: "Calf press",
+//           sets: [
+//             { weight: 290, reps: 12, rir: 0 },
+//             { weight: 375, reps: 3, rir: 0 },
+//           ],
+//           rir: 0,
+//           logs: [
+//             { date: "2025-01-16", weight: 290, reps: 12, rir: 0 },
+//             { date: "2025-01-16", weight: 375, reps: 3, rir: 0 },
+//           ],
+//         },
+//         {
+//           name: "Abs crunch machine",
+//           sets: [
+//             { weight: 15, reps: 15, rir: 0 },
+//             { weight: 20, reps: 3, rir: 0 },
+//           ],
+//           rir: 0,
+//           logs: [
+//             { date: "2025-01-16", weight: 15, reps: 15, rir: 0 },
+//             { date: "2025-01-16", weight: 20, reps: 3, rir: 0 },
 //           ],
 //         },
 //       ],
@@ -382,350 +743,3 @@ export const rearrangeExercisesInWorkout = async (
 
 //   console.log("Default workouts preloaded:", data);
 // };
-
-// Preload some default workouts for testing purposes
-export const preloadWorkouts = async (user: UserResource) => {
-  // Check if the user already has workouts
-  const { data: existingWorkouts, error: fetchError } = await supabase
-    .from("workouts")
-    .select("*")
-    .eq("user_id", user.id);
-
-  if (fetchError) {
-    console.error("Error fetching existing workouts:", fetchError);
-    throw fetchError;
-  }
-
-  // Don't overwrite existing workouts
-  if (existingWorkouts && existingWorkouts.length > 0) return;
-
-  const defaultWorkouts: Workout[] = [
-    {
-      workoutName: "FB1",
-      assignedDays: ["2025-01-16"],
-      exercises: [
-        {
-          name: "Chest-Supported Row",
-          sets: [
-            { weight: 415, reps: 9, rir: 0 },
-            { weight: 320, reps: 10, rir: 0 },
-          ],
-          rir: 0,
-          logs: [
-            { date: "2025-01-16", weight: 415, reps: 10, rir: 0 },
-            { date: "2025-01-10", weight: 320, reps: 10, rir: 0 },
-          ],
-        },
-        {
-          name: "Incline Medium Grip Bench Press",
-          sets: [
-            { weight: 290, reps: 10, rir: 0 },
-            { weight: 225, reps: 10, rir: 0 },
-          ],
-          rir: 0,
-          logs: [
-            { date: "2025-01-16", weight: 290, reps: 10, rir: 0 },
-            { date: "2025-01-10", weight: 225, reps: 10, rir: 0 },
-          ],
-        },
-        {
-          name: "Hip Adduction",
-          sets: [
-            { weight: 360, reps: 10, rir: 0 },
-            { weight: 275, reps: 10, rir: 0 },
-          ],
-          rir: 0,
-          logs: [
-            { date: "2025-01-16", weight: 360, reps: 10, rir: 0 },
-            { date: "2025-01-10", weight: 275, reps: 10, rir: 0 },
-          ],
-        },
-        {
-          name: "Cable Tricep Pushdown",
-          sets: [
-            { weight: 45, reps: 10, rir: 0 },
-            { weight: 35, reps: 10, rir: 0 },
-          ],
-          rir: 0,
-          logs: [
-            { date: "2025-01-16", weight: 45, reps: 10, rir: 0 },
-            { date: "2025-01-10", weight: 35, reps: 10, rir: 0 },
-          ],
-        },
-        {
-          name: "Leg extensions",
-          sets: [
-            { weight: 400, reps: 10, rir: 0 },
-            { weight: 310, reps: 10, rir: 0 },
-          ],
-          rir: 0,
-          logs: [
-            { date: "2025-01-16", weight: 400, reps: 10, rir: 0 },
-            { date: "2025-01-10", weight: 310, reps: 10, rir: 0 },
-          ],
-        },
-        {
-          name: "Machine lateral raises",
-          sets: [
-            { weight: 150, reps: 10, rir: 0 },
-            { weight: 115, reps: 10, rir: 0 },
-          ],
-          rir: 0,
-          logs: [
-            { date: "2025-01-16", weight: 150, reps: 3, rir: 0 },
-            { date: "2025-01-10", weight: 115, reps: 10, rir: 0 },
-          ],
-        },
-        {
-          name: "Kelso shrugs",
-          sets: [
-            { weight: 275, reps: 3, rir: 0 },
-            { weight: 210, reps: 10, rir: 0 },
-          ],
-          rir: 0,
-          logs: [
-            { date: "2025-01-16", weight: 275, reps: 3, rir: 0 },
-            { date: "2025-01-10", weight: 210, reps: 10, rir: 0 },
-          ],
-        },
-      ],
-    },
-    {
-      workoutName: "FB2",
-      assignedDays: ["2025-01-16"],
-      exercises: [
-        {
-          name: "Machine Hammer Curl",
-          sets: [
-            { weight: 155, reps: 3, rir: 0 },
-            { weight: 120, reps: 10, rir: 0 },
-          ],
-          rir: 0,
-          logs: [
-            { date: "2025-01-16", weight: 155, reps: 3, rir: 0 },
-            { date: "2025-01-10", weight: 120, reps: 10, rir: 0 },
-          ],
-        },
-        {
-          name: "Medium Grip Bench Press",
-          sets: [
-            { weight: 265, reps: 3, rir: 0 },
-            { weight: 205, reps: 10, rir: 0 },
-          ],
-          rir: 0,
-          logs: [
-            { date: "2025-01-16", weight: 265, reps: 3, rir: 0 },
-            { date: "2025-01-10", weight: 205, reps: 10, rir: 0 },
-          ],
-        },
-        {
-          name: "Stiff Legged Deadlift",
-          sets: [
-            { weight: 305, reps: 3, rir: 0 },
-            { weight: 235, reps: 10, rir: 0 },
-          ],
-          rir: 0,
-          logs: [
-            { date: "2025-01-16", weight: 305, reps: 3, rir: 0 },
-            { date: "2025-01-10", weight: 235, reps: 10, rir: 0 },
-          ],
-        },
-        {
-          name: "Normal Grip Pulldown",
-          sets: [
-            { weight: 210, reps: 3, rir: 0 },
-            { weight: 160, reps: 10, rir: 0 },
-          ],
-          rir: 0,
-          logs: [
-            { date: "2025-01-16", weight: 210, reps: 3, rir: 0 },
-            { date: "2025-01-10", weight: 160, reps: 10, rir: 0 },
-          ],
-        },
-        {
-          name: "Cable Tricep Pushdown",
-          sets: [
-            { weight: 45, reps: 3, rir: 0 },
-            { weight: 35, reps: 10, rir: 0 },
-          ],
-          rir: 0,
-          logs: [
-            { date: "2025-01-16", weight: 45, reps: 3, rir: 0 },
-            { date: "2025-01-10", weight: 35, reps: 10, rir: 0 },
-          ],
-        },
-        {
-          name: "Leg Press",
-          sets: [
-            { weight: 45, reps: 3, rir: 0 },
-            { weight: 35, reps: 10, rir: 0 },
-          ],
-          rir: 0,
-          logs: [
-            { date: "2025-01-16", weight: 45, reps: 3, rir: 0 },
-            { date: "2025-01-10", weight: 35, reps: 10, rir: 0 },
-          ],
-        },
-        {
-          name: "Behind the back cuff lat raises",
-          sets: [
-            { weight: 25, reps: 3, rir: 0 },
-            { weight: 20, reps: 10, rir: 0 },
-          ],
-          rir: 0,
-          logs: [
-            { date: "2025-01-16", weight: 25, reps: 3, rir: 0 },
-            { date: "2025-01-10", weight: 20, reps: 10, rir: 0 },
-          ],
-        },
-      ],
-    },
-    {
-      workoutName: "Upper",
-      assignedDays: ["2025-01-16"],
-      exercises: [
-        {
-          name: "Machine shoulder press",
-          sets: [
-            { weight: 250, reps: 3, rir: 0 },
-            { weight: 195, reps: 10, rir: 0 },
-          ],
-          rir: 0,
-          logs: [
-            { date: "2025-01-16", weight: 250, reps: 3, rir: 0 },
-            { date: "2025-01-10", weight: 195, reps: 10, rir: 0 },
-          ],
-        },
-        {
-          name: "Normal Grip Pulldown",
-          sets: [
-            { weight: 230, reps: 3, rir: 0 },
-            { weight: 175, reps: 10, rir: 0 },
-          ],
-          rir: 0,
-          logs: [
-            { date: "2025-01-16", weight: 230, reps: 3, rir: 0 },
-            { date: "2025-01-10", weight: 175, reps: 10, rir: 0 },
-          ],
-        },
-        {
-          name: "Machine Curls",
-          sets: [
-            { weight: 145, reps: 3, rir: 0 },
-            { weight: 110, reps: 10, rir: 0 },
-          ],
-          rir: 0,
-          logs: [
-            { date: "2025-01-16", weight: 145, reps: 3, rir: 0 },
-            { date: "2025-01-10", weight: 110, reps: 10, rir: 0 },
-          ],
-        },
-        {
-          name: "Leg Press",
-          sets: [
-            { weight: 750, reps: 3, rir: 0 },
-            { weight: 585, reps: 10, rir: 0 },
-          ],
-          rir: 0,
-          logs: [
-            { date: "2025-01-16", weight: 750, reps: 3, rir: 0 },
-            { date: "2025-01-10", weight: 585, reps: 10, rir: 0 },
-          ],
-        },
-      ],
-    },
-    {
-      workoutName: "Lower",
-      assignedDays: ["2025-01-16"],
-      exercises: [
-        {
-          name: "Squat",
-          sets: [
-            { weight: 225, reps: 15, rir: 0 },
-            { weight: 290, reps: 3, rir: 0 },
-          ],
-          rir: 0,
-          logs: [
-            { date: "2025-01-16", weight: 225, reps: 15, rir: 0 },
-            { date: "2025-01-16", weight: 290, reps: 3, rir: 0 },
-          ],
-        },
-        {
-          name: "Seated Leg Curl",
-          sets: [
-            { weight: 175, reps: 15, rir: 0 },
-            { weight: 230, reps: 3, rir: 0 },
-          ],
-          rir: 0,
-          logs: [
-            { date: "2025-01-16", weight: 175, reps: 15, rir: 0 },
-            { date: "2025-01-16", weight: 230, reps: 3, rir: 0 },
-          ],
-        },
-        {
-          name: "Leg extensions",
-          sets: [
-            { weight: 260, reps: 10, rir: 0 },
-            { weight: 340, reps: 3, rir: 0 },
-          ],
-          rir: 0,
-          logs: [
-            { date: "2025-01-16", weight: 260, reps: 10, rir: 0 },
-            { date: "2025-01-16", weight: 340, reps: 3, rir: 0 },
-          ],
-        },
-        {
-          name: "Sus-machine",
-          sets: [
-            { weight: 225, reps: 3, rir: 0 },
-            { weight: 295, reps: 3, rir: 0 },
-          ],
-          rir: 0,
-          logs: [
-            { date: "2025-01-16", weight: 225, reps: 3, rir: 0 },
-            { date: "2025-01-16", weight: 295, reps: 3, rir: 0 },
-          ],
-        },
-        {
-          name: "Calf press",
-          sets: [
-            { weight: 290, reps: 12, rir: 0 },
-            { weight: 375, reps: 3, rir: 0 },
-          ],
-          rir: 0,
-          logs: [
-            { date: "2025-01-16", weight: 290, reps: 12, rir: 0 },
-            { date: "2025-01-16", weight: 375, reps: 3, rir: 0 },
-          ],
-        },
-        {
-          name: "Abs crunch machine",
-          sets: [
-            { weight: 15, reps: 15, rir: 0 },
-            { weight: 20, reps: 3, rir: 0 },
-          ],
-          rir: 0,
-          logs: [
-            { date: "2025-01-16", weight: 15, reps: 15, rir: 0 },
-            { date: "2025-01-16", weight: 20, reps: 3, rir: 0 },
-          ],
-        },
-      ],
-    },
-  ];
-
-  // Save default workouts to Supabase
-  const { data, error } = await supabase.from("workouts").insert(
-    defaultWorkouts.map((workout) => ({
-      ...workout,
-      user_id: user.id, // Associate the workout with the user
-    }))
-  );
-
-  if (error) {
-    console.error("Error saving default workouts:", error);
-    throw error;
-  }
-
-  console.log("Default workouts preloaded:", data);
-};

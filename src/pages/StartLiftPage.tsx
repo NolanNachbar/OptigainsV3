@@ -40,7 +40,26 @@ const StartLiftPage: React.FC = () => {
   }
 
   if (error) {
-    return <p>{error}</p>;
+    console.error(error);
+    return (
+      <div style={{ textAlign: "center", padding: "4rem" }}>
+        <ActionBar />
+        <h2>Start Your Lift</h2>
+        <button
+          onClick={() => navigate("/weight-log")}
+          className="button action"
+        >
+          Weigh In
+        </button>
+        <button
+          onClick={() => navigate("/freestyle-lift")}
+          className="button action"
+        >
+          Start Freestyle Lift
+        </button>
+        <p>No lift programmed for today.</p>
+      </div>
+    );
   }
 
   return (

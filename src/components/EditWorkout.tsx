@@ -75,7 +75,7 @@ const EditWorkoutComponent: React.FC<EditProps> = ({
 
     const workouts = await loadWorkouts(user);
     const workoutIndex = workouts.findIndex(
-      (w) => w.workoutName === updatedWorkout.workoutName
+      (w) => w.Workout_name === updatedWorkout.Workout_name
     );
     if (workoutIndex !== -1) {
       workouts[workoutIndex] = updatedWorkout;
@@ -185,7 +185,7 @@ const EditWorkoutComponent: React.FC<EditProps> = ({
       const updatedWorkout = { ...workout, exercises: updatedExercises };
       updateWorkoutWithHistory(updatedWorkout);
 
-      await removeWorkoutFromList(updatedWorkout.workoutName, user); // Remove from Supabase
+      await removeWorkoutFromList(updatedWorkout.Workout_name, user); // Remove from Supabase
       onUpdateWorkout(updatedWorkout);
       await handleSaveWorkout(); // Save to Supabase
     }

@@ -13,8 +13,8 @@ interface WorkoutFormProps {
 
 const WorkoutForm: React.FC<WorkoutFormProps> = ({ setSavedWorkouts }) => {
   const { user } = useUser(); // Get the current user
-  const [workoutName, setWorkoutName] = useState<string>("");
-  const [workoutType, setWorkoutType] = useState<string>("");
+  const [Workout_name, setWorkout_name] = useState<string>("");
+  // const [workoutType, setWorkoutType] = useState<string>("");
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [exerciseName, setExerciseName] = useState<string>("");
   const [currentExercise, setCurrentExercise] = useState("");
@@ -78,20 +78,18 @@ const WorkoutForm: React.FC<WorkoutFormProps> = ({ setSavedWorkouts }) => {
       return;
     }
 
-    if (workoutName && workoutType && exercises.length > 0) {
+    if (exercises.length > 0) {
       const newWorkout: Workout = {
-        workoutName,
-        workoutType,
+        Workout_name: Workout_name, // Match the column name in Supabase
+        Assigned_days: [], // Match the column name in Supabase
         exercises,
-        assignedDays: [],
       };
 
       try {
         const savedWorkouts = await loadWorkouts(user); // Load workouts from Supabase
         await saveWorkouts([...savedWorkouts, newWorkout], user); // Save to Supabase
         setSavedWorkouts([...savedWorkouts, newWorkout]); // Update state
-        setWorkoutName("");
-        setWorkoutType("");
+        setWorkout_name("");
         setExercises([]);
         setFeedback("Workout saved successfully!");
       } catch (error) {
@@ -150,14 +148,14 @@ const WorkoutForm: React.FC<WorkoutFormProps> = ({ setSavedWorkouts }) => {
       <div className="floating-label-container">
         <input
           type="text"
-          value={workoutName}
-          onChange={(e) => setWorkoutName(e.target.value)}
+          value={Workout_name}
+          onChange={(e) => setWorkout_name(e.target.value)}
           placeholder=" "
         />
         <span className="floating-label">Workout Name</span>
       </div>
 
-      {/* Workout Type */}
+      {/* Workout Type
       <div className="floating-label-container">
         <input
           type="text"
@@ -166,7 +164,7 @@ const WorkoutForm: React.FC<WorkoutFormProps> = ({ setSavedWorkouts }) => {
           placeholder=" "
         />
         <span className="floating-label">Workout Type (e.g., Push, Pull)</span>
-      </div>
+      </div> */}
 
       <h4>Exercises</h4>
 

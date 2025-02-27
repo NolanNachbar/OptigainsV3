@@ -23,9 +23,9 @@ const WorkoutPlanPage: React.FC = () => {
 
   const handleRemoveWorkout = async (workout: Workout) => {
     if (user) {
-      await removeWorkoutFromList(workout.workoutName, user); // Pass the user object
+      await removeWorkoutFromList(workout.Workout_name, user); // Pass the user object
       setSavedWorkouts((prevWorkouts) =>
-        prevWorkouts.filter((w) => w.workoutName !== workout.workoutName)
+        prevWorkouts.filter((w) => w.Workout_name !== workout.Workout_name)
       );
     }
   };

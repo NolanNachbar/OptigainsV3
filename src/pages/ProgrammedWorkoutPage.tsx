@@ -321,13 +321,13 @@ const StartProgrammedLiftPage: React.FC = () => {
   const handleRemoveExercise = async (exerciseName: string) => {
     if (workoutToday && user) {
       await removeExerciseFromWorkout(
-        workoutToday.workoutName,
+        workoutToday.Workout_name,
         exerciseName,
         user
       );
       const updatedWorkout = await loadWorkouts(user).then(
         (workouts) =>
-          workouts.find((w) => w.workoutName === workoutToday.workoutName) ||
+          workouts.find((w) => w.Workout_name === workoutToday.Workout_name) ||
           null
       );
       setWorkoutToday(updatedWorkout);
@@ -426,7 +426,7 @@ const StartProgrammedLiftPage: React.FC = () => {
         <h1>Today's Workout</h1>
         {workoutToday ? (
           <>
-            <h2>{workoutToday.workoutName}</h2>
+            <h2>{workoutToday.Workout_name}</h2>
 
             <DragDropContext onDragEnd={handleReorderExercises}>
               {!editing ? (

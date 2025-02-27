@@ -114,8 +114,7 @@ const FreestyleLiftPage: React.FC = () => {
     const today = new Date().toISOString().split("T")[0];
 
     const newWorkout: Workout = {
-      workoutName: workoutName.trim(),
-      workoutType: "Freestyle",
+      Workout_name: workoutName.trim(),
       exercises: exercises.map((exercise) => ({
         name: normalizeExerciseName(exercise.name),
         sets: exercise.sets.map((set) => ({
@@ -131,7 +130,7 @@ const FreestyleLiftPage: React.FC = () => {
           rir: set.rir,
         })),
       })),
-      assignedDays: [today],
+      Assigned_days: [today],
     };
 
     try {
