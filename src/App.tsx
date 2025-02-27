@@ -58,3 +58,34 @@ const App: React.FC = () => {
 };
 
 export default App;
+
+// import React from "react";
+// import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+// import { ClerkProvider } from "@clerk/clerk-react";
+// import HomePage from "./pages/HomePage";
+
+// const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+
+// const App: React.FC = () => {
+//   console.log("Clerk Key:", clerkPubKey); // Log the key to verify it's loaded
+
+//   if (!clerkPubKey) {
+//     console.error("Clerk publishable key is missing!");
+//     return <div>Error: Clerk publishable key is missing!</div>;
+//   }
+
+//   return (
+//     <ClerkProvider publishableKey={clerkPubKey}>
+//       <div>
+//         <h1>Clerk Provider Loaded</h1>
+//         <Router>
+//           <Routes>
+//             <Route path="/" element={<HomePage />} />
+//           </Routes>
+//         </Router>
+//       </div>
+//     </ClerkProvider>
+//   );
+// };
+
+// export default App;
