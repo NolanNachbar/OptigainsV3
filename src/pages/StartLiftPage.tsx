@@ -4,9 +4,11 @@ import { getWorkoutForToday } from "../utils/SupaBase"; // Ensure this is update
 import { Workout } from "../utils/types";
 import ActionBar from "../components/Actionbar";
 import { useUser } from "@clerk/clerk-react";
+import { useSupabaseClient } from "../utils/supabaseClient"; // Import the custom Supabase client hook
 
 const StartLiftPage: React.FC = () => {
   const { user } = useUser();
+  const supabase = useSupabaseClient(); // Get the Supabase client
   const [workoutToday, setWorkoutToday] = useState<Workout | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -22,7 +24,7 @@ const StartLiftPage: React.FC = () => {
 
       try {
         const today = new Date().toISOString().split("T")[0];
-        const workout = await getWorkoutForToday(today, user); // Pass the user object
+        const workout = await getWorkoutForToday(supabase, today, user); // Pass the Supabase client
         setWorkoutToday(workout);
       } catch (err) {
         setError("Failed to fetch workout for today");
@@ -33,7 +35,7 @@ const StartLiftPage: React.FC = () => {
     };
 
     fetchWorkout();
-  }, [user]);
+  }, [user, supabase]); // Add supabase to the dependency array
 
   if (loading) {
     return <p>Loading...</p>;

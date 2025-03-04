@@ -3,16 +3,19 @@ import { useNavigate } from "react-router-dom";
 import { preloadWorkouts } from "../utils/SupaBase"; // Ensure this path is correct
 import OptigainDumbell from "../assets/react3.svg";
 import { useUser } from "@clerk/clerk-react"; // Import Clerk's useUser hook
+import { useSupabaseClient } from "../utils/supabaseClient"; // Import the custom Supabase client hook
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useUser(); // Get the authenticated user
+  const supabase = useSupabaseClient(); // Get the Supabase client instance
 
   useEffect(() => {
     if (user) {
-      preloadWorkouts(user); // Pass the user to preloadWorkouts
+      // Pass both supabase and user to preloadWorkouts
+      preloadWorkouts(supabase, user);
     }
-  }, [user]); // Run this effect when the user changes
+  }, [user, supabase]); // Run this effect when the user or supabase client changes
 
   return (
     <div style={{ textAlign: "center", padding: "2rem" }}>

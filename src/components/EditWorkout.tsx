@@ -14,6 +14,7 @@ import {
   DropResult,
 } from "react-beautiful-dnd";
 import { useUser } from "@clerk/clerk-react";
+import { useSupabaseClient } from "../utils/supabaseClient"; // Import the custom hook
 
 const normalizeExerciseName = (name: string) => name.toUpperCase();
 
@@ -27,6 +28,7 @@ const EditWorkoutComponent: React.FC<EditProps> = ({
   onUpdateWorkout,
 }) => {
   const { user } = useUser();
+  const supabase = useSupabaseClient(); // Initialize the Supabase client
   const [workout, setWorkout] = useState<Workout | null>(savedWorkout);
   const [userLog, setUserLog] = useState<Record<string, Set[]>>({});
   const [editing, setEditing] = useState(true);
@@ -73,7 +75,7 @@ const EditWorkoutComponent: React.FC<EditProps> = ({
 
     updateWorkoutWithHistory(updatedWorkout);
 
-    const workouts = await loadWorkouts(user);
+    const workouts = await loadWorkouts(supabase, user); // Pass supabase here
     const workoutIndex = workouts.findIndex(
       (w) => w.Workout_name === updatedWorkout.Workout_name
     );
@@ -82,7 +84,7 @@ const EditWorkoutComponent: React.FC<EditProps> = ({
     } else {
       workouts.push(updatedWorkout);
     }
-    await saveWorkouts(workouts, user); // Save to Supabase
+    await saveWorkouts(supabase, workouts, user); // Pass supabase here
   };
 
   const handleAddExercise = async () => {
@@ -185,7 +187,7 @@ const EditWorkoutComponent: React.FC<EditProps> = ({
       const updatedWorkout = { ...workout, exercises: updatedExercises };
       updateWorkoutWithHistory(updatedWorkout);
 
-      await removeWorkoutFromList(updatedWorkout.Workout_name, user); // Remove from Supabase
+      await removeWorkoutFromList(supabase, updatedWorkout.Workout_name, user); // Pass supabase here
       onUpdateWorkout(updatedWorkout);
       await handleSaveWorkout(); // Save to Supabase
     }
@@ -213,7 +215,7 @@ const EditWorkoutComponent: React.FC<EditProps> = ({
           ),
         }));
 
-        await saveWorkouts([updatedWorkout], user); // Save to Supabase
+        await saveWorkouts(supabase, [updatedWorkout], user); // Pass supabase here
       }
     }
   };
@@ -234,7 +236,7 @@ const EditWorkoutComponent: React.FC<EditProps> = ({
         })),
       };
 
-      await saveWorkouts([updatedWorkout], user); // Save to Supabase
+      await saveWorkouts(supabase, [updatedWorkout], user); // Pass supabase here
     } else {
       alert("No workout to save or user not authenticated.");
     }
@@ -264,7 +266,7 @@ const EditWorkoutComponent: React.FC<EditProps> = ({
           return updatedLog;
         });
 
-        await saveWorkouts([updatedWorkout], user); // Save to Supabase
+        await saveWorkouts(supabase, [updatedWorkout], user); // Pass supabase here
       }
     }
   };

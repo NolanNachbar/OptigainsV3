@@ -1,31 +1,44 @@
 import React, { useEffect, useState } from "react";
 import WorkoutForm from "../components/WorkoutForm";
 import CalendarComponent from "../components/Calendar";
-import { loadWorkouts, removeWorkoutFromList } from "../utils/SupaBase"; // Import removeWorkoutFromList
+import {
+  loadWorkouts,
+  removeWorkoutFromList,
+  preloadWorkouts,
+} from "../utils/SupaBase";
 import { Workout } from "../utils/types";
 import ActionBar from "../components/Actionbar";
-import { useUser } from "@clerk/clerk-react"; // Import Clerk's useUser hook
+import { useUser } from "@clerk/clerk-react";
+import { useSupabaseClient } from "../utils/supabaseClient"; // Import the custom hook
 
 const WorkoutPlanPage: React.FC = () => {
   const [savedWorkouts, setSavedWorkouts] = useState<Workout[]>([]);
   const { user } = useUser(); // Get the authenticated user
+  const supabase = useSupabaseClient(); // Get the Supabase client
 
   useEffect(() => {
     const fetchWorkouts = async () => {
-      if (user) {
-        const workouts = await loadWorkouts(user); // Pass the user object
-        setSavedWorkouts(workouts);
+      if (user && supabase) {
+        try {
+          // First try to preload default workouts
+          await preloadWorkouts(supabase, user);
+          // Then load all workouts (including any preloaded ones)
+          const workouts = await loadWorkouts(supabase, user);
+          setSavedWorkouts(workouts);
+        } catch (error) {
+          console.error("Error loading workouts:", error);
+        }
       }
     };
 
     fetchWorkouts();
-  }, [user]); // Add user as a dependency
+  }, [user, supabase]); // Add supabase as a dependency
 
   const handleRemoveWorkout = async (workout: Workout) => {
-    if (user) {
-      await removeWorkoutFromList(workout.Workout_name, user); // Pass the user object
+    if (user && supabase) {
+      await removeWorkoutFromList(supabase, workout.workout_name, user); // Pass supabase and user
       setSavedWorkouts((prevWorkouts) =>
-        prevWorkouts.filter((w) => w.Workout_name !== workout.Workout_name)
+        prevWorkouts.filter((w) => w.workout_name !== workout.workout_name)
       );
     }
   };
@@ -38,8 +51,7 @@ const WorkoutPlanPage: React.FC = () => {
           savedWorkouts={savedWorkouts}
           onRemoveWorkout={handleRemoveWorkout}
         />
-        <WorkoutForm setSavedWorkouts={setSavedWorkouts} />{" "}
-        {/* Pass user to WorkoutForm */}
+        <WorkoutForm setSavedWorkouts={setSavedWorkouts} />
       </div>
     </div>
   );

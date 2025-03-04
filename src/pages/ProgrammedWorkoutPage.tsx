@@ -17,11 +17,13 @@ import {
 } from "react-beautiful-dnd";
 import ActionBar from "../components/Actionbar";
 import { useUser } from "@clerk/clerk-react";
+import { useSupabaseClient } from "../utils/supabaseClient"; // Import the hook
 
 const normalizeExerciseName = (name: string) => name.toUpperCase();
 
 const StartProgrammedLiftPage: React.FC = () => {
   const { user } = useUser();
+  const supabase = useSupabaseClient(); // Initialize Supabase client
   const [workoutToday, setWorkoutToday] = useState<Workout | null>(null);
   const [userLog, setUserLog] = useState<Record<string, Set[]>>({});
   const [editing, setEditing] = useState(true);
@@ -44,10 +46,13 @@ const StartProgrammedLiftPage: React.FC = () => {
     const today = new Date().toISOString().split("T")[0];
     const fetchWorkout = async () => {
       if (user) {
-        const workout = await getWorkoutForToday(today, user);
+        const workout = await getWorkoutForToday(supabase, today, user); // Pass supabase
         setWorkoutToday(workout);
 
-        const consolidatedExercises = await getConsolidatedExercises(user);
+        const consolidatedExercises = await getConsolidatedExercises(
+          supabase,
+          user
+        ); // Pass supabase
         const exerciseNames = consolidatedExercises.map((ex) => ex.name);
         setSuggestions(exerciseNames);
 
@@ -74,7 +79,7 @@ const StartProgrammedLiftPage: React.FC = () => {
     };
 
     fetchWorkout();
-  }, [user]);
+  }, [user, supabase]); // Add supabase to dependencies
 
   const updateWorkoutWithHistory = (updatedWorkout: Workout) => {
     setHistory((prevHistory) => [...prevHistory, workoutToday!]); // Save current state to history
@@ -253,7 +258,7 @@ const StartProgrammedLiftPage: React.FC = () => {
 
   const handleShowLastSet = async (exerciseName: string) => {
     if (user) {
-      const allWorkouts = await loadWorkouts(user);
+      const allWorkouts = await loadWorkouts(supabase, user); // Pass supabase
       let lastLogSet: { weight: number; reps: number; rir: number } | null =
         null;
 
@@ -321,11 +326,13 @@ const StartProgrammedLiftPage: React.FC = () => {
   const handleRemoveExercise = async (exerciseName: string) => {
     if (workoutToday && user) {
       await removeExerciseFromWorkout(
+        supabase,
         workoutToday.Workout_name,
         exerciseName,
         user
-      );
-      const updatedWorkout = await loadWorkouts(user).then(
+      ); // Pass supabase
+      const updatedWorkout = await loadWorkouts(supabase, user).then(
+        // Pass supabase
         (workouts) =>
           workouts.find((w) => w.Workout_name === workoutToday.Workout_name) ||
           null
@@ -376,7 +383,7 @@ const StartProgrammedLiftPage: React.FC = () => {
         })),
       };
 
-      await saveWorkouts([updatedWorkout], user);
+      await saveWorkouts(supabase, [updatedWorkout], user); // Pass supabase
       alert("Workout saved successfully!");
     } else {
       alert("No workout to save or user not authenticated.");

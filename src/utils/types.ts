@@ -25,8 +25,10 @@ interface ExerciseLog {
 }
 
 export interface Workout {
-  Workout_name: string; // Match the column name in Supabase
-  Assigned_days: string[]; // Match the column name in Supabase
+  id?: string;
+  workout_name: string;
+  assigned_days: string[];
   exercises: Exercise[];
-  user_id?: string; // Optional, as it will be added by the save function
+  clerk_user_id: string;
+  user_id?: string;
 }

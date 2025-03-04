@@ -1,3 +1,4 @@
+// src\components\WorkoutForm.tsx
 import React, { useEffect, useState } from "react";
 import {
   saveWorkouts,
@@ -6,6 +7,7 @@ import {
 } from "../utils/SupaBase";
 import { Workout, Exercise } from "../utils/types";
 import { useUser } from "@clerk/clerk-react"; // Import Clerk's useUser hook
+import { useSupabaseClient } from "../utils/supabaseClient"; // Import the custom hook
 
 interface WorkoutFormProps {
   setSavedWorkouts: React.Dispatch<React.SetStateAction<Workout[]>>;
@@ -13,15 +15,15 @@ interface WorkoutFormProps {
 
 const WorkoutForm: React.FC<WorkoutFormProps> = ({ setSavedWorkouts }) => {
   const { user } = useUser(); // Get the current user
-  const [Workout_name, setWorkout_name] = useState<string>("");
-  // const [workoutType, setWorkoutType] = useState<string>("");
+  const supabase = useSupabaseClient(); // Initialize Supabase client
+  const [workoutName, setWorkoutName] = useState<string>("");
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [exerciseName, setExerciseName] = useState<string>("");
   const [currentExercise, setCurrentExercise] = useState("");
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [sets, setSets] = useState<
     { weight: number; reps: number; rir: number }[]
-  >([{ weight: 1, reps: 10, rir: 0 }]); // Changed to hold an array of sets
+  >([{ weight: 1, reps: 10, rir: 0 }]);
   const [feedback, setFeedback] = useState<string>("");
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
@@ -29,7 +31,10 @@ const WorkoutForm: React.FC<WorkoutFormProps> = ({ setSavedWorkouts }) => {
     const fetchSuggestions = async () => {
       if (user) {
         try {
-          const consolidatedExercises = await getConsolidatedExercises(user);
+          const consolidatedExercises = await getConsolidatedExercises(
+            supabase,
+            user
+          ); // Pass supabase here
           const exerciseNames = consolidatedExercises.map((ex) => ex.name);
           setSuggestions(exerciseNames);
         } catch (error) {
@@ -39,7 +44,7 @@ const WorkoutForm: React.FC<WorkoutFormProps> = ({ setSavedWorkouts }) => {
     };
 
     fetchSuggestions();
-  }, [user]); // Add user as a dependency
+  }, [user, supabase]); // Add supabase as a dependency
 
   const handleExerciseChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCurrentExercise(e.target.value);
@@ -78,18 +83,19 @@ const WorkoutForm: React.FC<WorkoutFormProps> = ({ setSavedWorkouts }) => {
       return;
     }
 
-    if (exercises.length > 0) {
+    if (exercises.length > 0 && workoutName) {
       const newWorkout: Workout = {
-        Workout_name: Workout_name, // Match the column name in Supabase
-        Assigned_days: [], // Match the column name in Supabase
+        workout_name: workoutName,
+        assigned_days: [],
         exercises,
+        clerk_user_id: user.id,
       };
 
       try {
-        const savedWorkouts = await loadWorkouts(user); // Load workouts from Supabase
-        await saveWorkouts([...savedWorkouts, newWorkout], user); // Save to Supabase
-        setSavedWorkouts([...savedWorkouts, newWorkout]); // Update state
-        setWorkout_name("");
+        const savedWorkouts = await loadWorkouts(supabase, user);
+        await saveWorkouts(supabase, [...savedWorkouts, newWorkout], user);
+        setSavedWorkouts([...savedWorkouts, newWorkout]);
+        setWorkoutName("");
         setExercises([]);
         setFeedback("Workout saved successfully!");
       } catch (error) {
@@ -148,8 +154,8 @@ const WorkoutForm: React.FC<WorkoutFormProps> = ({ setSavedWorkouts }) => {
       <div className="floating-label-container">
         <input
           type="text"
-          value={Workout_name}
-          onChange={(e) => setWorkout_name(e.target.value)}
+          value={workoutName}
+          onChange={(e) => setWorkoutName(e.target.value)}
           placeholder=" "
         />
         <span className="floating-label">Workout Name</span>

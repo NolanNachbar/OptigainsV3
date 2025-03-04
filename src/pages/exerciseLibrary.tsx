@@ -1,3 +1,4 @@
+// src\pages\exerciseLibrary.tsx
 import React, { useState, useEffect, useCallback } from "react";
 import { getConsolidatedExercises } from "../utils/SupaBase";
 import { Exercise } from "../utils/types";
@@ -13,6 +14,10 @@ import {
   Legend,
 } from "chart.js";
 import ActionBar from "../components/Actionbar";
+import { useUser } from "@clerk/clerk-react";
+import { useSupabaseClient } from "../utils/supabaseClient"; // Import the custom Supabase client hook
+
+// Register Chart.js components
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -22,10 +27,10 @@ ChartJS.register(
   Tooltip,
   Legend
 );
-import { useUser } from "@clerk/clerk-react";
 
 const ExerciseLibrary: React.FC = () => {
   const { user } = useUser();
+  const supabase = useSupabaseClient(); // Get the Supabase client
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(
     null
@@ -34,9 +39,12 @@ const ExerciseLibrary: React.FC = () => {
   // Memoize loadExercises with useCallback
   const loadExercises = useCallback(async () => {
     if (!user) return;
-    const consolidatedExercises = await getConsolidatedExercises(user);
+    const consolidatedExercises = await getConsolidatedExercises(
+      supabase,
+      user
+    ); // Pass supabase here
     setExercises(consolidatedExercises);
-  }, [user]); // Add user as a dependency
+  }, [user, supabase]); // Add user and supabase as dependencies
 
   useEffect(() => {
     loadExercises();
@@ -45,6 +53,7 @@ const ExerciseLibrary: React.FC = () => {
   const handleSelectExercise = (exercise: Exercise) => {
     setSelectedExercise(exercise);
   };
+
   const getProgressData = (exercise: Exercise) => {
     if (!exercise.logs || exercise.logs.length === 0) return null;
 
