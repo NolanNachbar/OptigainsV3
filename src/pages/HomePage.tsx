@@ -4,6 +4,7 @@ import { preloadWorkouts } from "../utils/SupaBase"; // Ensure this path is corr
 import OptigainDumbell from "../assets/react3.svg";
 import { useUser } from "@clerk/clerk-react"; // Import Clerk's useUser hook
 import { useSupabaseClient } from "../utils/supabaseClient"; // Import the custom Supabase client hook
+import ActionBar from "../components/Actionbar";
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
@@ -19,6 +20,7 @@ const HomePage: React.FC = () => {
 
   return (
     <div style={{ textAlign: "center", padding: "2rem" }}>
+      <ActionBar />
       <img src={OptigainDumbell} alt="Optigain Dumbell Logo" />
       <h1>Optigains</h1>
 
