@@ -327,14 +327,14 @@ const StartProgrammedLiftPage: React.FC = () => {
     if (workoutToday && user) {
       await removeExerciseFromWorkout(
         supabase,
-        workoutToday.Workout_name,
+        workoutToday.workout_name,
         exerciseName,
         user
       ); // Pass supabase
       const updatedWorkout = await loadWorkouts(supabase, user).then(
         // Pass supabase
         (workouts) =>
-          workouts.find((w) => w.Workout_name === workoutToday.Workout_name) ||
+          workouts.find((w) => w.workout_name === workoutToday.workout_name) ||
           null
       );
       setWorkoutToday(updatedWorkout);
@@ -433,7 +433,7 @@ const StartProgrammedLiftPage: React.FC = () => {
         <h1>Today's Workout</h1>
         {workoutToday ? (
           <>
-            <h2>{workoutToday.Workout_name}</h2>
+            <h2>{workoutToday.workout_name}</h2>
 
             <DragDropContext onDragEnd={handleReorderExercises}>
               {!editing ? (
