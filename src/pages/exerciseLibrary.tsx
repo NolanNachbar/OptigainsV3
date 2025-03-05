@@ -216,15 +216,6 @@ const ExerciseLibrary: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
                     {getProgressData(exercise) ? (
                       <div className="chart-container">
                         <Line data={getProgressData(exercise)!} />
-                        <button
-                          className="edit-button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setIsEditModalOpen(true);
-                          }}
-                        >
-                          ✏️ Edit History
-                        </button>
                       </div>
                     ) : (
                       <p>No data available</p>
