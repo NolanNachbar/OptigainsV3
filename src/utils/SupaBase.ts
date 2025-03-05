@@ -694,3 +694,23 @@ export const preloadWorkouts = async (
   console.log("Default workouts preloaded:", data);
   return data;
 };
+
+// Reset workouts to preloaded state (for development use only)
+export const resetWorkouts = async (
+  supabase: SupabaseClient,
+  user: UserResource
+) => {
+  // Delete all existing workouts for the user
+  const { error: deleteError } = await supabase
+    .from("workouts")
+    .delete()
+    .eq("user_id", generateUserIdAsUuid(user.id));
+
+  if (deleteError) {
+    console.error("Error deleting workouts:", deleteError);
+    throw deleteError;
+  }
+
+  // Preload the default workouts
+  await preloadWorkouts(supabase, user);
+};

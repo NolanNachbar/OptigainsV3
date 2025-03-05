@@ -1,6 +1,11 @@
 // src\pages\exerciseLibrary.tsx
 import React, { useState, useEffect, useCallback } from "react";
-import { getConsolidatedExercises, saveWorkouts } from "../utils/SupaBase";
+import {
+  getConsolidatedExercises,
+  saveWorkouts,
+  loadWorkouts,
+  normalizeExerciseName,
+} from "../utils/SupaBase";
 import { Exercise } from "../utils/types";
 import { Line } from "react-chartjs-2";
 import {
@@ -115,27 +120,37 @@ const ExerciseLibrary: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
         ...exercise.logs[editingLog.logIndex],
         ...editingLog.log,
       };
-    }
 
-    try {
-      await saveWorkouts(
-        supabase,
-        [
-          {
-            workout_name: "temp",
-            exercises: [exercise],
-            clerk_user_id: user.id,
-            assigned_days: [],
-          },
-        ],
-        user
-      );
+      try {
+        // Get all workouts that contain this exercise
+        const allWorkouts = await loadWorkouts(supabase, user);
+        const updatedWorkouts = allWorkouts.map((workout) => {
+          const matchingExercise = workout.exercises.find(
+            (ex) =>
+              normalizeExerciseName(ex.name) ===
+              normalizeExerciseName(exercise.name)
+          );
+          if (matchingExercise) {
+            return {
+              ...workout,
+              exercises: workout.exercises.map((ex) =>
+                normalizeExerciseName(ex.name) ===
+                normalizeExerciseName(exercise.name)
+                  ? { ...ex, logs: exercise.logs }
+                  : ex
+              ),
+            };
+          }
+          return workout;
+        });
 
-      setExercises(updatedExercises);
-      setIsEditModalOpen(false);
-      setEditingLog(null);
-    } catch (error) {
-      console.error("Error saving edit:", error);
+        await saveWorkouts(supabase, updatedWorkouts, user);
+        setExercises(updatedExercises);
+        setIsEditModalOpen(false);
+        setEditingLog(null);
+      } catch (error) {
+        console.error("Error saving edit:", error);
+      }
     }
   };
 
@@ -146,25 +161,35 @@ const ExerciseLibrary: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
     const exercise = updatedExercises[exerciseIndex];
     if (exercise.logs) {
       exercise.logs = exercise.logs.filter((_, index) => index !== logIndex);
-    }
 
-    try {
-      await saveWorkouts(
-        supabase,
-        [
-          {
-            workout_name: "temp",
-            exercises: [exercise],
-            clerk_user_id: user.id,
-            assigned_days: [],
-          },
-        ],
-        user
-      );
+      try {
+        // Get all workouts that contain this exercise
+        const allWorkouts = await loadWorkouts(supabase, user);
+        const updatedWorkouts = allWorkouts.map((workout) => {
+          const matchingExercise = workout.exercises.find(
+            (ex) =>
+              normalizeExerciseName(ex.name) ===
+              normalizeExerciseName(exercise.name)
+          );
+          if (matchingExercise) {
+            return {
+              ...workout,
+              exercises: workout.exercises.map((ex) =>
+                normalizeExerciseName(ex.name) ===
+                normalizeExerciseName(exercise.name)
+                  ? { ...ex, logs: exercise.logs }
+                  : ex
+              ),
+            };
+          }
+          return workout;
+        });
 
-      setExercises(updatedExercises);
-    } catch (error) {
-      console.error("Error deleting log:", error);
+        await saveWorkouts(supabase, updatedWorkouts, user);
+        setExercises(updatedExercises);
+      } catch (error) {
+        console.error("Error deleting log:", error);
+      }
     }
   };
 

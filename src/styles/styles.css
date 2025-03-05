@@ -86,9 +86,11 @@ h2 {
 }
 
 .set-inputs {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
   gap: 0.5rem;
-  flex-wrap: wrap;
+  width: 100%;
+  margin-bottom: 1rem;
 }
 
 .input-field input {
@@ -104,11 +106,50 @@ h2 {
 
 /* Floating label container */
 .floating-label-container {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-width: 30%;
+  position: relative;
+  display: inline-block;
+  margin-right: 0.5rem;
+  width: 20%;
+  margin-top: 1rem; /* Add margin to account for label */
 }
+
+.floating-label-container .input-field {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 1rem;
+  background: var(--input-background);
+  color: var(--text);
+  transition: border-color 0.2s;
+}
+
+.floating-label {
+  position: absolute;
+  left: 0;
+  top: -1.2rem; /* Position above the input field */
+  font-size: 0.85rem;
+  color: var(--text);
+  pointer-events: none;
+  transition: all 0.2s ease;
+}
+
+.floating-label-container .input-field:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.floating-label-container .input-field:focus ~ .floating-label {
+  color: var(--primary);
+}
+
+@media (max-width: 768px) {
+  .floating-label-container {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+}
+
 /* Buttons */
 .button-group {
   display: flex;
@@ -214,41 +255,6 @@ h2 {
   transform: translateY(-20px);
   font-size: 12px;
   color: #c2c2c2;
-}
-
-/* Floating Label Container */
-.floating-label-container {
-  position: relative;
-  margin-bottom: 1.5rem;
-}
-
-.floating-label-container input {
-  width: 100%;
-  padding: 10px 10px 10px 5px;
-  display: block;
-  border: none;
-  border-bottom: 2px solid var(--border);
-  background: transparent;
-  outline: none;
-  font-size: 16px;
-  color: var(--text);
-}
-
-.floating-label-container input:focus ~ .floating-label,
-.floating-label-container input:not(:placeholder-shown) ~ .floating-label {
-  top: 10px;
-  font-size: 12px;
-  color: var(--primary);
-}
-
-.floating-label {
-  position: absolute;
-  top: 10px;
-  left: 5px;
-  font-size: 16px;
-  color: var(--text);
-  pointer-events: none;
-  transition: all 0.2s ease-in-out;
 }
 
 /* Set Container */
@@ -669,4 +675,378 @@ h2 {
   border: none;
   border-radius: 4px;
   cursor: pointer;
+}
+
+/* Homepage Styles */
+.home-container {
+  min-height: 100vh;
+  padding: 1rem;
+  background-color: var(--background);
+  display: flex;
+  flex-direction: column;
+}
+
+.home-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
+  padding-top: 60px;
+}
+
+.logo-section {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.app-logo {
+  width: 120px;
+  height: 120px;
+  margin-bottom: 1rem;
+  animation: float 6s ease-in-out infinite;
+}
+
+.app-title {
+  font-size: 2.5rem;
+  color: var(--text);
+  margin: 0;
+  background: linear-gradient(45deg, var(--primary), #00bfff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.button-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+  width: 100%;
+  padding: 0 1rem;
+}
+
+.home-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  border: none;
+  border-radius: 12px;
+  background: var(--card-background);
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-height: 120px;
+  box-shadow: 0 4px 6px var(--shadow);
+}
+
+.home-button:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 12px var(--shadow);
+  background: var(--primary);
+}
+
+.button-icon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.button-text {
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+/* Mobile Optimizations */
+@media (max-width: 768px) {
+  .home-content {
+    padding: 1rem;
+  }
+
+  .button-grid {
+    grid-template-columns: 1fr;
+    max-width: 400px;
+  }
+
+  .home-button {
+    min-height: 100px;
+  }
+
+  .app-logo {
+    width: 80px;
+    height: 80px;
+  }
+
+  .app-title {
+    font-size: 2rem;
+  }
+}
+
+/* Workout Form Improvements */
+.quick-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.quick-action-btn {
+  padding: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--card-background);
+  color: var(--text);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.quick-action-btn:hover {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+.set-number {
+  position: absolute;
+  left: -24px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--primary);
+  color: white;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+}
+
+.set-item {
+  position: relative;
+  background: var(--card-background);
+  padding: 1rem;
+  border-radius: 8px;
+  margin-left: 24px;
+  margin-bottom: 0.5rem;
+}
+
+.set-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.set-action-btn {
+  padding: 0.4rem 0.8rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.set-action-btn.log {
+  background: var(--primary);
+  color: white;
+}
+
+.set-action-btn.delete {
+  background: var(--danger);
+  color: white;
+}
+
+/* Mobile-specific workout form improvements */
+@media (max-width: 768px) {
+  .set-inputs {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .quick-actions {
+    justify-content: space-between;
+  }
+
+  .quick-action-btn {
+    flex: 1;
+    text-align: center;
+    min-width: 60px;
+  }
+
+  .set-item {
+    margin-left: 20px;
+  }
+
+  .set-number {
+    left: -20px;
+  }
+
+  .set-actions {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .set-action-btn {
+    flex: 1;
+  }
+}
+
+/* Programmed Workout Page Styles */
+.edit-controls {
+  display: flex;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.exercise-block {
+  background: var(--card-background);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 4px var(--shadow);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.exercise-block:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px var(--shadow);
+}
+
+.exercise-block h3 {
+  margin-top: 0;
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.exercise-block h3::before {
+  content: "💪";
+  font-size: 1.2rem;
+}
+
+.sets-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.set-card {
+  background: var(--input-background);
+  padding: 1rem;
+  border-radius: 8px;
+  min-width: 200px;
+  flex: 1;
+}
+
+.set-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  color: var(--text);
+  font-weight: bold;
+}
+
+.set-info {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  color: var(--text);
+}
+
+.set-label {
+  font-size: 0.8rem;
+  color: var(--text);
+  opacity: 0.8;
+}
+
+.set-value {
+  font-size: 1.1rem;
+  color: var(--primary);
+}
+
+.drag-handle {
+  cursor: move;
+  padding: 0.5rem;
+  color: var(--text);
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+}
+
+.drag-handle:hover {
+  opacity: 1;
+}
+
+/* Quick Stats Bar */
+.workout-stats-bar {
+  background: var(--card-background);
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-item-label {
+  font-size: 0.8rem;
+  color: var(--text);
+  opacity: 0.8;
+}
+
+.stat-item-value {
+  font-size: 1.2rem;
+  color: var(--primary);
+  font-weight: bold;
+}
+
+/* Progress Indicator */
+.progress-bar {
+  background: var(--input-background);
+  height: 8px;
+  border-radius: 4px;
+  margin: 1rem 0;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--primary);
+  transition: width 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .sets-container {
+    flex-direction: column;
+  }
+
+  .set-card {
+    width: 100%;
+  }
+
+  .workout-stats-bar {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }

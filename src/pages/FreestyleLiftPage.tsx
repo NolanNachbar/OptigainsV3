@@ -258,66 +258,69 @@ const FreestyleLiftPage: React.FC = () => {
                       </ul>
 
                       <div>
-                        <input
-                          type="number"
-                          placeholder="Weight (lbs)"
-                          value={inputState[exercise.name]?.weight || ""}
-                          onChange={(e) =>
-                            handleInputChange(
-                              exercise.name,
-                              "weight",
-                              e.target.value
-                            )
-                          }
-                          style={{
-                            padding: "0.5rem",
-                            border: "1px solid #ddd",
-                            borderRadius: "5px",
-                            width: "20%",
-                            marginRight: "0.5rem",
-                            fontSize: "1rem",
-                          }}
-                        />
-                        <input
-                          type="number"
-                          placeholder="Reps"
-                          value={inputState[exercise.name]?.reps || ""}
-                          onChange={(e) =>
-                            handleInputChange(
-                              exercise.name,
-                              "reps",
-                              e.target.value
-                            )
-                          }
-                          style={{
-                            padding: "0.5rem",
-                            border: "1px solid #ddd",
-                            borderRadius: "5px",
-                            width: "20%",
-                            marginRight: "0.5rem",
-                            fontSize: "1rem",
-                          }}
-                        />
-                        <input
-                          type="number"
-                          placeholder="RIR"
-                          value={inputState[exercise.name]?.rir || undefined}
-                          onChange={(e) =>
-                            handleInputChange(
-                              exercise.name,
-                              "rir",
-                              e.target.value
-                            )
-                          }
-                          style={{
-                            padding: "0.5rem",
-                            border: "1px solid #ddd",
-                            borderRadius: "5px",
-                            width: "20%",
-                            marginRight: "0.5rem",
-                            fontSize: "1rem",
-                          }}
-                        />
+                        <div className="floating-label-container">
+                          <input
+                            type="number"
+                            id={`weight-${exercise.name}`}
+                            value={inputState[exercise.name]?.weight || ""}
+                            onChange={(e) =>
+                              handleInputChange(
+                                exercise.name,
+                                "weight",
+                                e.target.value
+                              )
+                            }
+                            className="input-field"
+                          />
+                          <label
+                            htmlFor={`weight-${exercise.name}`}
+                            className="floating-label"
+                          >
+                            Weight (lbs)
+                          </label>
+                        </div>
+                        <div className="floating-label-container">
+                          <input
+                            type="number"
+                            id={`reps-${exercise.name}`}
+                            value={inputState[exercise.name]?.reps || ""}
+                            onChange={(e) =>
+                              handleInputChange(
+                                exercise.name,
+                                "reps",
+                                e.target.value
+                              )
+                            }
+                            className="input-field"
+                          />
+                          <label
+                            htmlFor={`reps-${exercise.name}`}
+                            className="floating-label"
+                          >
+                            Reps
+                          </label>
+                        </div>
+                        <div className="floating-label-container">
+                          <input
+                            type="number"
+                            id={`rir-${exercise.name}`}
+                            value={inputState[exercise.name]?.rir || undefined}
+                            onChange={(e) =>
+                              handleInputChange(
+                                exercise.name,
+                                "rir",
+                                e.target.value
+                              )
+                            }
+                            className="input-field"
+                          />
+                          <label
+                            htmlFor={`rir-${exercise.name}`}
+                            className="floating-label"
+                          >
+                            RIR
+                          </label>
+                        </div>
                         <button
                           onClick={() => handleLogSet(exercise.name)}
                           className="button action"

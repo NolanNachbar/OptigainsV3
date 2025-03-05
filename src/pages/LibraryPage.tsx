@@ -22,10 +22,12 @@ const ToggleButton: React.FC<{
           }`}
           onClick={() =>
             onChange(
-              option.toLowerCase().split(" ")[0] as
-                | "exercises"
-                | "history"
-                | "selection"
+              option.toLowerCase().split(" ")[0] === "exercise"
+                ? "exercises"
+                : (option.toLowerCase().split(" ")[0] as
+                    | "exercises"
+                    | "history"
+                    | "selection")
             )
           }
         >
@@ -46,6 +48,13 @@ const LibraryPage: React.FC = () => {
 
   const handleEditWorkout = (workout: Workout) => {
     setSelectedWorkout(workout);
+  };
+
+  const handleViewChange = (newView: "exercises" | "history" | "selection") => {
+    setView(newView);
+    setSearchTerm(""); // Reset search term when changing views
+    setSelectedDate(null); // Reset date when changing views
+    setSelectedWorkout(null); // Reset selected workout when changing views
   };
 
   const renderContent = () => {
@@ -98,7 +107,7 @@ const LibraryPage: React.FC = () => {
             <ToggleButton
               options={["Exercise Library", "Workout History"]}
               value={view}
-              onChange={(v) => setView(v)}
+              onChange={handleViewChange}
             />
             <input
               type="text"
@@ -122,7 +131,7 @@ const LibraryPage: React.FC = () => {
         {renderContent()}
         {/* Edit Workout Modal */}
         {selectedWorkout && (
-          <div className="modal">
+          <div className="modal-overlay">
             <div className="modal-content">
               <EditWorkoutComponent
                 savedWorkout={selectedWorkout}
