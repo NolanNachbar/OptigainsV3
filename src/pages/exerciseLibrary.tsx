@@ -1,6 +1,6 @@
 // src\pages\exerciseLibrary.tsx
 import React, { useState, useEffect, useCallback } from "react";
-import { getConsolidatedExercises } from "../utils/SupaBase";
+import { getConsolidatedExercises, saveWorkouts } from "../utils/SupaBase";
 import { Exercise } from "../utils/types";
 import { Line } from "react-chartjs-2";
 import {
@@ -28,13 +28,19 @@ ChartJS.register(
   Legend
 );
 
-const ExerciseLibrary: React.FC = () => {
+const ExerciseLibrary: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
   const { user } = useUser();
-  const supabase = useSupabaseClient(); // Get the Supabase client
+  const supabase = useSupabaseClient();
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(
     null
   );
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingLog, setEditingLog] = useState<{
+    exerciseIndex: number;
+    logIndex: number;
+    log: { weight: number; reps: number; rir: number; date: string };
+  } | null>(null);
 
   // Memoize loadExercises with useCallback
   const loadExercises = useCallback(async () => {
@@ -81,97 +87,275 @@ const ExerciseLibrary: React.FC = () => {
     };
   };
 
+  const handleEditLog = async (exerciseIndex: number, logIndex: number) => {
+    const exercise = exercises[exerciseIndex];
+    const log = exercise.logs?.[logIndex];
+    if (log) {
+      setEditingLog({
+        exerciseIndex,
+        logIndex,
+        log: {
+          weight: log.weight,
+          reps: log.reps,
+          rir: log.rir,
+          date: log.date,
+        },
+      });
+      setIsEditModalOpen(true);
+    }
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingLog || !user) return;
+
+    const updatedExercises = [...exercises];
+    const exercise = updatedExercises[editingLog.exerciseIndex];
+    if (exercise.logs) {
+      exercise.logs[editingLog.logIndex] = {
+        ...exercise.logs[editingLog.logIndex],
+        ...editingLog.log,
+      };
+    }
+
+    try {
+      await saveWorkouts(
+        supabase,
+        [
+          {
+            workout_name: "temp",
+            exercises: [exercise],
+            clerk_user_id: user.id,
+            assigned_days: [],
+          },
+        ],
+        user
+      );
+
+      setExercises(updatedExercises);
+      setIsEditModalOpen(false);
+      setEditingLog(null);
+    } catch (error) {
+      console.error("Error saving edit:", error);
+    }
+  };
+
+  const handleDeleteLog = async (exerciseIndex: number, logIndex: number) => {
+    if (!user) return;
+
+    const updatedExercises = [...exercises];
+    const exercise = updatedExercises[exerciseIndex];
+    if (exercise.logs) {
+      exercise.logs = exercise.logs.filter((_, index) => index !== logIndex);
+    }
+
+    try {
+      await saveWorkouts(
+        supabase,
+        [
+          {
+            workout_name: "temp",
+            exercises: [exercise],
+            clerk_user_id: user.id,
+            assigned_days: [],
+          },
+        ],
+        user
+      );
+
+      setExercises(updatedExercises);
+    } catch (error) {
+      console.error("Error deleting log:", error);
+    }
+  };
+
   return (
     <div>
       <ActionBar />
       <div style={{ marginTop: "60px" }}>
         <h1>Exercise Library</h1>
         <ul>
-          {exercises.map((exercise, index) => (
-            <li key={index} onClick={() => handleSelectExercise(exercise)}>
-              {exercise.name}
-            </li>
-          ))}
-        </ul>
-        {selectedExercise && (
-          <div>
-            <h2>{selectedExercise.name}</h2>
-            {getProgressData(selectedExercise) ? (
-              <Line data={getProgressData(selectedExercise)!} />
-            ) : (
-              <p>No data available</p>
-            )}
-
-            {/* Displaying the data points below the graph */}
-            <h3>Data Points</h3>
-            {selectedExercise.logs && selectedExercise.logs.length > 0 ? (
-              <table
-                style={{
-                  width: "100%",
-                  marginTop: "1rem",
-                  borderCollapse: "collapse",
-                }}
+          {exercises
+            .filter((exercise) =>
+              exercise.name.toLowerCase().includes(searchTerm.toLowerCase())
+            )
+            .map((exercise, exerciseIndex) => (
+              <li
+                key={exerciseIndex}
+                onClick={() => handleSelectExercise(exercise)}
               >
-                <thead>
-                  <tr>
-                    <th style={{ border: "1px solid #ddd", padding: "0.5rem" }}>
-                      Date
-                    </th>
-                    <th style={{ border: "1px solid #ddd", padding: "0.5rem" }}>
-                      Weight
-                    </th>
-                    <th style={{ border: "1px solid #ddd", padding: "0.5rem" }}>
-                      Reps
-                    </th>
-                    <th style={{ border: "1px solid #ddd", padding: "0.5rem" }}>
-                      Rir
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {selectedExercise.logs
-                    .filter((log) => log.reps > 0 && log.weight > 0)
-                    .map((log, index) => (
-                      <tr key={index}>
-                        <td
-                          style={{
-                            border: "1px solid #ddd",
-                            padding: "0.5rem",
+                <div className="exercise-header">
+                  <h3>{exercise.name}</h3>
+                </div>
+                {selectedExercise?.name === exercise.name && (
+                  <div className="exercise-details">
+                    {getProgressData(exercise) ? (
+                      <div className="chart-container">
+                        <Line data={getProgressData(exercise)!} />
+                        <button
+                          className="edit-button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setIsEditModalOpen(true);
                           }}
                         >
-                          {log.date}
-                        </td>
-                        <td
-                          style={{
-                            border: "1px solid #ddd",
-                            padding: "0.5rem",
-                          }}
-                        >
-                          {log.weight} lbs
-                        </td>
-                        <td
-                          style={{
-                            border: "1px solid #ddd",
-                            padding: "0.5rem",
-                          }}
-                        >
-                          {log.reps}
-                        </td>
-                        <td
-                          style={{
-                            border: "1px solid #ddd",
-                            padding: "0.5rem",
-                          }}
-                        >
-                          {log.rir}
-                        </td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
-            ) : (
-              <p>No logs available</p>
-            )}
+                          ✏️ Edit History
+                        </button>
+                      </div>
+                    ) : (
+                      <p>No data available</p>
+                    )}
+
+                    <h3>Data Points</h3>
+                    {exercise.logs && exercise.logs.length > 0 ? (
+                      <table className="data-table">
+                        <thead>
+                          <tr>
+                            <th>Date</th>
+                            <th>Weight</th>
+                            <th>Reps</th>
+                            <th>RIR</th>
+                            <th>Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {exercise.logs.map((log, logIndex) => (
+                            <tr key={logIndex}>
+                              <td>{log.date}</td>
+                              <td>{log.weight} lbs</td>
+                              <td>{log.reps}</td>
+                              <td>{log.rir}</td>
+                              <td>
+                                <div className="button-group">
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleEditLog(exerciseIndex, logIndex);
+                                    }}
+                                    className="button-primary"
+                                  >
+                                    ✏️
+                                  </button>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      if (
+                                        window.confirm(
+                                          "Are you sure you want to delete this log?"
+                                        )
+                                      ) {
+                                        handleDeleteLog(
+                                          exerciseIndex,
+                                          logIndex
+                                        );
+                                      }
+                                    }}
+                                    className="button-primary"
+                                  >
+                                    🗑️
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    ) : (
+                      <p>No logs available</p>
+                    )}
+                  </div>
+                )}
+              </li>
+            ))}
+        </ul>
+
+        {/* Edit Modal */}
+        {isEditModalOpen && editingLog && (
+          <div className="modal-overlay">
+            <div className="modal-content">
+              <h2>Edit Log</h2>
+              <div className="edit-form">
+                <div className="input-group">
+                  <label>Date:</label>
+                  <input
+                    type="date"
+                    value={editingLog.log.date}
+                    onChange={(e) =>
+                      setEditingLog({
+                        ...editingLog,
+                        log: {
+                          ...editingLog.log,
+                          date: e.target.value,
+                        },
+                      })
+                    }
+                    className="input-field"
+                  />
+                </div>
+                <div className="input-group">
+                  <label>Weight (lbs):</label>
+                  <input
+                    type="number"
+                    value={editingLog.log.weight}
+                    onChange={(e) =>
+                      setEditingLog({
+                        ...editingLog,
+                        log: {
+                          ...editingLog.log,
+                          weight: Number(e.target.value),
+                        },
+                      })
+                    }
+                    className="input-field"
+                  />
+                </div>
+                <div className="input-group">
+                  <label>Reps:</label>
+                  <input
+                    type="number"
+                    value={editingLog.log.reps}
+                    onChange={(e) =>
+                      setEditingLog({
+                        ...editingLog,
+                        log: {
+                          ...editingLog.log,
+                          reps: Number(e.target.value),
+                        },
+                      })
+                    }
+                    className="input-field"
+                  />
+                </div>
+                <div className="input-group">
+                  <label>RIR:</label>
+                  <input
+                    type="number"
+                    value={editingLog.log.rir}
+                    onChange={(e) =>
+                      setEditingLog({
+                        ...editingLog,
+                        log: { ...editingLog.log, rir: Number(e.target.value) },
+                      })
+                    }
+                    className="input-field"
+                  />
+                </div>
+                <div className="modal-actions">
+                  <button onClick={handleSaveEdit} className="save-button">
+                    Save Changes
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsEditModalOpen(false);
+                      setEditingLog(null);
+                    }}
+                    className="cancel-button"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </div>

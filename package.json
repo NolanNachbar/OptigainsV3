@@ -13,6 +13,7 @@
     "@clerk/clerk-react": "^5.23.0",
     "@clerk/types": "^4.46.1",
     "@supabase/supabase-js": "^2.49.1",
+    "@types/react-datepicker": "^6.2.0",
     "chart.js": "^4.4.7",
     "date-fns": "^4.1.0",
     "dotenv-flow": "^4.1.0",
@@ -22,6 +23,7 @@
     "react-beautiful-dnd": "^13.1.1",
     "react-calendar": "^5.1.0",
     "react-chartjs-2": "^5.3.0",
+    "react-datepicker": "^8.1.0",
     "react-dom": "^18.3.1",
     "react-router-dom": "^7.1.1",
     "uuid": "^11.1.0"

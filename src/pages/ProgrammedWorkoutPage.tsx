@@ -31,7 +31,7 @@ const StartProgrammedLiftPage: React.FC = () => {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [sets, setSets] = useState<
     { weight: number; reps: number; rir: number }[]
-  >([{ weight: 1, reps: 10, rir: 0 }]); // Changed to hold an array of sets
+  >([{ weight: 1, reps: 10, rir: 0 }]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [history, setHistory] = useState<Workout[]>([]);
   const [inputState, setInputState] = useState<
@@ -426,6 +426,11 @@ const StartProgrammedLiftPage: React.FC = () => {
     }
   };
 
+  const handleEditExercise = (exercise: Exercise) => {
+    // Add your edit logic here
+    console.log("Editing exercise:", exercise);
+  };
+
   return (
     <div className="container">
       <ActionBar />
@@ -466,6 +471,12 @@ const StartProgrammedLiftPage: React.FC = () => {
                                   className="remove-exercise-btn"
                                 >
                                   🗑️
+                                </button>
+                                <button
+                                  onClick={() => handleEditExercise(exercise)}
+                                  className="button-primary"
+                                >
+                                  ✏️
                                 </button>
                               </div>
                               <ul className="set-list">
@@ -607,6 +618,12 @@ const StartProgrammedLiftPage: React.FC = () => {
                         className="remove-exercise-btn"
                       >
                         🗑️
+                      </button>
+                      <button
+                        onClick={() => handleEditExercise(exercise)}
+                        className="button-primary"
+                      >
+                        ✏️
                       </button>
                     </div>
 

@@ -6,7 +6,8 @@ import StartLiftPage from "./pages/StartLiftPage";
 import FreestyleLiftPage from "./pages/FreestyleLiftPage";
 import StartProgrammedLiftPage from "./pages/ProgrammedWorkoutPage";
 import CalcPage from "./pages/CalculatorPage";
-import ExerciseLibrary from "./pages/exerciseLibrary";
+// import ExerciseLibrary from "./pages/exerciseLibrary";
+import LibraryPage from "./pages/LibraryPage";
 import BodyWeightLog from "./pages/weightLogging";
 import { ClerkProvider } from "@clerk/clerk-react";
 import { SignedIn, SignedOut, RedirectToSignIn } from "@clerk/clerk-react";
@@ -48,7 +49,7 @@ const App: React.FC = () => {
               element={<StartProgrammedLiftPage />}
             />
             <Route path="/calc-page" element={<CalcPage />} />
-            <Route path="/library-page" element={<ExerciseLibrary />} />
+            <Route path="/library-page" element={<LibraryPage />} />
             <Route path="/weight-log" element={<BodyWeightLog />} />
           </Routes>
         </Router>
