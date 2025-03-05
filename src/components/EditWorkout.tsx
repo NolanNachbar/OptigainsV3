@@ -280,40 +280,76 @@ const EditWorkoutComponent: React.FC<EditProps> = ({
   return (
     <div className="container">
       <DragDropContext onDragEnd={handleReorderExercises}>
-        {!editing ? (
-          <Droppable droppableId="exercises">
-            {(provided) => (
-              <div
-                ref={provided.innerRef}
-                {...provided.droppableProps}
-                className="exercise-list"
-              >
-                {workout?.exercises.map((exercise, index) => (
-                  <Draggable
-                    key={exercise.name}
-                    draggableId={exercise.name}
-                    index={index}
-                  >
-                    {(provided) => (
-                      <div
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        {...provided.dragHandleProps}
-                        className="exercise-card"
-                      >
-                        <div className="exercise-header">
-                          <h3>{exercise.name}</h3>
+        <Droppable droppableId="exercises">
+          {(provided) => (
+            <div
+              ref={provided.innerRef}
+              {...provided.droppableProps}
+              className="exercise-list"
+            >
+              {workout?.exercises.map((exercise, exerciseIndex) => (
+                <Draggable
+                  key={exercise.name}
+                  draggableId={exercise.name}
+                  index={exerciseIndex}
+                  isDragDisabled={!editing}
+                >
+                  {(provided) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      {...(editing ? {} : provided.dragHandleProps)}
+                      className="exercise-card"
+                    >
+                      <div className="exercise-header">
+                        <h3>{exercise.name}</h3>
+                        <div className="exercise-actions">
+                          <button
+                            onClick={() => handleAddSet(exercise.name)}
+                            className="button action"
+                          >
+                            Add Set
+                          </button>
                           <button
                             onClick={() => handleRemoveExercise(exercise.name)}
-                            className="button"
+                            className="button danger"
                           >
-                            🗑️
+                            Remove
                           </button>
                         </div>
-                        <ul className="set-list">
-                          {exercise.sets.map((set, setIndex) => (
-                            <li key={setIndex} className="set-item">
+                      </div>
+                      {exercise.logs && exercise.logs.length > 0 && (
+                        <div className="last-set-info">
+                          Last Set:{" "}
+                          {exercise.logs[exercise.logs.length - 1].weight}
+                          lbs × {
+                            exercise.logs[exercise.logs.length - 1].reps
+                          }{" "}
+                          @RIR{exercise.logs[exercise.logs.length - 1].rir}
+                          <span className="date">
+                            {new Date(
+                              exercise.logs[exercise.logs.length - 1].date
+                            ).toLocaleDateString()}
+                          </span>
+                        </div>
+                      )}
+                      <ul className="set-list">
+                        {exercise.sets.map((set, setIndex) => (
+                          <li key={setIndex} className="set-item">
+                            <button
+                              onClick={() =>
+                                handleRemoveSet(exercise.name, setIndex)
+                              }
+                              className="remove-set-btn"
+                              aria-label="Remove set"
+                            >
+                              ×
+                            </button>
+                            <div className="set-inputs">
                               <div className="floating-label-container">
+                                <label className="floating-label">
+                                  Weight (lbs)
+                                </label>
                                 <input
                                   type="number"
                                   value={
@@ -330,12 +366,11 @@ const EditWorkoutComponent: React.FC<EditProps> = ({
                                       e.target.value
                                     )
                                   }
-                                  placeholder=" "
                                   className="input-field"
                                 />
-                                <label className="floating-label">Weight</label>
                               </div>
                               <div className="floating-label-container">
+                                <label className="floating-label">Reps</label>
                                 <input
                                   type="number"
                                   value={
@@ -351,18 +386,18 @@ const EditWorkoutComponent: React.FC<EditProps> = ({
                                       e.target.value
                                     )
                                   }
-                                  placeholder=" "
                                   className="input-field"
                                 />
-                                <label className="floating-label">Reps</label>
                               </div>
                               <div className="floating-label-container">
+                                <label className="floating-label">RIR</label>
                                 <input
                                   type="number"
                                   value={
-                                    userLog[exercise.name]?.[setIndex]?.rir ||
-                                    set.rir ||
-                                    0
+                                    userLog[exercise.name]?.[setIndex]?.rir !==
+                                    undefined
+                                      ? userLog[exercise.name][setIndex].rir
+                                      : set.rir
                                   }
                                   onChange={(e) =>
                                     handleInputChange(
@@ -372,164 +407,42 @@ const EditWorkoutComponent: React.FC<EditProps> = ({
                                       e.target.value
                                     )
                                   }
-                                  placeholder=" "
+                                  min="0"
                                   className="input-field"
                                 />
-                                <label className="floating-label">RIR</label>
                               </div>
-                              <div className="button-group">
-                                {exercise.logs && exercise.logs.length > 1 && (
-                                  <button
-                                    onClick={() =>
-                                      handleCalculateWeight(
-                                        exercise.name,
-                                        setIndex
-                                      )
-                                    }
-                                    className="calculate-btn"
-                                  >
-                                    Calculate
-                                  </button>
-                                )}
+                            </div>
+                            <div className="set-actions">
+                              {exercise.logs && exercise.logs.length > 0 && (
                                 <button
                                   onClick={() =>
-                                    handleRemoveSet(exercise.name, setIndex)
+                                    handleCalculateWeight(
+                                      exercise.name,
+                                      setIndex
+                                    )
                                   }
-                                  className="button"
+                                  className="button secondary"
                                 >
-                                  Remove
+                                  Calculate
                                 </button>
-                              </div>
-                            </li>
-                          ))}
-                        </ul>
-                        <button
-                          onClick={() => handleAddSet(exercise.name)}
-                          className="button"
-                        >
-                          ➕ Add Set
-                        </button>
-                      </div>
-                    )}
-                  </Draggable>
-                ))}
-                {provided.placeholder}
-              </div>
-            )}
-          </Droppable>
-        ) : (
-          savedWorkout.exercises.map((exercise) => (
-            <div key={exercise.name} className="exercise-card">
-              <div className="exercise-header">
-                <h3>{exercise.name}</h3>
-                <button
-                  onClick={() => handleRemoveExercise(exercise.name)}
-                  className="remove-exercise-btn"
-                >
-                  Remove
-                </button>
-              </div>
-              <ul className="set-list">
-                {exercise.sets.map((set, setIndex) => (
-                  <li key={setIndex} className="set-item">
-                    <div className="floating-label-container">
-                      <input
-                        type="number"
-                        value={
-                          userLog[exercise.name]?.[setIndex]?.weight ||
-                          set.weight ||
-                          ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            exercise.name,
-                            setIndex,
-                            "weight",
-                            e.target.value
-                          )
-                        }
-                        placeholder=" "
-                        className="input-field"
-                      />
-                      <label className="floating-label">Weight</label>
+                              )}
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
-                    <div className="floating-label-container">
-                      <input
-                        type="number"
-                        value={
-                          userLog[exercise.name]?.[setIndex]?.reps ||
-                          set.reps ||
-                          ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            exercise.name,
-                            setIndex,
-                            "reps",
-                            e.target.value
-                          )
-                        }
-                        placeholder=" "
-                        className="input-field"
-                      />
-                      <label className="floating-label">Reps</label>
-                    </div>
-                    <div className="floating-label-container">
-                      <input
-                        type="number"
-                        value={
-                          userLog[exercise.name]?.[setIndex]?.rir ||
-                          set.rir ||
-                          0
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            exercise.name,
-                            setIndex,
-                            "rir",
-                            e.target.value
-                          )
-                        }
-                        placeholder=" "
-                        className="input-field"
-                      />
-                      <label className="floating-label">RIR</label>
-                    </div>
-                    <div className="button-group">
-                      {exercise.logs && exercise.logs.length > 0 && (
-                        <button
-                          onClick={() => {
-                            handleCalculateWeight(exercise.name, setIndex);
-                          }}
-                          className="button primary"
-                        >
-                          Calculate
-                        </button>
-                      )}
-                      <button
-                        onClick={() => handleRemoveSet(exercise.name, setIndex)}
-                        className="button primary"
-                      >
-                        🗑️
-                      </button>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-              <button
-                onClick={() => handleAddSet(exercise.name)}
-                className="button"
-              >
-                ➕ Add Set
-              </button>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
             </div>
-          ))
-        )}
+          )}
+        </Droppable>
       </DragDropContext>
 
       <div className="action-buttons">
-        <button onClick={() => setIsModalOpen(true)} className="action-btn">
-          ➕ Add Exercise
+        <button onClick={() => setIsModalOpen(true)} className="button primary">
+          Add Exercise
         </button>
         <button
           onClick={() => {
@@ -539,17 +452,16 @@ const EditWorkoutComponent: React.FC<EditProps> = ({
             }
             setEditing((editing) => !editing);
           }}
-          className="action-btn"
+          className={`button ${editing ? "secondary" : "primary"}`}
         >
-          {editing ? "🔀 Rearrange Exercises" : "✅ Finish Rearranging"}
+          {editing ? "Reorder Exercises" : "Finish Reordering"}
         </button>
-        {/* Undo Button */}
         <button
           onClick={handleUndo}
-          className="action-btn"
+          className="button secondary"
           disabled={history.length === 0}
         >
-          ↩️ Undo
+          Undo
         </button>
       </div>
 
@@ -557,9 +469,9 @@ const EditWorkoutComponent: React.FC<EditProps> = ({
       {isModalOpen && (
         <div className="modal-overlay">
           <div className="modal-content">
-            <h2>Add Exercise</h2>
+            <h2>Add New Exercise</h2>
             <div className="modal-input-group">
-              <label>Exercise Name: </label>
+              <label>Exercise Name</label>
               <input
                 type="text"
                 value={exerciseName}
@@ -567,72 +479,90 @@ const EditWorkoutComponent: React.FC<EditProps> = ({
                 className="input-field"
               />
             </div>
-
-            {/* Set Details */}
-            {sets.map((set, index) => (
-              <div key={index} className="modal-input-group">
-                <label>Set {index + 1} - Weight: </label>
-                <input
-                  type="number"
-                  value={set.weight}
-                  onChange={(e) => {
-                    const updatedSets = [...sets];
-                    updatedSets[index].weight = Number(e.target.value);
-                    setSets(updatedSets);
-                  }}
-                  className="input-field"
-                />
-                <label> Reps: </label>
-                <input
-                  type="number"
-                  value={set.reps}
-                  onChange={(e) => {
-                    const updatedSets = [...sets];
-                    updatedSets[index].reps = Number(e.target.value);
-                    setSets(updatedSets);
-                  }}
-                  className="input-field"
-                />
-                <label> RIR: </label>
-                <input
-                  type="number"
-                  value={set.rir}
-                  onChange={(e) => {
-                    const updatedSets = [...sets];
-                    updatedSets[index].rir = Number(e.target.value);
-                    setSets(updatedSets);
-                  }}
-                  className="input-field"
-                />
+            <div className="modal-input-group">
+              <label>Initial Sets</label>
+              <div className="sets-preview">
+                {sets.map((set, index) => (
+                  <div key={index} className="set-preview">
+                    <div>
+                      <label>Weight (lbs)</label>
+                      <input
+                        type="number"
+                        value={set.weight}
+                        onChange={(e) => {
+                          const newSets = [...sets];
+                          newSets[index].weight = Number(e.target.value);
+                          setSets(newSets);
+                        }}
+                        className="input-field"
+                      />
+                    </div>
+                    <div>
+                      <label>Reps</label>
+                      <input
+                        type="number"
+                        value={set.reps}
+                        onChange={(e) => {
+                          const newSets = [...sets];
+                          newSets[index].reps = Number(e.target.value);
+                          setSets(newSets);
+                        }}
+                        className="input-field"
+                      />
+                    </div>
+                    <div>
+                      <label>RIR</label>
+                      <input
+                        type="number"
+                        value={set.rir}
+                        onChange={(e) => {
+                          const newSets = [...sets];
+                          newSets[index].rir = Number(e.target.value);
+                          setSets(newSets);
+                        }}
+                        min="0"
+                        className="input-field"
+                      />
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
-
-            {/* Add Set Button */}
-            <button
-              onClick={() =>
-                setSets([...sets, { weight: 1, reps: 10, rir: 0 }])
-              }
-              className="add-set-btn"
-            >
-              ➕ Add Set
-            </button>
-
-            {/* Add Exercise Button */}
-            <button onClick={handleAddExercise} className="add-exercise-btn">
-              Add Exercise
-            </button>
-            <button
-              onClick={() => setIsModalOpen(false)}
-              className="close-modal-btn"
-            >
-              Close
-            </button>
+              <button
+                onClick={() =>
+                  setSets([...sets, { weight: 1, reps: 10, rir: 0 }])
+                }
+                className="button secondary"
+              >
+                Add Another Set
+              </button>
+            </div>
+            <div className="modal-actions">
+              <button
+                onClick={() => {
+                  handleAddExercise();
+                  setIsModalOpen(false);
+                }}
+                className="button save"
+              >
+                Add Exercise
+              </button>
+              <button
+                onClick={() => {
+                  setIsModalOpen(false);
+                  setExerciseName("");
+                  setSets([{ weight: 1, reps: 10, rir: 0 }]);
+                }}
+                className="button secondary"
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       )}
 
-      <button onClick={handleSaveWorkout} className="save-btn">
-        💾 Save Workout
+      <button onClick={handleSaveWorkout} className="button save">
+        Save Workout
       </button>
     </div>
   );
