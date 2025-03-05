@@ -38,6 +38,8 @@ const StartProgrammedLiftPage: React.FC = () => {
   const [completedSets, setCompletedSets] = useState(0);
   const [totalSets, setTotalSets] = useState(0);
   const navigate = useNavigate();
+  const [isReorderMode, setIsReorderMode] = useState(false);
+  const [showAddExerciseModal, setShowAddExerciseModal] = useState(false);
 
   // Calculate total sets and completed sets whenever workout changes
   useEffect(() => {
@@ -429,18 +431,17 @@ const StartProgrammedLiftPage: React.FC = () => {
                       key={exercise.name}
                       draggableId={exercise.name}
                       index={exerciseIndex}
+                      isDragDisabled={!isReorderMode}
                     >
                       {(provided) => (
                         <div
                           ref={provided.innerRef}
                           {...provided.draggableProps}
+                          {...(isReorderMode ? provided.dragHandleProps : {})}
                           className="exercise-block"
                         >
                           <div className="exercise-header">
-                            <h3>
-                              <span {...provided.dragHandleProps}>⋮</span>
-                              {exercise.name}
-                            </h3>
+                            <h3>{exercise.name}</h3>
                             <div className="exercise-actions">
                               <button
                                 onClick={() => handleAddSet(exercise.name)}
@@ -576,28 +577,6 @@ const StartProgrammedLiftPage: React.FC = () => {
           </DragDropContext>
         )}
 
-        <div className="edit-controls">
-          <div className="floating-label-container">
-            <input
-              type="text"
-              value={exerciseName}
-              onChange={(e) => setExerciseName(e.target.value)}
-              className="input-field"
-              list="exercise-suggestions"
-              placeholder=" "
-            />
-            <label className="floating-label">Exercise Name</label>
-            <datalist id="exercise-suggestions">
-              {suggestions.map((suggestion, idx) => (
-                <option key={idx} value={suggestion} />
-              ))}
-            </datalist>
-          </div>
-          <button onClick={handleAddExercise} className="button action">
-            Add Exercise
-          </button>
-        </div>
-
         <div className="action-buttons">
           <button onClick={handleSaveWorkout} className="button save">
             Save Workout
@@ -608,7 +587,119 @@ const StartProgrammedLiftPage: React.FC = () => {
           >
             Save as New
           </button>
+          <button
+            onClick={() => setIsReorderMode(!isReorderMode)}
+            className={`button ${isReorderMode ? "primary" : "secondary"}`}
+          >
+            {isReorderMode ? "Finish Reordering" : "Reorder Exercises"}
+          </button>
+          <button
+            onClick={() => setShowAddExerciseModal(true)}
+            className="button action"
+          >
+            Add Exercise
+          </button>
         </div>
+
+        {showAddExerciseModal && (
+          <div className="modal-overlay">
+            <div className="modal-content">
+              <h2>Add New Exercise</h2>
+              <div className="modal-input-group">
+                <label>Exercise Name</label>
+                <input
+                  type="text"
+                  value={exerciseName}
+                  onChange={(e) => setExerciseName(e.target.value)}
+                  className="input-field"
+                  list="exercise-suggestions"
+                />
+                <datalist id="exercise-suggestions">
+                  {suggestions.map((suggestion, idx) => (
+                    <option key={idx} value={suggestion} />
+                  ))}
+                </datalist>
+              </div>
+              <div className="modal-input-group">
+                <label>Initial Sets</label>
+                <div className="sets-preview">
+                  {sets.map((set, index) => (
+                    <div key={index} className="set-preview">
+                      <div>
+                        <label>Weight (lbs)</label>
+                        <input
+                          type="number"
+                          value={set.weight}
+                          onChange={(e) => {
+                            const newSets = [...sets];
+                            newSets[index].weight = Number(e.target.value);
+                            setSets(newSets);
+                          }}
+                          className="input-field"
+                        />
+                      </div>
+                      <div>
+                        <label>Reps</label>
+                        <input
+                          type="number"
+                          value={set.reps}
+                          onChange={(e) => {
+                            const newSets = [...sets];
+                            newSets[index].reps = Number(e.target.value);
+                            setSets(newSets);
+                          }}
+                          className="input-field"
+                        />
+                      </div>
+                      <div>
+                        <label>RIR</label>
+                        <input
+                          type="number"
+                          value={set.rir}
+                          onChange={(e) => {
+                            const newSets = [...sets];
+                            newSets[index].rir = Number(e.target.value);
+                            setSets(newSets);
+                          }}
+                          className="input-field"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <button
+                  onClick={() =>
+                    setSets([...sets, { weight: 1, reps: 10, rir: 0 }])
+                  }
+                  className="button secondary"
+                >
+                  Add Another Set
+                </button>
+              </div>
+              <div className="modal-actions">
+                <button
+                  onClick={() => {
+                    handleAddExercise();
+                    setShowAddExerciseModal(false);
+                  }}
+                  className="button save"
+                >
+                  Add Exercise
+                </button>
+                <button
+                  onClick={() => {
+                    setShowAddExerciseModal(false);
+                    setExerciseName("");
+                    setSets([{ weight: 1, reps: 10, rir: 0 }]);
+                  }}
+                  className="button secondary"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {showSaveModal && (
           <div className="modal-overlay">
