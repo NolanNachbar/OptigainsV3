@@ -193,7 +193,7 @@ const StartProgrammedLiftPage: React.FC = () => {
               <div key={exerciseIndex} className="exercise-block">
                 <h3>{exercise.name}</h3>
                 <div className="sets-container">
-                  {exercise.sets.map((set, setIndex) => (
+                  {exercise.sets.map((_, setIndex) => (
                     <div key={setIndex} className="set-card">
                       <div className="set-header">
                         <span>Set {setIndex + 1}</span>
