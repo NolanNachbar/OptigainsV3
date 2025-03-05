@@ -46,7 +46,7 @@ const HomePage: React.FC = () => {
             alt="Optigain Dumbell Logo"
             className="app-logo"
           />
-          <h1 className="app-title">Optigains</h1>
+          <h1 className="app-title"> Optigains </h1>
         </div>
 
         <div className="button-grid">

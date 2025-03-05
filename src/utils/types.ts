@@ -6,11 +6,12 @@ export interface Exercise {
   logs?: ExerciseLog[];
 }
 
-export type Set = {
+export interface Set {
   weight: number;
   reps: number;
   rir: number;
-};
+  isLogged?: boolean;
+}
 
 export type bodyWeight = {
   date: string;

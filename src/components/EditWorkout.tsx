@@ -6,7 +6,7 @@ import {
   removeWorkoutFromList,
 } from "../utils/SupaBase";
 import "../styles/styles.css";
-import { Workout, Exercise, Set } from "../utils/types";
+import { Workout, Exercise, Set as ExerciseSet } from "../utils/types";
 import {
   DragDropContext,
   Droppable,
@@ -30,7 +30,7 @@ const EditWorkoutComponent: React.FC<EditProps> = ({
   const { user } = useUser();
   const supabase = useSupabaseClient(); // Initialize the Supabase client
   const [workout, setWorkout] = useState<Workout | null>(savedWorkout);
-  const [userLog, setUserLog] = useState<Record<string, Set[]>>({});
+  const [userLog, setUserLog] = useState<Record<string, ExerciseSet[]>>({});
   const [editing, setEditing] = useState(true);
   const [exerciseName, setExerciseName] = useState<string>("");
   const [sets, setSets] = useState<
@@ -110,11 +110,14 @@ const EditWorkoutComponent: React.FC<EditProps> = ({
       // Initialize userLog for the new exercise
       setUserLog((prevLog) => {
         const updatedLog = { ...prevLog };
-        updatedLog[exerciseName] = sets.map(() => ({
-          weight: 1,
-          reps: 10,
-          rir: 0,
-        }));
+        updatedLog[exerciseName] = sets.map(
+          () =>
+            ({
+              weight: 1,
+              reps: 10,
+              rir: 0,
+            } as ExerciseSet)
+        );
         return updatedLog;
       });
 
@@ -129,7 +132,7 @@ const EditWorkoutComponent: React.FC<EditProps> = ({
   const handleInputChange = (
     exerciseName: string,
     setIndex: number,
-    field: keyof Set,
+    field: "weight" | "reps" | "rir",
     value: string
   ) => {
     setUserLog((prev) => {
@@ -138,11 +141,14 @@ const EditWorkoutComponent: React.FC<EditProps> = ({
         updatedLog[exerciseName] =
           workout?.exercises
             .find((ex) => ex.name === exerciseName)
-            ?.sets.map(() => ({
-              weight: 0,
-              reps: 0,
-              rir: 0,
-            })) || [];
+            ?.sets.map(
+              () =>
+                ({
+                  weight: 0,
+                  reps: 0,
+                  rir: 0,
+                } as ExerciseSet)
+            ) || [];
       }
 
       if (updatedLog[exerciseName][setIndex]) {
@@ -171,7 +177,7 @@ const EditWorkoutComponent: React.FC<EditProps> = ({
           String(recommendedWeight)
         );
       } else {
-        alert("Exercise not found in today’s workout.");
+        alert("Exercise not found in today's workout.");
       }
     }
   };
