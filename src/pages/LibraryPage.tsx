@@ -14,33 +14,27 @@ const ToggleButton: React.FC<{
 }> = ({ options, value, onChange }) => {
   return (
     <div className="toggle-container">
-      {options.map((option) => (
-        <button
-          key={option}
-          className={`toggle-button ${
-            value === option.toLowerCase().split(" ")[0] ? "active" : ""
-          }`}
-          onClick={() =>
-            onChange(
-              option.toLowerCase().split(" ")[0] === "exercise"
-                ? "exercises"
-                : (option.toLowerCase().split(" ")[0] as
-                    | "exercises"
-                    | "history"
-                    | "selection")
-            )
-          }
-        >
-          {option}
-        </button>
-      ))}
+      {options.map((option) => {
+        const optionValue = option.toLowerCase().includes("exercise")
+          ? "exercises"
+          : "history";
+        return (
+          <button
+            key={option}
+            className={`toggle-button ${value === optionValue ? "active" : ""}`}
+            onClick={() => onChange(optionValue)}
+          >
+            {option}
+          </button>
+        );
+      })}
     </div>
   );
 };
 
 const LibraryPage: React.FC = () => {
   const [view, setView] = useState<"exercises" | "history" | "selection">(
-    "selection"
+    "exercises"
   );
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);

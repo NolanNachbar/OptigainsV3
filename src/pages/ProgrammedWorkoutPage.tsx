@@ -457,7 +457,7 @@ const StartProgrammedLiftPage: React.FC = () => {
             <Droppable droppableId="exercises">
               {(provided) => (
                 <div
-                  className="exercises-list"
+                  className="exercise-list"
                   {...provided.droppableProps}
                   ref={provided.innerRef}
                 >
@@ -473,7 +473,7 @@ const StartProgrammedLiftPage: React.FC = () => {
                           ref={provided.innerRef}
                           {...provided.draggableProps}
                           {...(isReorderMode ? provided.dragHandleProps : {})}
-                          className="exercise-block"
+                          className="exercise-card"
                         >
                           <div className="exercise-header">
                             <h3>{exercise.name}</h3>
@@ -490,45 +490,29 @@ const StartProgrammedLiftPage: React.FC = () => {
                                 }
                                 className="button danger"
                               >
-                                Remove Exercise
+                                Remove
                               </button>
                             </div>
                           </div>
                           {exercise.logs && exercise.logs.length > 0 && (
                             <div className="last-set-info">
-                              <div>
-                                Last Set:{" "}
-                                {exercise.logs[exercise.logs.length - 1].weight}
-                                lbs ×{" "}
-                                {
-                                  exercise.logs[exercise.logs.length - 1].reps
-                                }{" "}
-                                @RIR
-                                {exercise.logs[exercise.logs.length - 1].rir}
-                              </div>
-                              <div className="date">
+                              Last Set:{" "}
+                              {exercise.logs[exercise.logs.length - 1].weight}
+                              lbs ×{" "}
+                              {
+                                exercise.logs[exercise.logs.length - 1].reps
+                              }{" "}
+                              @RIR{exercise.logs[exercise.logs.length - 1].rir}
+                              <span className="date">
                                 {new Date(
                                   exercise.logs[exercise.logs.length - 1].date
                                 ).toLocaleDateString()}
-                              </div>
+                              </span>
                             </div>
                           )}
-                          <div className="sets-container">
+                          <ul className="set-list">
                             {exercise.sets.map((set, setIndex) => (
-                              <div
-                                key={setIndex}
-                                className={`set-card ${
-                                  set.isLogged ? "logged" : ""
-                                }`}
-                              >
-                                <button
-                                  onClick={() =>
-                                    handleRemoveSet(exercise.name, setIndex)
-                                  }
-                                  className="set-card-remove"
-                                >
-                                  ×
-                                </button>
+                              <li key={setIndex} className="set-item">
                                 {set.isLogged ? (
                                   <div className="logged-set">
                                     <div className="set-info">
@@ -536,12 +520,12 @@ const StartProgrammedLiftPage: React.FC = () => {
                                       <span>{set.reps} reps</span>
                                       <span>RIR {set.rir}</span>
                                     </div>
-                                    <div className="set-actions">
+                                    <div className="button-group">
                                       <button
                                         onClick={() =>
                                           handleEditSet(exercise.name, setIndex)
                                         }
-                                        className="set-action-btn edit"
+                                        className="button action"
                                       >
                                         Edit
                                       </button>
@@ -552,86 +536,97 @@ const StartProgrammedLiftPage: React.FC = () => {
                                             setIndex
                                           )
                                         }
-                                        className="set-action-btn delete"
+                                        className="button danger"
                                       >
                                         Delete
                                       </button>
                                     </div>
                                   </div>
                                 ) : (
-                                  <div className="set-inputs">
-                                    <div className="floating-label-container">
-                                      <input
-                                        type="number"
-                                        value={
-                                          inputState[exercise.name]?.[setIndex]
-                                            ?.weight || ""
-                                        }
-                                        onChange={(e) =>
-                                          handleInputChange(
-                                            exercise.name,
-                                            setIndex,
-                                            "weight",
-                                            e.target.value
-                                          )
-                                        }
-                                        className="input-field"
-                                        placeholder="Weight"
-                                      />
-                                      <label className="floating-label">
-                                        Weight (lbs)
-                                      </label>
-                                    </div>
-                                    <div className="floating-label-container">
-                                      <input
-                                        type="number"
-                                        value={
-                                          inputState[exercise.name]?.[setIndex]
-                                            ?.reps || ""
-                                        }
-                                        onChange={(e) =>
-                                          handleInputChange(
-                                            exercise.name,
-                                            setIndex,
-                                            "reps",
-                                            e.target.value
-                                          )
-                                        }
-                                        className="input-field"
-                                        placeholder="Reps"
-                                      />
-                                      <label className="floating-label">
-                                        Reps
-                                      </label>
-                                    </div>
-                                    <div className="floating-label-container">
-                                      <input
-                                        type="number"
-                                        value={
-                                          inputState[exercise.name]?.[setIndex]
-                                            ?.rir || ""
-                                        }
-                                        onChange={(e) =>
-                                          handleInputChange(
-                                            exercise.name,
-                                            setIndex,
-                                            "rir",
-                                            e.target.value
-                                          )
-                                        }
-                                        className="input-field"
-                                        placeholder="RIR"
-                                      />
-                                      <label className="floating-label">
-                                        RIR
-                                      </label>
+                                  <>
+                                    <button
+                                      onClick={() =>
+                                        handleRemoveSet(exercise.name, setIndex)
+                                      }
+                                      className="remove-set-btn"
+                                      aria-label="Remove set"
+                                    >
+                                      ×
+                                    </button>
+                                    <div className="set-inputs">
+                                      <div className="floating-label-container">
+                                        <label className="floating-label">
+                                          Weight (lbs)
+                                        </label>
+                                        <input
+                                          type="number"
+                                          value={
+                                            inputState[exercise.name]?.[
+                                              setIndex
+                                            ]?.weight || ""
+                                          }
+                                          onChange={(e) =>
+                                            handleInputChange(
+                                              exercise.name,
+                                              setIndex,
+                                              "weight",
+                                              e.target.value
+                                            )
+                                          }
+                                          className="input-field"
+                                        />
+                                      </div>
+                                      <div className="floating-label-container">
+                                        <label className="floating-label">
+                                          Reps
+                                        </label>
+                                        <input
+                                          type="number"
+                                          value={
+                                            inputState[exercise.name]?.[
+                                              setIndex
+                                            ]?.reps || ""
+                                          }
+                                          onChange={(e) =>
+                                            handleInputChange(
+                                              exercise.name,
+                                              setIndex,
+                                              "reps",
+                                              e.target.value
+                                            )
+                                          }
+                                          className="input-field"
+                                        />
+                                      </div>
+                                      <div className="floating-label-container">
+                                        <label className="floating-label">
+                                          RIR
+                                        </label>
+                                        <input
+                                          type="number"
+                                          value={
+                                            inputState[exercise.name]?.[
+                                              setIndex
+                                            ]?.rir || ""
+                                          }
+                                          onChange={(e) =>
+                                            handleInputChange(
+                                              exercise.name,
+                                              setIndex,
+                                              "rir",
+                                              e.target.value
+                                            )
+                                          }
+                                          className="input-field"
+                                        />
+                                      </div>
                                     </div>
                                     <div className="set-actions">
                                       <button
                                         onClick={() =>
                                           handleLogSet(exercise.name, setIndex)
                                         }
-                                        className="set-action-btn log"
+                                        className="button primary"
                                       >
                                         Log Set
                                       </button>
@@ -642,16 +637,16 @@ const StartProgrammedLiftPage: React.FC = () => {
                                             setIndex
                                           )
                                         }
-                                        className="set-action-btn calculate"
+                                        className="button secondary"
                                       >
                                         Calculate
                                       </button>
                                     </div>
-                                  </div>
+                                  </>
                                 )}
-                              </div>
+                              </li>
                             ))}
-                          </div>
+                          </ul>
                         </div>
                       )}
                     </Draggable>
