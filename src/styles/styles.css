@@ -1337,3 +1337,115 @@ h2 {
   gap: 1rem;
   width: 100%;
 }
+
+/* Workout Plan Page Styles */
+.workout-plan-page {
+  min-height: 100vh;
+  background-color: var(--background);
+  padding-top: 60px; /* Space for ActionBar */
+}
+
+.workout-plan-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.workout-plan-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-top: 1rem;
+}
+
+.calendar-section {
+  background: var(--card-background);
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px var(--shadow);
+}
+
+.workout-form-section {
+  background: var(--card-background);
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px var(--shadow);
+}
+
+/* Calendar Component Mobile Styles */
+@media (max-width: 768px) {
+  .workout-plan-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .calendar-section,
+  .workout-form-section {
+    padding: 1rem;
+  }
+
+  .react-calendar {
+    width: 100% !important;
+    max-width: 100% !important;
+    font-size: 0.9rem;
+  }
+
+  .react-calendar__tile {
+    padding: 0.5rem !important;
+  }
+
+  .workout-container {
+    max-width: 100%;
+  }
+
+  .workout-scroll-container {
+    max-height: 250px;
+  }
+
+  .workout-card {
+    padding: 1rem;
+  }
+
+  .workout-actions {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .button.action {
+    padding: 0.5rem;
+    font-size: 0.8rem;
+  }
+}
+
+/* Additional Mobile Optimizations */
+@media (max-width: 480px) {
+  .workout-plan-content {
+    padding: 0.5rem;
+  }
+
+  .calendar-section,
+  .workout-form-section {
+    padding: 0.75rem;
+  }
+
+  .react-calendar__tile {
+    padding: 0.3rem !important;
+  }
+
+  .workout-card {
+    margin-bottom: 0.5rem;
+  }
+
+  .workout-name {
+    font-size: 1rem;
+  }
+
+  .workout-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .button.action {
+    width: 100%;
+  }
+}

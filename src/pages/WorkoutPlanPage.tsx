@@ -9,20 +9,18 @@ import {
 import { Workout } from "../utils/types";
 import ActionBar from "../components/Actionbar";
 import { useUser } from "@clerk/clerk-react";
-import { useSupabaseClient } from "../utils/supabaseClient"; // Import the custom hook
+import { useSupabaseClient } from "../utils/supabaseClient";
 
 const WorkoutPlanPage: React.FC = () => {
   const [savedWorkouts, setSavedWorkouts] = useState<Workout[]>([]);
-  const { user } = useUser(); // Get the authenticated user
-  const supabase = useSupabaseClient(); // Get the Supabase client
+  const { user } = useUser();
+  const supabase = useSupabaseClient();
 
   useEffect(() => {
     const fetchWorkouts = async () => {
       if (user && supabase) {
         try {
-          // First try to preload default workouts
           await preloadWorkouts(supabase, user);
-          // Then load all workouts (including any preloaded ones)
           const workouts = await loadWorkouts(supabase, user);
           setSavedWorkouts(workouts);
         } catch (error) {
@@ -32,11 +30,11 @@ const WorkoutPlanPage: React.FC = () => {
     };
 
     fetchWorkouts();
-  }, [user, supabase]); // Add supabase as a dependency
+  }, [user, supabase]);
 
   const handleRemoveWorkout = async (workout: Workout) => {
     if (user && supabase) {
-      await removeWorkoutFromList(supabase, workout.workout_name, user); // Pass supabase and user
+      await removeWorkoutFromList(supabase, workout.workout_name, user);
       setSavedWorkouts((prevWorkouts) =>
         prevWorkouts.filter((w) => w.workout_name !== workout.workout_name)
       );
@@ -44,14 +42,20 @@ const WorkoutPlanPage: React.FC = () => {
   };
 
   return (
-    <div>
+    <div className="workout-plan-page">
       <ActionBar />
-      <div style={{ marginTop: "60px" /* Adjust to match ActionBar height */ }}>
-        <CalendarComponent
-          savedWorkouts={savedWorkouts}
-          onRemoveWorkout={handleRemoveWorkout}
-        />
-        <WorkoutForm setSavedWorkouts={setSavedWorkouts} />
+      <div className="workout-plan-content">
+        <div className="workout-plan-grid">
+          <div className="calendar-section">
+            <CalendarComponent
+              savedWorkouts={savedWorkouts}
+              onRemoveWorkout={handleRemoveWorkout}
+            />
+          </div>
+          <div className="workout-form-section">
+            <WorkoutForm setSavedWorkouts={setSavedWorkouts} />
+          </div>
+        </div>
       </div>
     </div>
   );

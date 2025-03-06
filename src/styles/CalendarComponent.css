@@ -1,60 +1,112 @@
 .react-calendar {
-    background-color: #2e2e2e; /* Dark background */
-    color: white;
-    border: none;
-    border-radius: 10px;
-    padding: 10px;
-  }
-  
-  .react-calendar__tile {
-    background-color: #3b3b3b; /* Darker tiles */
-    color: white;
-    border-radius: 5px;
-    position: relative; /* Required for the dot */
-  }
-  
-  .react-calendar__tile:hover {
-    background-color: #505050; /* Highlighted on hover */
-  }
-  
-  .react-calendar__tile--active {
-    background-color: #4CAF50; /* Green background for active days */
-    color: white;
-  }
-  
-  .react-calendar__tile--now {
-    background-color: #FFD700; /* Yellow for today's date */
-    color: black;
-  }
-  .react-calendar__tile--highlight {
-    background-color: #a52222; /* Red for selected days */
-    color: white;
-  }
-  
-  .react-calendar__tile--dot::after {
-    content: '•'; /* Dot for assigned workout days */
-    color: #FF6347; /* Light red dot */
-    font-size: 1.2rem;
-    position: absolute;
-    bottom: 5px;
-    left: 50%;
-    transform: translateX(-50%);
+  background-color: #2e2e2e; /* Dark background */
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 10px;
+  width: 100%;
+  max-width: 100%;
+}
+
+.react-calendar__tile {
+  background-color: #3b3b3b; /* Darker tiles */
+  color: white;
+  border-radius: 5px;
+  position: relative; /* Required for the dot */
+  padding: 0.75rem 0.5rem;
+}
+
+.react-calendar__tile:hover {
+  background-color: #505050; /* Highlighted on hover */
+}
+
+.react-calendar__tile--active {
+  background-color: #4caf50; /* Green background for active days */
+  color: white;
+}
+
+.react-calendar__tile--now {
+  background-color: #ffd700; /* Yellow for today's date */
+  color: black;
+}
+.react-calendar__tile--highlight {
+  background-color: #a52222; /* Red for selected days */
+  color: white;
+}
+
+.react-calendar__tile--dot::after {
+  content: "•"; /* Dot for assigned workout days */
+  color: #ff6347; /* Light red dot */
+  font-size: 1.2rem;
+  position: absolute;
+  bottom: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.react-calendar__tile--dot {
+  position: relative;
+}
+
+.react-calendar__tile--dot::after {
+  content: "";
+  position: absolute;
+  bottom: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 5px;
+  height: 5px;
+  background-color: green; /* Mark workouts with a dot */
+  border-radius: 50%;
+}
+
+/* Mobile Optimizations */
+@media (max-width: 768px) {
+  .react-calendar {
+    padding: 5px;
   }
 
-  
-  .react-calendar__tile--dot {
-    position: relative;
+  .react-calendar__tile {
+    padding: 0.5rem 0.3rem;
+    font-size: 0.9rem;
   }
-  
+
+  .react-calendar__month-view__days__day {
+    font-size: 0.8rem;
+  }
+
+  .react-calendar__month-view__weekdays {
+    font-size: 0.8rem;
+  }
+
   .react-calendar__tile--dot::after {
-    content: '';
-    position: absolute;
-    bottom: 5px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 5px;
-    height: 5px;
-    background-color: green; /* Mark workouts with a dot */
-    border-radius: 50%;
+    width: 4px;
+    height: 4px;
+    bottom: 3px;
   }
-  
+}
+
+@media (max-width: 480px) {
+  .react-calendar {
+    padding: 3px;
+  }
+
+  .react-calendar__tile {
+    padding: 0.3rem 0.2rem;
+    font-size: 0.8rem;
+  }
+
+  .react-calendar__month-view__days__day {
+    font-size: 0.7rem;
+  }
+
+  .react-calendar__month-view__weekdays {
+    font-size: 0.7rem;
+  }
+
+  .react-calendar__tile--dot::after {
+    width: 3px;
+    height: 3px;
+    bottom: 2px;
+  }
+}
