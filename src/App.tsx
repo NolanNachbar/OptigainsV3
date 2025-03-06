@@ -26,8 +26,12 @@ const App: React.FC = () => {
       <Suspense fallback={<div>Loading...</div>}>
         <Router>
           <Routes>
+            {/* Public routes */}
             <Route path="/" element={<HomePage />} />
             <Route path="/sign-in" element={<SignInPage />} />
+            <Route path="/calc-page" element={<CalcPage />} />
+
+            {/* Protected routes */}
             <Route
               path="/workout-plan"
               element={
@@ -41,16 +45,71 @@ const App: React.FC = () => {
                 </>
               }
             />
-            {/* Protect other routes similarly */}
-            <Route path="/start-lift" element={<StartLiftPage />} />
-            <Route path="/freestyle-lift" element={<FreestyleLiftPage />} />
+            <Route
+              path="/start-lift"
+              element={
+                <>
+                  <SignedIn>
+                    <StartLiftPage />
+                  </SignedIn>
+                  <SignedOut>
+                    <RedirectToSignIn />
+                  </SignedOut>
+                </>
+              }
+            />
+            <Route
+              path="/freestyle-lift"
+              element={
+                <>
+                  <SignedIn>
+                    <FreestyleLiftPage />
+                  </SignedIn>
+                  <SignedOut>
+                    <RedirectToSignIn />
+                  </SignedOut>
+                </>
+              }
+            />
             <Route
               path="/start-programmed-lift"
-              element={<StartProgrammedLiftPage />}
+              element={
+                <>
+                  <SignedIn>
+                    <StartProgrammedLiftPage />
+                  </SignedIn>
+                  <SignedOut>
+                    <RedirectToSignIn />
+                  </SignedOut>
+                </>
+              }
             />
-            <Route path="/calc-page" element={<CalcPage />} />
-            <Route path="/library-page" element={<LibraryPage />} />
-            <Route path="/weight-log" element={<BodyWeightLog />} />
+            <Route
+              path="/library-page"
+              element={
+                <>
+                  <SignedIn>
+                    <LibraryPage />
+                  </SignedIn>
+                  <SignedOut>
+                    <RedirectToSignIn />
+                  </SignedOut>
+                </>
+              }
+            />
+            <Route
+              path="/weight-log"
+              element={
+                <>
+                  <SignedIn>
+                    <BodyWeightLog />
+                  </SignedIn>
+                  <SignedOut>
+                    <RedirectToSignIn />
+                  </SignedOut>
+                </>
+              }
+            />
           </Routes>
         </Router>
       </Suspense>
