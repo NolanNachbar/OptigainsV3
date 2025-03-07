@@ -163,7 +163,8 @@ export const lastSet = (
 export const calculateNextWeight = (
   exercise: Exercise,
   reps: number,
-  rir: number
+  rir: number,
+  percentIncrease: number = 1.5 // Default to 1.5% if not provided
 ): number => {
   // Check if the exercise has logs
   if (!exercise.logs || exercise.logs.length === 0) {
@@ -201,7 +202,11 @@ export const calculateNextWeight = (
     isNaN(estimatedWeight) || estimatedWeight <= 0
       ? lastLog.weight
       : estimatedWeight;
-  return Math.round(result / 5) * 5;
+
+  // Apply percent increase if provided
+  const adjustedWeight = result * (1 + percentIncrease / 100);
+
+  return Math.round(adjustedWeight / 5) * 5; // Round to nearest 5 lbs
 };
 
 // Add a workout with normalized exercises
@@ -547,50 +552,59 @@ export const preloadWorkouts = async (
       exercises: [
         {
           name: "Machine shoulder press",
-          sets: [
-            { weight: 250, reps: 3, rir: 0 },
-            { weight: 195, reps: 10, rir: 0 },
-          ],
+          sets: [{ weight: 185, reps: 3, rir: 0 }],
           rir: 0,
           logs: [
-            { date: "2025-01-16", weight: 250, reps: 3, rir: 0 },
-            { date: "2025-01-10", weight: 195, reps: 10, rir: 0 },
+            { date: "2025-01-16", weight: 185, reps: 7, rir: 0 },
+            { date: "2025-01-10", weight: 185, reps: 7, rir: 0 },
           ],
         },
         {
           name: "Normal Grip Pulldown",
-          sets: [
-            { weight: 230, reps: 3, rir: 0 },
-            { weight: 175, reps: 10, rir: 0 },
-          ],
+          sets: [{ weight: 195, reps: 3, rir: 0 }],
           rir: 0,
           logs: [
-            { date: "2025-01-16", weight: 230, reps: 3, rir: 0 },
-            { date: "2025-01-10", weight: 175, reps: 10, rir: 0 },
+            { date: "2025-01-16", weight: 195, reps: 7, rir: 0 },
+            { date: "2025-01-10", weight: 195, reps: 7, rir: 0 },
           ],
         },
         {
-          name: "Machine Curls",
-          sets: [
-            { weight: 145, reps: 3, rir: 0 },
-            { weight: 110, reps: 10, rir: 0 },
-          ],
+          name: "Machine bench press",
+          sets: [{ weight: 245, reps: 3, rir: 0 }],
           rir: 0,
           logs: [
-            { date: "2025-01-16", weight: 145, reps: 3, rir: 0 },
-            { date: "2025-01-10", weight: 110, reps: 10, rir: 0 },
+            { date: "2025-01-16", weight: 245, reps: 7, rir: 0 },
+            { date: "2025-01-10", weight: 245, reps: 7, rir: 0 },
           ],
         },
         {
-          name: "Leg Press",
+          name: "Smith Kelso Shrugs",
           sets: [
-            { weight: 750, reps: 3, rir: 0 },
-            { weight: 585, reps: 10, rir: 0 },
+            { weight: 255, reps: 9, rir: 0 },
+            { weight: 255, reps: 9, rir: 0 },
           ],
           rir: 0,
           logs: [
-            { date: "2025-01-16", weight: 750, reps: 3, rir: 0 },
-            { date: "2025-01-10", weight: 585, reps: 10, rir: 0 },
+            { date: "2025-01-16", weight: 255, reps: 9, rir: 0 },
+            { date: "2025-01-10", weight: 255, reps: 9, rir: 0 },
+          ],
+        },
+        {
+          name: "Cable Curl",
+          sets: [{ weight: 35, reps: 3, rir: 0 }],
+          rir: 0,
+          logs: [
+            { date: "2025-01-16", weight: 35, reps: 10, rir: 0 },
+            { date: "2025-01-10", weight: 35, reps: 10, rir: 0 },
+          ],
+        },
+        {
+          name: "Smith jm press",
+          sets: [{ weight: 105, reps: 3, rir: 0 }],
+          rir: 0,
+          logs: [
+            { date: "2025-01-16", weight: 105, reps: 12, rir: 0 },
+            { date: "2025-01-10", weight: 105, reps: 12, rir: 0 },
           ],
         },
       ],

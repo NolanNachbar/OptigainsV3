@@ -170,19 +170,38 @@ h2 {
 }
 
 .last-set-info {
-  background: var(--input-background);
-  padding: 0.75rem;
-  border-radius: 4px;
+  background-color: #2a2a2a;
+  padding: 1rem;
+  border-radius: 8px;
   margin-bottom: 1rem;
-  font-size: 0.9rem;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
-.last-set-info .date {
-  color: var(--text);
-  opacity: 0.7;
+.set-history {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #e0e0e0;
+  font-size: 0.9rem;
+}
+
+.recommended-weight {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #4caf50;
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding-top: 0.5rem;
+  border-top: 1px solid #3a3a3a;
+}
+
+.date {
+  color: #888;
+  font-size: 0.8rem;
+  margin-left: auto;
 }
 
 .remove-set-btn {
@@ -1363,6 +1382,11 @@ h2 {
   padding: 1.5rem;
   border-radius: 12px;
   box-shadow: 0 2px 4px var(--shadow);
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .workout-form-section {
@@ -1370,6 +1394,8 @@ h2 {
   padding: 1.5rem;
   border-radius: 12px;
   box-shadow: 0 2px 4px var(--shadow);
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* Calendar Component Mobile Styles */
@@ -1382,16 +1408,10 @@ h2 {
   .calendar-section,
   .workout-form-section {
     padding: 1rem;
-  }
-
-  .react-calendar {
-    width: 100% !important;
-    max-width: 100% !important;
-    font-size: 0.9rem;
-  }
-
-  .react-calendar__tile {
-    padding: 0.5rem !important;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+    box-sizing: border-box;
   }
 
   .workout-container {
@@ -1426,10 +1446,7 @@ h2 {
   .calendar-section,
   .workout-form-section {
     padding: 0.75rem;
-  }
-
-  .react-calendar__tile {
-    padding: 0.3rem !important;
+    max-width: 100%;
   }
 
   .workout-card {
@@ -1448,4 +1465,19 @@ h2 {
   .button.action {
     width: 100%;
   }
+}
+
+.recommended-settings-container {
+  display: flex; /* Use flexbox for alignment */
+  align-items: center; /* Vertically center the items */
+  gap: 10px; /* Add spacing between the items */
+}
+
+.recommended-weight {
+  margin: 0; /* Remove default margin */
+  font-size: 16px; /* Adjust font size as needed */
+}
+
+.button.secondary {
+  margin: 0; /* Remove default margin */
 }

@@ -45,6 +45,11 @@ const StartProgrammedLiftPage: React.FC = () => {
     set: { weight: string; reps: string; rir: string };
   } | null>(null);
 
+  const [showCustomizeModal, setShowCustomizeModal] = useState(false);
+  const [customReps, setCustomReps] = useState(6);
+  const [customRir, setCustomRir] = useState(0);
+  const [customPercentIncrease, setCustomPercentIncrease] = useState(1.5);
+
   // Calculate total sets and completed sets whenever workout changes
   useEffect(() => {
     if (workoutToday) {
@@ -312,8 +317,8 @@ const StartProgrammedLiftPage: React.FC = () => {
     const setInput = inputState[exerciseName]?.[setIndex];
     if (!setInput) return;
 
-    const reps = Number(setInput.reps || 0);
-    const rir = Number(setInput.rir || 0);
+    const reps = Number(setInput.reps || customReps); // Use customReps as default
+    const rir = Number(setInput.rir || customRir); // Use customRir as default
 
     if (reps === 0) {
       alert("Please enter valid reps");
@@ -326,7 +331,12 @@ const StartProgrammedLiftPage: React.FC = () => {
     );
 
     if (exercise) {
-      const calculatedWeight = calculateNextWeight(exercise, reps, rir);
+      const calculatedWeight = calculateNextWeight(
+        exercise,
+        reps,
+        rir,
+        customPercentIncrease // Pass customPercentIncrease
+      );
       setInputState((prev) => ({
         ...prev,
         [exerciseName]: prev[exerciseName].map((set, idx) =>
@@ -496,18 +506,100 @@ const StartProgrammedLiftPage: React.FC = () => {
                           </div>
                           {exercise.logs && exercise.logs.length > 0 && (
                             <div className="last-set-info">
-                              Last Set:{" "}
-                              {exercise.logs[exercise.logs.length - 1].weight}
-                              lbs ×{" "}
-                              {
-                                exercise.logs[exercise.logs.length - 1].reps
-                              }{" "}
-                              @RIR{exercise.logs[exercise.logs.length - 1].rir}
-                              <span className="date">
-                                {new Date(
-                                  exercise.logs[exercise.logs.length - 1].date
-                                ).toLocaleDateString()}
-                              </span>
+                              <div className="set-history">
+                                Last Set:{" "}
+                                {exercise.logs[exercise.logs.length - 1].weight}
+                                lbs ×{" "}
+                                {
+                                  exercise.logs[exercise.logs.length - 1].reps
+                                }{" "}
+                                @RIR
+                                {exercise.logs[exercise.logs.length - 1].rir}
+                                <span className="date">
+                                  {new Date(
+                                    exercise.logs[exercise.logs.length - 1].date
+                                  ).toLocaleDateString()}
+                                </span>
+                              </div>
+                              <div className="recommended-settings-container">
+                                <div className="recommended-weight">
+                                  {calculateNextWeight(
+                                    exercise,
+                                    customReps, // Use customReps
+                                    customRir, // Use customRir
+                                    customPercentIncrease // Pass customPercentIncrease
+                                  )}
+                                  lbs × {customReps}, RIR {customRir} (+
+                                  {customPercentIncrease}%)
+                                </div>
+                                <button
+                                  onClick={() => setShowCustomizeModal(true)}
+                                  className="button secondary"
+                                >
+                                  Adjust
+                                </button>
+                              </div>
+
+                              {showCustomizeModal && (
+                                <div className="modal-overlay">
+                                  <div className="modal-content">
+                                    <h2>Customize Recommended Settings</h2>
+                                    <div className="modal-input-group">
+                                      <label>Reps</label>
+                                      <input
+                                        type="number"
+                                        value={customReps}
+                                        onChange={(e) =>
+                                          setCustomReps(Number(e.target.value))
+                                        }
+                                        className="input-field"
+                                      />
+                                    </div>
+                                    <div className="modal-input-group">
+                                      <label>RIR</label>
+                                      <input
+                                        type="number"
+                                        value={customRir}
+                                        onChange={(e) =>
+                                          setCustomRir(Number(e.target.value))
+                                        }
+                                        className="input-field"
+                                      />
+                                    </div>
+                                    <div className="modal-input-group">
+                                      <label>Percent Increase</label>
+                                      <input
+                                        type="number"
+                                        value={customPercentIncrease}
+                                        onChange={(e) =>
+                                          setCustomPercentIncrease(
+                                            Number(e.target.value)
+                                          )
+                                        }
+                                        className="input-field"
+                                      />
+                                    </div>
+                                    <div className="modal-actions">
+                                      <button
+                                        onClick={() =>
+                                          setShowCustomizeModal(false)
+                                        }
+                                        className="button primary"
+                                      >
+                                        Save
+                                      </button>
+                                      <button
+                                        onClick={() =>
+                                          setShowCustomizeModal(false)
+                                        }
+                                        className="button secondary"
+                                      >
+                                        Cancel
+                                      </button>
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
                             </div>
                           )}
                           <ul className="set-list">
@@ -665,6 +757,12 @@ const StartProgrammedLiftPage: React.FC = () => {
             disabled={history.length === 0}
           >
             Undo
+          </button>
+          <button
+            onClick={() => setShowAddExerciseModal(true)}
+            className="button primary"
+          >
+            Add Exercise
           </button>
           <button onClick={handleSaveWorkout} className="button primary">
             Save Workout
