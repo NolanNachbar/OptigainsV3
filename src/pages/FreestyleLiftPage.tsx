@@ -199,6 +199,43 @@ const FreestyleLiftPage: React.FC = () => {
     }
   };
 
+  const handleAddSet = (exerciseName: string) => {
+    setExercises((prev) =>
+      prev.map((exercise) =>
+        exercise.name === exerciseName
+          ? {
+              ...exercise,
+              sets: [...exercise.sets, { weight: 1, reps: 10, rir: 0 }],
+            }
+          : exercise
+      )
+    );
+  };
+
+  const handleRemoveExercise = (exerciseName: string) => {
+    setExercises((prev) =>
+      prev.filter((exercise) => exercise.name !== exerciseName)
+    );
+    setInputState((prev) => {
+      const newState = { ...prev };
+      delete newState[exerciseName];
+      return newState;
+    });
+  };
+
+  const handleRemoveSet = (exerciseName: string, setIndex: number) => {
+    setExercises((prev) =>
+      prev.map((exercise) =>
+        exercise.name === exerciseName
+          ? {
+              ...exercise,
+              sets: exercise.sets.filter((_, idx) => idx !== setIndex),
+            }
+          : exercise
+      )
+    );
+  };
+
   return (
     <div style={{ textAlign: "center", padding: "2rem" }}>
       <ActionBar />
@@ -233,7 +270,11 @@ const FreestyleLiftPage: React.FC = () => {
       <DragDropContext onDragEnd={handleReorderExercises}>
         <Droppable droppableId="exercises">
           {(provided) => (
-            <div ref={provided.innerRef} {...provided.droppableProps}>
+            <div
+              className="exercise-list"
+              ref={provided.innerRef}
+              {...provided.droppableProps}
+            >
               {exercises.map((exercise, index) => (
                 <Draggable
                   key={exercise.name}
@@ -245,95 +286,125 @@ const FreestyleLiftPage: React.FC = () => {
                       ref={provided.innerRef}
                       {...provided.draggableProps}
                       {...provided.dragHandleProps}
-                      style={{ marginBottom: "2rem" }}
+                      className="exercise-card"
                     >
-                      <h3>{exercise.name}</h3>
-                      <ul style={{ listStyle: "none", padding: 0 }}>
+                      <div className="exercise-header">
+                        <h3>{exercise.name}</h3>
+                        <div className="exercise-actions">
+                          <button
+                            onClick={() => handleAddSet(exercise.name)}
+                            className="button action"
+                          >
+                            Add Set
+                          </button>
+                          <button
+                            onClick={() => handleRemoveExercise(exercise.name)}
+                            className="button danger"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      </div>
+                      {exercise.logs && exercise.logs.length > 0 && (
+                        <div className="last-set-info">
+                          <div className="set-history">
+                            Last Set:{" "}
+                            {exercise.logs[exercise.logs.length - 1].weight}
+                            lbs × {
+                              exercise.logs[exercise.logs.length - 1].reps
+                            }{" "}
+                            @RIR
+                            {exercise.logs[exercise.logs.length - 1].rir}
+                            <span className="date">
+                              {new Date(
+                                exercise.logs[exercise.logs.length - 1].date
+                              ).toLocaleDateString()}
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                      <ul className="set-list">
                         {exercise.sets.map((set, idx) => (
-                          <li key={idx}>
-                            Weight: {set.weight} lbs, Reps: {set.reps}, RIR:{" "}
-                            {set.rir}
+                          <li key={idx} className="set-item">
+                            <button
+                              onClick={() =>
+                                handleRemoveSet(exercise.name, idx)
+                              }
+                              className="remove-set-btn"
+                              aria-label="Remove set"
+                            >
+                              ×
+                            </button>
+                            <div className="set-inputs">
+                              <div className="floating-label-container">
+                                <label className="floating-label">
+                                  Weight (lbs)
+                                </label>
+                                <input
+                                  type="number"
+                                  value={
+                                    inputState[exercise.name]?.weight || ""
+                                  }
+                                  onChange={(e) =>
+                                    handleInputChange(
+                                      exercise.name,
+                                      "weight",
+                                      e.target.value
+                                    )
+                                  }
+                                  className="input-field"
+                                />
+                              </div>
+                              <div className="floating-label-container">
+                                <label className="floating-label">Reps</label>
+                                <input
+                                  type="number"
+                                  value={inputState[exercise.name]?.reps || ""}
+                                  onChange={(e) =>
+                                    handleInputChange(
+                                      exercise.name,
+                                      "reps",
+                                      e.target.value
+                                    )
+                                  }
+                                  className="input-field"
+                                />
+                              </div>
+                              <div className="floating-label-container">
+                                <label className="floating-label">RIR</label>
+                                <input
+                                  type="number"
+                                  value={inputState[exercise.name]?.rir || ""}
+                                  onChange={(e) =>
+                                    handleInputChange(
+                                      exercise.name,
+                                      "rir",
+                                      e.target.value
+                                    )
+                                  }
+                                  className="input-field"
+                                />
+                              </div>
+                            </div>
+                            <div className="set-actions">
+                              <button
+                                onClick={() => handleLogSet(exercise.name)}
+                                className="button primary"
+                              >
+                                Log Set
+                              </button>
+                              <button
+                                onClick={() =>
+                                  handleCalculateWeight(exercise.name)
+                                }
+                                className="button secondary"
+                              >
+                                Calculate
+                              </button>
+                            </div>
                           </li>
                         ))}
                       </ul>
-
-                      <div>
-                        <div className="floating-label-container">
-                          <input
-                            type="number"
-                            id={`weight-${exercise.name}`}
-                            value={inputState[exercise.name]?.weight || ""}
-                            onChange={(e) =>
-                              handleInputChange(
-                                exercise.name,
-                                "weight",
-                                e.target.value
-                              )
-                            }
-                            className="input-field"
-                          />
-                          <label
-                            htmlFor={`weight-${exercise.name}`}
-                            className="floating-label"
-                          >
-                            Weight (lbs)
-                          </label>
-                        </div>
-                        <div className="floating-label-container">
-                          <input
-                            type="number"
-                            id={`reps-${exercise.name}`}
-                            value={inputState[exercise.name]?.reps || ""}
-                            onChange={(e) =>
-                              handleInputChange(
-                                exercise.name,
-                                "reps",
-                                e.target.value
-                              )
-                            }
-                            className="input-field"
-                          />
-                          <label
-                            htmlFor={`reps-${exercise.name}`}
-                            className="floating-label"
-                          >
-                            Reps
-                          </label>
-                        </div>
-                        <div className="floating-label-container">
-                          <input
-                            type="number"
-                            id={`rir-${exercise.name}`}
-                            value={inputState[exercise.name]?.rir || undefined}
-                            onChange={(e) =>
-                              handleInputChange(
-                                exercise.name,
-                                "rir",
-                                e.target.value
-                              )
-                            }
-                            className="input-field"
-                          />
-                          <label
-                            htmlFor={`rir-${exercise.name}`}
-                            className="floating-label"
-                          >
-                            RIR
-                          </label>
-                        </div>
-                        <button
-                          onClick={() => handleLogSet(exercise.name)}
-                          className="button action"
-                        >
-                          Log Set
-                        </button>
-                        <button
-                          onClick={() => handleCalculateWeight(exercise.name)}
-                          className="button secondary"
-                        >
-                          Calculate Weight
-                        </button>
-                      </div>
                     </div>
                   )}
                 </Draggable>
