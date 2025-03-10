@@ -98,16 +98,18 @@ const CalendarComponent: React.FC<CalendarProps> = ({
   };
 
   const handleAssignWorkoutsToDays = async () => {
-    if (!user) return; // Ensure user is authenticated
+    if (!user) return;
 
     const newAssignedDays = { ...assignedDays };
 
     for (const day of selectedDays) {
       for (const workout of selectedWorkouts) {
+        // Ensure the date format matches what's stored in the database
+        const formattedDate = new Date(day).toISOString().split("T")[0];
         await assignWorkoutToDate(
-          supabase, // Pass supabase here
+          supabase,
           workout.workout_name,
-          day,
+          formattedDate,
           user
         );
         if (!newAssignedDays[day]) newAssignedDays[day] = true;

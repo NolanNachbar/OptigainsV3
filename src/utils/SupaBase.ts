@@ -20,6 +20,7 @@ export const saveWorkouts = async (
   user: UserResource
 ) => {
   const workoutsToSave = workouts.map((workout) => ({
+    id: workout.id || uuidv5(`${user.id}-${workout.workout_name}`, NAMESPACE),
     user_id: generateUserIdAsUuid(user.id),
     workout_name: workout.workout_name,
     assigned_days: workout.assigned_days || [],
@@ -30,7 +31,8 @@ export const saveWorkouts = async (
   const { data, error } = await supabase
     .from("workouts")
     .upsert(workoutsToSave, {
-      onConflict: "user_id,workout_name",
+      onConflict: "id", // Use the UUID primary key for conflict resolution
+      ignoreDuplicates: false,
     });
 
   if (error) {
@@ -68,17 +70,33 @@ export const assignWorkoutToDate = async (
   date: string,
   user: UserResource
 ) => {
-  const workouts = await loadWorkouts(supabase, user);
-  const workoutIndex = workouts.findIndex(
-    (workout) => workout.workout_name === workoutId
-  );
+  try {
+    // Fetch the current workout
+    const { data: workout, error: fetchError } = await supabase
+      .from("workouts")
+      .select("*")
+      .eq("workout_name", workoutId)
+      .eq("user_id", generateUserIdAsUuid(user.id))
+      .single();
 
-  if (workoutIndex !== -1) {
-    const workout = workouts[workoutIndex];
-    if (!workout.assigned_days.includes(date)) {
-      workout.assigned_days.push(date);
-      await saveWorkouts(supabase, workouts, user);
-    }
+    if (fetchError) throw fetchError;
+
+    // Update assigned_days if the date isn't already included
+    const updatedAssignedDays = Array.isArray(workout.assigned_days)
+      ? [...new Set([...workout.assigned_days, date])] // Ensure no duplicates
+      : [date];
+
+    // Update the workout in the database
+    const { error: updateError } = await supabase
+      .from("workouts")
+      .update({ assigned_days: updatedAssignedDays })
+      .eq("workout_name", workoutId)
+      .eq("user_id", generateUserIdAsUuid(user.id));
+
+    if (updateError) throw updateError;
+  } catch (error) {
+    console.error("Error assigning workout to date:", error);
+    throw error;
   }
 };
 
@@ -103,12 +121,27 @@ export const getWorkoutForToday = async (
   today: string,
   user: UserResource
 ): Promise<Workout | null> => {
-  const workouts = await loadWorkouts(supabase, user);
-  if (!workouts || workouts.length === 0) return null;
+  try {
+    const { data, error } = await supabase
+      .from("workouts")
+      .select("*")
+      .eq("user_id", generateUserIdAsUuid(user.id))
+      .contains("assigned_days", `["${today}"]`);
 
-  return (
-    workouts.find((workout) => workout.assigned_days.includes(today)) || null
-  );
+    if (error) {
+      console.error("Error fetching today's workout:", error);
+      return null;
+    }
+
+    // Add debug logging
+    console.log("Today's date:", today);
+    console.log("Found workouts:", data);
+
+    return data?.[0] || null;
+  } catch (error) {
+    console.error("Error in getWorkoutForToday:", error);
+    return null;
+  }
 };
 
 // Remove a workout from a specific date

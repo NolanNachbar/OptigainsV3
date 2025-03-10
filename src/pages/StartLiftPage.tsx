@@ -23,9 +23,14 @@ const StartLiftPage: React.FC = () => {
       }
 
       try {
-        const today = new Date().toISOString().split("T")[0];
-        const workout = await getWorkoutForToday(supabase, today, user); // Pass the Supabase client
-        setWorkoutToday(workout);
+        const today = new Date().toISOString().split("T")[0]; // Ensure this matches the format in the database
+        const workout = await getWorkoutForToday(supabase, today, user);
+
+        if (workout) {
+          setWorkoutToday(workout);
+        } else {
+          setError("No workout assigned for today.");
+        }
       } catch (err) {
         setError("Failed to fetch workout for today");
         console.error(err);
@@ -35,7 +40,7 @@ const StartLiftPage: React.FC = () => {
     };
 
     fetchWorkout();
-  }, [user, supabase]); // Add supabase to the dependency array
+  }, [user, supabase]);
 
   if (loading) {
     return <p>Loading...</p>;

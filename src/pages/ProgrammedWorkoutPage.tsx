@@ -5,6 +5,7 @@ import {
   calculateNextWeight,
   removeExerciseFromWorkout,
   getConsolidatedExercises,
+  generateUserIdAsUuid,
 } from "../utils/SupaBase";
 import { Workout, Exercise, Set } from "../utils/types";
 import ActionBar from "../components/Actionbar";
@@ -17,6 +18,8 @@ import {
 import { useUser } from "@clerk/clerk-react";
 import { useSupabaseClient } from "../utils/supabaseClient";
 import { useNavigate } from "react-router-dom";
+import { v5 as uuidv5 } from "uuid";
+const NAMESPACE = "6ba7b810-9dad-11d1-80b4-00c04fd430c8";
 
 const normalizeExerciseName = (name: string) => name.toUpperCase();
 
@@ -128,33 +131,35 @@ const StartProgrammedLiftPage: React.FC = () => {
 
   const handleLogSet = (exerciseName: string, setIndex: number) => {
     const input = inputState[exerciseName]?.[setIndex];
-    if (!input || !input.weight || !input.reps || !input.rir) {
+    if (!input?.weight || !input?.reps || !input?.rir) {
       alert("Please fill in all fields before logging a set.");
       return;
     }
 
-    setHistory((prev) => [...prev, workoutToday!]);
     setWorkoutToday((prev) => {
       if (!prev) return null;
+
       return {
         ...prev,
-        exercises: prev.exercises.map((exercise) =>
-          exercise.name === exerciseName
-            ? {
-                ...exercise,
-                sets: exercise.sets.map((set, idx) =>
-                  idx === setIndex
-                    ? {
-                        weight: Number(input.weight),
-                        reps: Number(input.reps),
-                        rir: Number(input.rir),
-                        isLogged: true,
-                      }
-                    : set
-                ),
-              }
-            : exercise
-        ),
+        exercises: prev.exercises.map((exercise) => {
+          if (exercise.name === exerciseName) {
+            const newLog = {
+              date: new Date().toISOString(),
+              weight: Number(input.weight),
+              reps: Number(input.reps),
+              rir: Number(input.rir),
+            };
+
+            return {
+              ...exercise,
+              sets: exercise.sets.map((set, idx) =>
+                idx === setIndex ? { ...set, ...newLog, isLogged: true } : set
+              ),
+              logs: [...(exercise.logs || []), newLog], // Handle undefined logs array
+            };
+          }
+          return exercise;
+        }),
       };
     });
   };
@@ -244,10 +249,25 @@ const StartProgrammedLiftPage: React.FC = () => {
     if (!workoutToday || !user) return;
 
     try {
-      await saveWorkouts(supabase, [workoutToday], user);
+      const workoutToSave: Workout = {
+        ...workoutToday,
+        id:
+          workoutToday.id ||
+          uuidv5(`${user.id}-${workoutToday.workout_name}`, NAMESPACE),
+        user_id: generateUserIdAsUuid(user.id),
+        clerk_user_id: user.id,
+        assigned_days: workoutToday.assigned_days || [
+          new Date().toISOString().split("T")[0],
+        ],
+        exercises: workoutToday.exercises.map((exercise) => ({
+          ...exercise,
+          logs: exercise.logs || [], // Ensure logs array exists
+        })),
+      };
+
+      await saveWorkouts(supabase, [workoutToSave], user);
       alert("Workout saved successfully!");
-      setShowSaveModal(false);
-      navigate("/workout-plan");
+      navigate("/");
     } catch (error) {
       console.error("Error saving workout:", error);
       alert("Failed to save workout.");
@@ -276,40 +296,33 @@ const StartProgrammedLiftPage: React.FC = () => {
   };
 
   const handleAddExercise = () => {
-    if (
-      exerciseName &&
-      sets.every((set) => set.weight > 0 && set.reps > 0 && set.rir >= 0)
-    ) {
+    if (exerciseName && sets.every((set) => set.weight > 0 && set.reps > 0)) {
       const newExercise: Exercise = {
         name: exerciseName,
-        sets: sets,
+        sets: sets.map((set) => ({
+          weight: set.weight,
+          reps: set.reps,
+          rir: set.rir,
+          isLogged: false,
+        })),
         rir: sets[0].rir,
-        logs: [
-          {
-            date: new Date().toISOString(),
-            weight: sets[0].weight,
-            reps: sets[0].reps,
-            rir: sets[0].rir,
-          },
-        ],
+        logs: sets.map((set) => ({
+          date: new Date().toISOString(),
+          weight: set.weight,
+          reps: set.reps,
+          rir: set.rir,
+        })),
       };
 
-      if (workoutToday) {
-        setWorkoutToday({
-          ...workoutToday,
-          exercises: [...workoutToday.exercises, newExercise],
-        });
+      setWorkoutToday((prev) => ({
+        ...prev!,
+        exercises: [...prev!.exercises, newExercise],
+      }));
 
-        setInputState((prev) => ({
-          ...prev,
-          [exerciseName]: sets.map(() => ({ weight: "", reps: "", rir: "" })),
-        }));
-
-        setExerciseName("");
-        setSets([{ weight: 1, reps: 10, rir: 0 }]);
-      }
-    } else {
-      alert("Please fill all fields with valid values.");
+      // Reset state
+      setExerciseName("");
+      setSets([{ weight: 1, reps: 10, rir: 0 }]);
+      setShowAddExerciseModal(false);
     }
   };
 
