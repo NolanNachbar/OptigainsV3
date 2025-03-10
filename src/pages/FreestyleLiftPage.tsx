@@ -324,7 +324,7 @@ const FreestyleLiftPage: React.FC = () => {
                         </div>
                       )}
                       <ul className="set-list">
-                        {exercise.sets.map((set, idx) => (
+                        {exercise.sets.map((_, idx) => (
                           <li key={idx} className="set-item">
                             <button
                               onClick={() =>
