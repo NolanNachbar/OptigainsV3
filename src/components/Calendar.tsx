@@ -2,12 +2,11 @@
 import React, { useState, useEffect } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
-import { Workout, Exercise } from "../utils/types";
+import { Workout } from "../utils/types";
 import {
   assignWorkoutToDate,
   getWorkoutsForDate,
   removeWorkoutFromDate,
-  calculateNextWeight,
   removeWorkoutFromList,
 } from "../utils/SupaBase";
 import "../styles/CalendarComponent.css";
@@ -172,30 +171,6 @@ const CalendarComponent: React.FC<CalendarProps> = ({
     onRemoveWorkout(workout);
   };
 
-  const getRecommendedWeight = (
-    exercise: Exercise,
-    reps: number,
-    rir: number
-  ): number => {
-    // Calculate the next weight based on reps and rir
-    const nextWeight = calculateNextWeight(exercise, reps, rir);
-
-    // Calculate the adjusted reps (6-7 reps + RIR)
-    const adjustedReps = reps + rir; // Make sure it's between 6-7 reps
-
-    // Calculate the 1RM using Epley
-    const oneRm = nextWeight * (1 + 0.0333 * adjustedReps);
-
-    // Estimate the weight for 6-7 reps based on the 1RM using Epley
-    const targetReps = 6 + rir;
-    const recommendedWeight = oneRm / (1 + 0.0333 * targetReps);
-
-    // Return the recommended weight, rounded to the nearest 5
-    const roundedWeight = Math.round(recommendedWeight / 5) * 5;
-
-    return roundedWeight;
-  };
-
   const handleViewWorkout = (workout: Workout) => {
     setModalWorkout(workout);
   };
@@ -238,11 +213,6 @@ const CalendarComponent: React.FC<CalendarProps> = ({
                           <p>
                             Set {setIdx + 1} - Weight: {set.weight} lbs, Reps:{" "}
                             {set.reps}, RIR: {set.rir}
-                          </p>
-                          <p>
-                            Next recommended weight:{" "}
-                            {getRecommendedWeight(exercise, set.reps, set.rir)}{" "}
-                            lbs
                           </p>
                         </li>
                       ))}
