@@ -23,8 +23,11 @@ const StartLiftPage: React.FC = () => {
       }
 
       try {
-        const today = new Date().toISOString().split("T")[0]; // Ensure this matches the format in the database
-        const workout = await getWorkoutForToday(supabase, today, user);
+        const workout = await getWorkoutForToday(
+          supabase,
+          new Date().toISOString().split("T")[0],
+          user
+        );
 
         if (workout) {
           setWorkoutToday(workout);

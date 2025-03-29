@@ -122,11 +122,14 @@ export const getWorkoutForToday = async (
   user: UserResource
 ): Promise<Workout | null> => {
   try {
+    // Get today's date in YYYY-MM-DD format
+    const todayDate = new Date().toISOString().split("T")[0];
+
     const { data, error } = await supabase
       .from("workouts")
       .select("*")
       .eq("user_id", generateUserIdAsUuid(user.id))
-      .contains("assigned_days", `["${today}"]`);
+      .contains("assigned_days", `["${todayDate}"]`);
 
     if (error) {
       console.error("Error fetching today's workout:", error);
@@ -134,25 +137,13 @@ export const getWorkoutForToday = async (
     }
 
     // Add debug logging
-    console.log("Today's date:", today);
+    console.log("Today's date:", todayDate);
     console.log("Found workouts:", data);
 
     if (!data?.[0]) return null;
 
-    // Create a fresh instance of the workout for today
-    const workout = data[0];
-    const freshWorkout: Workout = {
-      ...workout,
-      exercises: workout.exercises.map((exercise: Exercise) => ({
-        ...exercise,
-        sets: exercise.sets.map((set: Set) => ({
-          ...set,
-          isLogged: false, // Reset the logged status for each set
-        })),
-      })),
-    };
-
-    return freshWorkout;
+    // Return the workout as is, preserving logged sets
+    return data[0];
   } catch (error) {
     console.error("Error in getWorkoutForToday:", error);
     return null;

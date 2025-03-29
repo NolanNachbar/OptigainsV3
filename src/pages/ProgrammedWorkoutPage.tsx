@@ -76,25 +76,64 @@ const StartProgrammedLiftPage: React.FC = () => {
       if (!user) return;
 
       try {
-        const today = new Date().toISOString().split("T")[0];
-        const workout = await getWorkoutForToday(supabase, today, user);
+        // For testing: Use a different date to simulate a new day
+        // You can modify this date to test different scenarios
+        const testDate = "2025-01-17"; // This is tomorrow's date compared to the sample data
+
+        // First try to get today's workout
+        const workout = await getWorkoutForToday(supabase, testDate, user);
 
         if (workout) {
-          setWorkoutToday(workout);
-          const initialState: Record<
-            string,
-            { weight: string; reps: string; rir: string }[]
-          > = {};
+          // Check if any sets are logged
+          const hasLoggedSets = workout.exercises.some((exercise) =>
+            exercise.sets.some((set) => set.isLogged)
+          );
 
-          workout.exercises.forEach((exercise) => {
-            initialState[exercise.name] = exercise.sets.map(() => ({
-              weight: "",
-              reps: "",
-              rir: "",
-            }));
-          });
+          if (hasLoggedSets) {
+            // If there are logged sets, this is an in-progress workout
+            setWorkoutToday(workout);
+            const initialState: Record<
+              string,
+              { weight: string; reps: string; rir: string }[]
+            > = {};
 
-          setInputState(initialState);
+            workout.exercises.forEach((exercise) => {
+              initialState[exercise.name] = exercise.sets.map(() => ({
+                weight: "",
+                reps: "",
+                rir: "",
+              }));
+            });
+
+            setInputState(initialState);
+          } else {
+            // If no sets are logged, create a fresh instance
+            const freshWorkout: Workout = {
+              ...workout,
+              exercises: workout.exercises.map((exercise: Exercise) => ({
+                ...exercise,
+                sets: exercise.sets.map((set: Set) => ({
+                  ...set,
+                  isLogged: false,
+                })),
+              })),
+            };
+            setWorkoutToday(freshWorkout);
+            const initialState: Record<
+              string,
+              { weight: string; reps: string; rir: string }[]
+            > = {};
+
+            freshWorkout.exercises.forEach((exercise) => {
+              initialState[exercise.name] = exercise.sets.map(() => ({
+                weight: "",
+                reps: "",
+                rir: "",
+              }));
+            });
+
+            setInputState(initialState);
+          }
         }
       } catch (error) {
         console.error("Error fetching workout:", error);
@@ -129,39 +168,67 @@ const StartProgrammedLiftPage: React.FC = () => {
     }));
   };
 
-  const handleLogSet = (exerciseName: string, setIndex: number) => {
+  const handleLogSet = async (exerciseName: string, setIndex: number) => {
     const input = inputState[exerciseName]?.[setIndex];
     if (!input?.weight || !input?.reps || !input?.rir) {
       alert("Please fill in all fields before logging a set.");
       return;
     }
 
-    setWorkoutToday((prev) => {
-      if (!prev) return null;
+    if (!workoutToday || !user) return;
 
-      return {
-        ...prev,
-        exercises: prev.exercises.map((exercise) => {
-          if (exercise.name === exerciseName) {
-            const newLog = {
-              date: new Date().toISOString(),
-              weight: Number(input.weight),
-              reps: Number(input.reps),
-              rir: Number(input.rir),
-            };
+    const newLog = {
+      date: new Date().toISOString(),
+      weight: Number(input.weight),
+      reps: Number(input.reps),
+      rir: Number(input.rir),
+    };
 
-            return {
-              ...exercise,
-              sets: exercise.sets.map((set, idx) =>
-                idx === setIndex ? { ...set, ...newLog, isLogged: true } : set
-              ),
-              logs: [...(exercise.logs || []), newLog], // Handle undefined logs array
-            };
-          }
-          return exercise;
-        }),
+    // Update local state
+    const updatedWorkout = {
+      ...workoutToday,
+      exercises: workoutToday.exercises.map((exercise) => {
+        if (exercise.name === exerciseName) {
+          return {
+            ...exercise,
+            sets: exercise.sets.map((set, idx) =>
+              idx === setIndex ? { ...set, ...newLog, isLogged: true } : set
+            ),
+            logs: [...(exercise.logs || []), newLog],
+          };
+        }
+        return exercise;
+      }),
+    };
+
+    setWorkoutToday(updatedWorkout);
+
+    // Save to Supabase
+    try {
+      const workoutToSave: Workout = {
+        ...updatedWorkout,
+        id:
+          updatedWorkout.id ||
+          uuidv5(`${user.id}-${updatedWorkout.workout_name}`, NAMESPACE),
+        user_id: generateUserIdAsUuid(user.id),
+        clerk_user_id: user.id,
+        assigned_days: updatedWorkout.assigned_days || [
+          new Date().toISOString().split("T")[0],
+        ],
+        exercises: updatedWorkout.exercises.map((exercise) => ({
+          ...exercise,
+          logs: exercise.logs || [],
+        })),
       };
-    });
+
+      await saveWorkouts(supabase, [workoutToSave], user);
+    } catch (error) {
+      console.error("Error saving workout after logging set:", error);
+      // Optionally show an error message to the user
+      alert(
+        "Failed to save workout state. Your changes may be lost if you leave the page."
+      );
+    }
   };
 
   const handleEditSet = (exerciseName: string, setIndex: number) => {
