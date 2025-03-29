@@ -118,7 +118,7 @@ export const getWorkoutsForDate = async (
 // Get the workout assigned for today
 export const getWorkoutForToday = async (
   supabase: SupabaseClient,
-  today: string,
+  _today: string, // Prefix with underscore to indicate intentionally unused parameter
   user: UserResource
 ): Promise<Workout | null> => {
   try {
