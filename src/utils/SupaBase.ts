@@ -3,7 +3,6 @@
 // import { useAuth } from "@clerk/clerk-react";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { Workout, Exercise } from "./types";
-import type { Set } from "./types";
 // import { getSupabaseClient } from "../utils/supabaseClient";
 import { UserResource } from "@clerk/types";
 import { v5 as uuidv5 } from "uuid";
