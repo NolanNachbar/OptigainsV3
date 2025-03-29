@@ -60,11 +60,15 @@ const StartProgrammedLiftPage: React.FC = () => {
       let completed = 0;
       workoutToday.exercises.forEach((exercise) => {
         total += exercise.sets.length;
-        const loggedSetsForExercise =
+        // Count sets that are either logged in the workout or have input values
+        const loggedSetsForExercise = exercise.sets.filter(
+          (set) => set.isLogged
+        ).length;
+        const inputSetsForExercise =
           inputState[exercise.name]?.filter(
             (set) => set.weight && set.reps && set.rir
           ).length || 0;
-        completed += loggedSetsForExercise;
+        completed += loggedSetsForExercise + inputSetsForExercise;
       });
       setTotalSets(total);
       setCompletedSets(completed);
