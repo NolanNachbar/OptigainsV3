@@ -688,7 +688,7 @@ export const preloadWorkouts = async (
           ],
         },
         {
-          name: "Sus-machine",
+          name: "Hip adduction machine",
           sets: [
             { weight: 225, reps: 3, rir: 0 },
             { weight: 295, reps: 3, rir: 0 },
