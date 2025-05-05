@@ -405,327 +405,663 @@ export const preloadWorkouts = async (
 
   const defaultWorkouts = [
     {
-      workout_name: "FB1",
+      workout_name: "FB 1 Chest Focus",
       assigned_days: ["2025-01-16"],
       exercises: [
+        {
+          name: "Converging Machine Press",
+          sets: [{ weight: 185, reps: 8, rir: 0 }],
+          rir: 0,
+          logs: [{ date: "2025-01-16", weight: 185, reps: 8, rir: 0 }],
+        },
+        {
+          name: "Behind-the-Back Cuff Lateral Raises",
+          sets: [{ weight: 25, reps: 12, rir: 0 }],
+          rir: 0,
+          logs: [{ date: "2025-01-16", weight: 25, reps: 12, rir: 0 }],
+        },
         {
           name: "Chest-Supported Row",
-          sets: [
-            { weight: 415, reps: 9, rir: 0 },
-            { weight: 320, reps: 10, rir: 0 },
-          ],
+          sets: [{ weight: 225, reps: 8, rir: 0 }],
           rir: 0,
-          logs: [
-            { date: "2025-01-16", weight: 415, reps: 10, rir: 0 },
-            { date: "2025-01-10", weight: 320, reps: 10, rir: 0 },
-          ],
+          logs: [{ date: "2025-01-16", weight: 225, reps: 8, rir: 0 }],
         },
         {
-          name: "Incline Medium Grip Bench Press",
-          sets: [
-            { weight: 290, reps: 10, rir: 0 },
-            { weight: 225, reps: 10, rir: 0 },
-          ],
+          name: "Seated Leg Curl",
+          sets: [{ weight: 120, reps: 15, rir: 0 }],
           rir: 0,
-          logs: [
-            { date: "2025-01-16", weight: 290, reps: 10, rir: 0 },
-            { date: "2025-01-10", weight: 225, reps: 10, rir: 0 },
-          ],
+          logs: [{ date: "2025-01-16", weight: 120, reps: 15, rir: 0 }],
         },
         {
-          name: "Hip Adduction",
-          sets: [
-            { weight: 360, reps: 10, rir: 0 },
-            { weight: 275, reps: 10, rir: 0 },
-          ],
+          name: "Machine Shoulder Press",
+          sets: [{ weight: 135, reps: 8, rir: 0 }],
           rir: 0,
-          logs: [
-            { date: "2025-01-16", weight: 360, reps: 10, rir: 0 },
-            { date: "2025-01-10", weight: 275, reps: 10, rir: 0 },
-          ],
-        },
-        {
-          name: "Cable Tricep Pushdown",
-          sets: [
-            { weight: 45, reps: 10, rir: 0 },
-            { weight: 35, reps: 10, rir: 0 },
-          ],
-          rir: 0,
-          logs: [
-            { date: "2025-01-16", weight: 45, reps: 10, rir: 0 },
-            { date: "2025-01-10", weight: 35, reps: 10, rir: 0 },
-          ],
-        },
-        {
-          name: "Leg extensions",
-          sets: [
-            { weight: 400, reps: 10, rir: 0 },
-            { weight: 310, reps: 10, rir: 0 },
-          ],
-          rir: 0,
-          logs: [
-            { date: "2025-01-16", weight: 400, reps: 10, rir: 0 },
-            { date: "2025-01-10", weight: 310, reps: 10, rir: 0 },
-          ],
-        },
-        {
-          name: "Machine lateral raises",
-          sets: [
-            { weight: 150, reps: 10, rir: 0 },
-            { weight: 115, reps: 10, rir: 0 },
-          ],
-          rir: 0,
-          logs: [
-            { date: "2025-01-16", weight: 150, reps: 3, rir: 0 },
-            { date: "2025-01-10", weight: 115, reps: 10, rir: 0 },
-          ],
-        },
-        {
-          name: "Kelso shrugs",
-          sets: [
-            { weight: 275, reps: 3, rir: 0 },
-            { weight: 210, reps: 10, rir: 0 },
-          ],
-          rir: 0,
-          logs: [
-            { date: "2025-01-16", weight: 275, reps: 3, rir: 0 },
-            { date: "2025-01-10", weight: 210, reps: 10, rir: 0 },
-          ],
-        },
-      ],
-    },
-    {
-      workout_name: "FB2",
-      assigned_days: ["2025-01-16"],
-      exercises: [
-        {
-          name: "Machine Hammer Curl",
-          sets: [
-            { weight: 155, reps: 3, rir: 0 },
-            { weight: 120, reps: 10, rir: 0 },
-          ],
-          rir: 0,
-          logs: [
-            { date: "2025-01-16", weight: 155, reps: 3, rir: 0 },
-            { date: "2025-01-10", weight: 120, reps: 10, rir: 0 },
-          ],
-        },
-        {
-          name: "Medium Grip Bench Press",
-          sets: [
-            { weight: 265, reps: 3, rir: 0 },
-            { weight: 205, reps: 10, rir: 0 },
-          ],
-          rir: 0,
-          logs: [
-            { date: "2025-01-16", weight: 265, reps: 3, rir: 0 },
-            { date: "2025-01-10", weight: 205, reps: 10, rir: 0 },
-          ],
-        },
-        {
-          name: "Stiff Legged Deadlift",
-          sets: [
-            { weight: 305, reps: 3, rir: 0 },
-            { weight: 235, reps: 10, rir: 0 },
-          ],
-          rir: 0,
-          logs: [
-            { date: "2025-01-16", weight: 305, reps: 3, rir: 0 },
-            { date: "2025-01-10", weight: 235, reps: 10, rir: 0 },
-          ],
-        },
-        {
-          name: "Normal Grip Pulldown",
-          sets: [
-            { weight: 210, reps: 3, rir: 0 },
-            { weight: 160, reps: 10, rir: 0 },
-          ],
-          rir: 0,
-          logs: [
-            { date: "2025-01-16", weight: 210, reps: 3, rir: 0 },
-            { date: "2025-01-10", weight: 160, reps: 10, rir: 0 },
-          ],
-        },
-        {
-          name: "Cable Tricep Pushdown",
-          sets: [
-            { weight: 45, reps: 3, rir: 0 },
-            { weight: 35, reps: 10, rir: 0 },
-          ],
-          rir: 0,
-          logs: [
-            { date: "2025-01-16", weight: 45, reps: 3, rir: 0 },
-            { date: "2025-01-10", weight: 35, reps: 10, rir: 0 },
-          ],
+          logs: [{ date: "2025-01-16", weight: 135, reps: 8, rir: 0 }],
         },
         {
           name: "Leg Press",
-          sets: [
-            { weight: 45, reps: 3, rir: 0 },
-            { weight: 35, reps: 10, rir: 0 },
-          ],
+          sets: [{ weight: 315, reps: 15, rir: 0 }],
           rir: 0,
-          logs: [
-            { date: "2025-01-16", weight: 45, reps: 3, rir: 0 },
-            { date: "2025-01-10", weight: 35, reps: 10, rir: 0 },
-          ],
+          logs: [{ date: "2025-01-16", weight: 315, reps: 15, rir: 0 }],
         },
         {
-          name: "Behind the back cuff lat raises",
-          sets: [
-            { weight: 25, reps: 3, rir: 0 },
-            { weight: 20, reps: 10, rir: 0 },
-          ],
+          name: "Cable Tricep Pushdown",
+          sets: [{ weight: 50, reps: 10, rir: 0 }],
           rir: 0,
-          logs: [
-            { date: "2025-01-16", weight: 25, reps: 3, rir: 0 },
-            { date: "2025-01-10", weight: 20, reps: 10, rir: 0 },
-          ],
+          logs: [{ date: "2025-01-16", weight: 50, reps: 10, rir: 0 }],
+        },
+        {
+          name: "Wide-Grip Lat Pulldown",
+          sets: [{ weight: 150, reps: 8, rir: 0 }],
+          rir: 0,
+          logs: [{ date: "2025-01-16", weight: 150, reps: 8, rir: 0 }],
+        },
+        {
+          name: "Leg Extension",
+          sets: [{ weight: 200, reps: 15, rir: 0 }],
+          rir: 0,
+          logs: [{ date: "2025-01-16", weight: 200, reps: 15, rir: 0 }],
+        },
+        {
+          name: "Incline Curl",
+          sets: [{ weight: 30, reps: 10, rir: 0 }],
+          rir: 0,
+          logs: [{ date: "2025-01-16", weight: 30, reps: 10, rir: 0 }],
+        },
+        {
+          name: "Calf Press",
+          sets: [{ weight: 200, reps: 15, rir: 0 }],
+          rir: 0,
+          logs: [{ date: "2025-01-16", weight: 200, reps: 15, rir: 0 }],
+        },
+        {
+          name: "Ab Leg Raise",
+          sets: [{ weight: 0, reps: 15, rir: 0 }],
+          rir: 0,
+          logs: [{ date: "2025-01-16", weight: 0, reps: 15, rir: 0 }],
+        },
+        {
+          name: "Skullcrusher",
+          sets: [{ weight: 60, reps: 10, rir: 0 }],
+          rir: 0,
+          logs: [{ date: "2025-01-16", weight: 60, reps: 10, rir: 0 }],
         },
       ],
     },
     {
-      workout_name: "Upper",
+      workout_name: "FB 2 Back Focus",
       assigned_days: ["2025-01-16"],
       exercises: [
         {
-          name: "Machine shoulder press",
-          sets: [{ weight: 185, reps: 3, rir: 0 }],
+          name: "Wide-Grip Lat Pulldown",
+          sets: [{ weight: 150, reps: 10, rir: 0 }],
           rir: 0,
-          logs: [
-            { date: "2025-01-16", weight: 185, reps: 7, rir: 0 },
-            { date: "2025-01-10", weight: 185, reps: 7, rir: 0 },
-          ],
+          logs: [{ date: "2025-01-16", weight: 150, reps: 10, rir: 0 }],
         },
         {
-          name: "Normal Grip Pulldown",
-          sets: [{ weight: 195, reps: 3, rir: 0 }],
+          name: "Leg Extension",
+          sets: [{ weight: 200, reps: 8, rir: 0 }],
           rir: 0,
-          logs: [
-            { date: "2025-01-16", weight: 195, reps: 7, rir: 0 },
-            { date: "2025-01-10", weight: 195, reps: 7, rir: 0 },
-          ],
+          logs: [{ date: "2025-01-16", weight: 200, reps: 8, rir: 0 }],
         },
         {
-          name: "Machine bench press",
-          sets: [{ weight: 245, reps: 3, rir: 0 }],
+          name: "Wide-Grip Bench Press",
+          sets: [{ weight: 225, reps: 10, rir: 0 }],
           rir: 0,
-          logs: [
-            { date: "2025-01-16", weight: 245, reps: 7, rir: 0 },
-            { date: "2025-01-10", weight: 245, reps: 7, rir: 0 },
-          ],
+          logs: [{ date: "2025-01-16", weight: 225, reps: 10, rir: 0 }],
         },
         {
-          name: "Smith Kelso Shrugs",
-          sets: [
-            { weight: 255, reps: 9, rir: 0 },
-            { weight: 255, reps: 9, rir: 0 },
-          ],
+          name: "Squat",
+          sets: [{ weight: 225, reps: 8, rir: 0 }],
           rir: 0,
-          logs: [
-            { date: "2025-01-16", weight: 255, reps: 9, rir: 0 },
-            { date: "2025-01-10", weight: 255, reps: 9, rir: 0 },
-          ],
+          logs: [{ date: "2025-01-16", weight: 225, reps: 8, rir: 0 }],
         },
         {
-          name: "Cable Curl",
-          sets: [{ weight: 35, reps: 3, rir: 0 }],
+          name: "Machine Preacher Curl",
+          sets: [{ weight: 80, reps: 10, rir: 0 }],
           rir: 0,
-          logs: [
-            { date: "2025-01-16", weight: 35, reps: 10, rir: 0 },
-            { date: "2025-01-10", weight: 35, reps: 10, rir: 0 },
-          ],
+          logs: [{ date: "2025-01-16", weight: 80, reps: 10, rir: 0 }],
         },
         {
-          name: "Smith jm press",
-          sets: [{ weight: 105, reps: 3, rir: 0 }],
+          name: "Chest-Supported Row",
+          sets: [{ weight: 225, reps: 10, rir: 0 }],
           rir: 0,
-          logs: [
-            { date: "2025-01-16", weight: 105, reps: 12, rir: 0 },
-            { date: "2025-01-10", weight: 105, reps: 12, rir: 0 },
-          ],
+          logs: [{ date: "2025-01-16", weight: 225, reps: 10, rir: 0 }],
+        },
+        {
+          name: "RDL",
+          sets: [{ weight: 185, reps: 8, rir: 0 }],
+          rir: 0,
+          logs: [{ date: "2025-01-16", weight: 185, reps: 8, rir: 0 }],
+        },
+        {
+          name: "Behind-the-Back Cuff Lateral Raises",
+          sets: [{ weight: 25, reps: 12, rir: 0 }],
+          rir: 0,
+          logs: [{ date: "2025-01-16", weight: 25, reps: 12, rir: 0 }],
+        },
+        {
+          name: "JM Press",
+          sets: [{ weight: 135, reps: 10, rir: 0 }],
+          rir: 0,
+          logs: [{ date: "2025-01-16", weight: 135, reps: 10, rir: 0 }],
+        },
+        {
+          name: "Calf Press",
+          sets: [{ weight: 200, reps: 15, rir: 0 }],
+          rir: 0,
+          logs: [{ date: "2025-01-16", weight: 200, reps: 15, rir: 0 }],
+        },
+        {
+          name: "Shoulder Press Machine",
+          sets: [{ weight: 135, reps: 10, rir: 0 }],
+          rir: 0,
+          logs: [{ date: "2025-01-16", weight: 135, reps: 10, rir: 0 }],
+        },
+        {
+          name: "Abs Crunch Machine",
+          sets: [{ weight: 100, reps: 15, rir: 0 }],
+          rir: 0,
+          logs: [{ date: "2025-01-16", weight: 100, reps: 15, rir: 0 }],
+        },
+        {
+          name: "Close-Grip Bench",
+          sets: [{ weight: 185, reps: 10, rir: 0 }],
+          rir: 0,
+          logs: [{ date: "2025-01-16", weight: 185, reps: 10, rir: 0 }],
         },
       ],
     },
     {
-      workout_name: "Lower",
+      workout_name: "FB 3 Sharms Focus",
+      assigned_days: ["2025-01-16"],
+      exercises: [
+        {
+          name: "Machine Shoulder Press",
+          sets: [{ weight: 135, reps: 8, rir: 0 }],
+          rir: 0,
+          logs: [{ date: "2025-01-16", weight: 135, reps: 8, rir: 0 }],
+        },
+        {
+          name: "Seated Leg Curl",
+          sets: [{ weight: 120, reps: 15, rir: 0 }],
+          rir: 0,
+          logs: [{ date: "2025-01-16", weight: 120, reps: 15, rir: 0 }],
+        },
+        {
+          name: "Pec Deck",
+          sets: [{ weight: 150, reps: 10, rir: 0 }],
+          rir: 0,
+          logs: [{ date: "2025-01-16", weight: 150, reps: 10, rir: 0 }],
+        },
+        {
+          name: "Cable Curl",
+          sets: [{ weight: 50, reps: 10, rir: 0 }],
+          rir: 0,
+          logs: [{ date: "2025-01-16", weight: 50, reps: 10, rir: 0 }],
+        },
+        {
+          name: "Hack Squat",
+          sets: [{ weight: 225, reps: 15, rir: 0 }],
+          rir: 0,
+          logs: [{ date: "2025-01-16", weight: 225, reps: 15, rir: 0 }],
+        },
+        {
+          name: "Cable Tricep Pushdown",
+          sets: [{ weight: 50, reps: 10, rir: 0 }],
+          rir: 0,
+          logs: [{ date: "2025-01-16", weight: 50, reps: 10, rir: 0 }],
+        },
+        {
+          name: "Chest-Supported Row",
+          sets: [{ weight: 225, reps: 8, rir: 0 }],
+          rir: 0,
+          logs: [{ date: "2025-01-16", weight: 225, reps: 8, rir: 0 }],
+        },
+        {
+          name: "Behind-the-Back Cuff Lateral Raises",
+          sets: [{ weight: 25, reps: 12, rir: 0 }],
+          rir: 0,
+          logs: [{ date: "2025-01-16", weight: 25, reps: 12, rir: 0 }],
+        },
+        {
+          name: "Squat",
+          sets: [{ weight: 225, reps: 15, rir: 0 }],
+          rir: 0,
+          logs: [{ date: "2025-01-16", weight: 225, reps: 15, rir: 0 }],
+        },
+        {
+          name: "Close-Grip Bench",
+          sets: [{ weight: 185, reps: 8, rir: 0 }],
+          rir: 0,
+          logs: [{ date: "2025-01-16", weight: 185, reps: 8, rir: 0 }],
+        },
+        {
+          name: "Normal-Grip Lat Pulldown",
+          sets: [{ weight: 150, reps: 8, rir: 0 }],
+          rir: 0,
+          logs: [{ date: "2025-01-16", weight: 150, reps: 8, rir: 0 }],
+        },
+        {
+          name: "Calf Press",
+          sets: [{ weight: 200, reps: 15, rir: 0 }],
+          rir: 0,
+          logs: [{ date: "2025-01-16", weight: 200, reps: 15, rir: 0 }],
+        },
+        {
+          name: "Ab Leg Raise",
+          sets: [{ weight: 0, reps: 15, rir: 0 }],
+          rir: 0,
+          logs: [{ date: "2025-01-16", weight: 0, reps: 15, rir: 0 }],
+        },
+      ],
+    },
+    {
+      workout_name: "FB 4 Legs Focus",
       assigned_days: ["2025-01-16"],
       exercises: [
         {
           name: "Squat",
-          sets: [
-            { weight: 225, reps: 15, rir: 0 },
-            { weight: 290, reps: 3, rir: 0 },
-          ],
+          sets: [{ weight: 225, reps: 8, rir: 0 }],
           rir: 0,
-          logs: [
-            { date: "2025-01-16", weight: 225, reps: 15, rir: 0 },
-            { date: "2025-01-16", weight: 290, reps: 3, rir: 0 },
-          ],
+          logs: [{ date: "2025-01-16", weight: 225, reps: 8, rir: 0 }],
         },
         {
-          name: "Seated Leg Curl",
-          sets: [
-            { weight: 175, reps: 15, rir: 0 },
-            { weight: 230, reps: 3, rir: 0 },
-          ],
+          name: "Converging Machine Press",
+          sets: [{ weight: 185, reps: 12, rir: 0 }],
           rir: 0,
-          logs: [
-            { date: "2025-01-16", weight: 175, reps: 15, rir: 0 },
-            { date: "2025-01-16", weight: 230, reps: 3, rir: 0 },
-          ],
+          logs: [{ date: "2025-01-16", weight: 185, reps: 12, rir: 0 }],
         },
         {
-          name: "Leg extensions",
-          sets: [
-            { weight: 260, reps: 10, rir: 0 },
-            { weight: 340, reps: 3, rir: 0 },
-          ],
+          name: "45° Hyperextensions",
+          sets: [{ weight: 0, reps: 15, rir: 0 }],
           rir: 0,
-          logs: [
-            { date: "2025-01-16", weight: 260, reps: 10, rir: 0 },
-            { date: "2025-01-16", weight: 340, reps: 3, rir: 0 },
-          ],
+          logs: [{ date: "2025-01-16", weight: 0, reps: 15, rir: 0 }],
         },
         {
-          name: "Hip adduction machine",
-          sets: [
-            { weight: 225, reps: 3, rir: 0 },
-            { weight: 295, reps: 3, rir: 0 },
-          ],
+          name: "Incline Curl",
+          sets: [{ weight: 30, reps: 12, rir: 0 }],
           rir: 0,
-          logs: [
-            { date: "2025-01-16", weight: 225, reps: 3, rir: 0 },
-            { date: "2025-01-16", weight: 295, reps: 3, rir: 0 },
-          ],
+          logs: [{ date: "2025-01-16", weight: 30, reps: 12, rir: 0 }],
         },
         {
-          name: "Calf press",
-          sets: [
-            { weight: 290, reps: 12, rir: 0 },
-            { weight: 375, reps: 3, rir: 0 },
-          ],
+          name: "Leg Press",
+          sets: [{ weight: 315, reps: 8, rir: 0 }],
           rir: 0,
-          logs: [
-            { date: "2025-01-16", weight: 290, reps: 12, rir: 0 },
-            { date: "2025-01-16", weight: 375, reps: 3, rir: 0 },
-          ],
+          logs: [{ date: "2025-01-16", weight: 315, reps: 8, rir: 0 }],
         },
         {
-          name: "Abs crunch machine",
-          sets: [
-            { weight: 15, reps: 15, rir: 0 },
-            { weight: 20, reps: 3, rir: 0 },
-          ],
+          name: "Close-Grip Bench",
+          sets: [{ weight: 185, reps: 12, rir: 0 }],
           rir: 0,
-          logs: [
-            { date: "2025-01-16", weight: 15, reps: 15, rir: 0 },
-            { date: "2025-01-16", weight: 20, reps: 3, rir: 0 },
-          ],
+          logs: [{ date: "2025-01-16", weight: 185, reps: 12, rir: 0 }],
+        },
+        {
+          name: "Machine Lateral Raises",
+          sets: [{ weight: 50, reps: 12, rir: 0 }],
+          rir: 0,
+          logs: [{ date: "2025-01-16", weight: 50, reps: 12, rir: 0 }],
+        },
+        {
+          name: "Leg Extension",
+          sets: [{ weight: 200, reps: 8, rir: 0 }],
+          rir: 0,
+          logs: [{ date: "2025-01-16", weight: 200, reps: 8, rir: 0 }],
+        },
+        {
+          name: "Chest-Supported Row",
+          sets: [{ weight: 225, reps: 12, rir: 0 }],
+          rir: 0,
+          logs: [{ date: "2025-01-16", weight: 225, reps: 12, rir: 0 }],
+        },
+        {
+          name: "Cable Tricep Pushdown",
+          sets: [{ weight: 50, reps: 12, rir: 0 }],
+          rir: 0,
+          logs: [{ date: "2025-01-16", weight: 50, reps: 12, rir: 0 }],
+        },
+        {
+          name: "Calf Press",
+          sets: [{ weight: 200, reps: 15, rir: 0 }],
+          rir: 0,
+          logs: [{ date: "2025-01-16", weight: 200, reps: 15, rir: 0 }],
+        },
+        {
+          name: "Machine Shoulder Press",
+          sets: [{ weight: 135, reps: 12, rir: 0 }],
+          rir: 0,
+          logs: [{ date: "2025-01-16", weight: 135, reps: 12, rir: 0 }],
+        },
+        {
+          name: "Ab Machine Crunch",
+          sets: [{ weight: 100, reps: 15, rir: 0 }],
+          rir: 0,
+          logs: [{ date: "2025-01-16", weight: 100, reps: 15, rir: 0 }],
         },
       ],
     },
   ];
+  //     workout_name: "FB1",
+  //     assigned_days: ["2025-01-16"],
+  //     exercises: [
+  //       {
+  //         name: "Chest-Supported Row",
+  //         sets: [
+  //           { weight: 415, reps: 9, rir: 0 },
+  //           { weight: 320, reps: 10, rir: 0 },
+  //         ],
+  //         rir: 0,
+  //         logs: [
+  //           { date: "2025-01-16", weight: 415, reps: 10, rir: 0 },
+  //           { date: "2025-01-10", weight: 320, reps: 10, rir: 0 },
+  //         ],
+  //       },
+  //       {
+  //         name: "Incline Medium Grip Bench Press",
+  //         sets: [
+  //           { weight: 290, reps: 10, rir: 0 },
+  //           { weight: 225, reps: 10, rir: 0 },
+  //         ],
+  //         rir: 0,
+  //         logs: [
+  //           { date: "2025-01-16", weight: 290, reps: 10, rir: 0 },
+  //           { date: "2025-01-10", weight: 225, reps: 10, rir: 0 },
+  //         ],
+  //       },
+  //       {
+  //         name: "Hip Adduction",
+  //         sets: [
+  //           { weight: 360, reps: 10, rir: 0 },
+  //           { weight: 275, reps: 10, rir: 0 },
+  //         ],
+  //         rir: 0,
+  //         logs: [
+  //           { date: "2025-01-16", weight: 360, reps: 10, rir: 0 },
+  //           { date: "2025-01-10", weight: 275, reps: 10, rir: 0 },
+  //         ],
+  //       },
+  //       {
+  //         name: "Cable Tricep Pushdown",
+  //         sets: [
+  //           { weight: 45, reps: 10, rir: 0 },
+  //           { weight: 35, reps: 10, rir: 0 },
+  //         ],
+  //         rir: 0,
+  //         logs: [
+  //           { date: "2025-01-16", weight: 45, reps: 10, rir: 0 },
+  //           { date: "2025-01-10", weight: 35, reps: 10, rir: 0 },
+  //         ],
+  //       },
+  //       {
+  //         name: "Leg extensions",
+  //         sets: [
+  //           { weight: 400, reps: 10, rir: 0 },
+  //           { weight: 310, reps: 10, rir: 0 },
+  //         ],
+  //         rir: 0,
+  //         logs: [
+  //           { date: "2025-01-16", weight: 400, reps: 10, rir: 0 },
+  //           { date: "2025-01-10", weight: 310, reps: 10, rir: 0 },
+  //         ],
+  //       },
+  //       {
+  //         name: "Machine lateral raises",
+  //         sets: [
+  //           { weight: 150, reps: 10, rir: 0 },
+  //           { weight: 115, reps: 10, rir: 0 },
+  //         ],
+  //         rir: 0,
+  //         logs: [
+  //           { date: "2025-01-16", weight: 150, reps: 3, rir: 0 },
+  //           { date: "2025-01-10", weight: 115, reps: 10, rir: 0 },
+  //         ],
+  //       },
+  //       {
+  //         name: "Kelso shrugs",
+  //         sets: [
+  //           { weight: 275, reps: 3, rir: 0 },
+  //           { weight: 210, reps: 10, rir: 0 },
+  //         ],
+  //         rir: 0,
+  //         logs: [
+  //           { date: "2025-01-16", weight: 275, reps: 3, rir: 0 },
+  //           { date: "2025-01-10", weight: 210, reps: 10, rir: 0 },
+  //         ],
+  //       },
+  //     ],
+  //   },
+  //   {
+  //     workout_name: "FB2",
+  //     assigned_days: ["2025-01-16"],
+  //     exercises: [
+  //       {
+  //         name: "Machine Hammer Curl",
+  //         sets: [
+  //           { weight: 155, reps: 3, rir: 0 },
+  //           { weight: 120, reps: 10, rir: 0 },
+  //         ],
+  //         rir: 0,
+  //         logs: [
+  //           { date: "2025-01-16", weight: 155, reps: 3, rir: 0 },
+  //           { date: "2025-01-10", weight: 120, reps: 10, rir: 0 },
+  //         ],
+  //       },
+  //       {
+  //         name: "Medium Grip Bench Press",
+  //         sets: [
+  //           { weight: 265, reps: 3, rir: 0 },
+  //           { weight: 205, reps: 10, rir: 0 },
+  //         ],
+  //         rir: 0,
+  //         logs: [
+  //           { date: "2025-01-16", weight: 265, reps: 3, rir: 0 },
+  //           { date: "2025-01-10", weight: 205, reps: 10, rir: 0 },
+  //         ],
+  //       },
+  //       {
+  //         name: "Stiff Legged Deadlift",
+  //         sets: [
+  //           { weight: 305, reps: 3, rir: 0 },
+  //           { weight: 235, reps: 10, rir: 0 },
+  //         ],
+  //         rir: 0,
+  //         logs: [
+  //           { date: "2025-01-16", weight: 305, reps: 3, rir: 0 },
+  //           { date: "2025-01-10", weight: 235, reps: 10, rir: 0 },
+  //         ],
+  //       },
+  //       {
+  //         name: "Normal Grip Pulldown",
+  //         sets: [
+  //           { weight: 210, reps: 3, rir: 0 },
+  //           { weight: 160, reps: 10, rir: 0 },
+  //         ],
+  //         rir: 0,
+  //         logs: [
+  //           { date: "2025-01-16", weight: 210, reps: 3, rir: 0 },
+  //           { date: "2025-01-10", weight: 160, reps: 10, rir: 0 },
+  //         ],
+  //       },
+  //       {
+  //         name: "Cable Tricep Pushdown",
+  //         sets: [
+  //           { weight: 45, reps: 3, rir: 0 },
+  //           { weight: 35, reps: 10, rir: 0 },
+  //         ],
+  //         rir: 0,
+  //         logs: [
+  //           { date: "2025-01-16", weight: 45, reps: 3, rir: 0 },
+  //           { date: "2025-01-10", weight: 35, reps: 10, rir: 0 },
+  //         ],
+  //       },
+  //       {
+  //         name: "Leg Press",
+  //         sets: [
+  //           { weight: 45, reps: 3, rir: 0 },
+  //           { weight: 35, reps: 10, rir: 0 },
+  //         ],
+  //         rir: 0,
+  //         logs: [
+  //           { date: "2025-01-16", weight: 45, reps: 3, rir: 0 },
+  //           { date: "2025-01-10", weight: 35, reps: 10, rir: 0 },
+  //         ],
+  //       },
+  //       {
+  //         name: "Behind the back cuff lat raises",
+  //         sets: [
+  //           { weight: 25, reps: 3, rir: 0 },
+  //           { weight: 20, reps: 10, rir: 0 },
+  //         ],
+  //         rir: 0,
+  //         logs: [
+  //           { date: "2025-01-16", weight: 25, reps: 3, rir: 0 },
+  //           { date: "2025-01-10", weight: 20, reps: 10, rir: 0 },
+  //         ],
+  //       },
+  //     ],
+  //   },
+  //   {
+  //     workout_name: "Upper",
+  //     assigned_days: ["2025-01-16"],
+  //     exercises: [
+  //       {
+  //         name: "Machine shoulder press",
+  //         sets: [{ weight: 185, reps: 3, rir: 0 }],
+  //         rir: 0,
+  //         logs: [
+  //           { date: "2025-01-16", weight: 185, reps: 7, rir: 0 },
+  //           { date: "2025-01-10", weight: 185, reps: 7, rir: 0 },
+  //         ],
+  //       },
+  //       {
+  //         name: "Normal Grip Pulldown",
+  //         sets: [{ weight: 195, reps: 3, rir: 0 }],
+  //         rir: 0,
+  //         logs: [
+  //           { date: "2025-01-16", weight: 195, reps: 7, rir: 0 },
+  //           { date: "2025-01-10", weight: 195, reps: 7, rir: 0 },
+  //         ],
+  //       },
+  //       {
+  //         name: "Machine bench press",
+  //         sets: [{ weight: 245, reps: 3, rir: 0 }],
+  //         rir: 0,
+  //         logs: [
+  //           { date: "2025-01-16", weight: 245, reps: 7, rir: 0 },
+  //           { date: "2025-01-10", weight: 245, reps: 7, rir: 0 },
+  //         ],
+  //       },
+  //       {
+  //         name: "Smith Kelso Shrugs",
+  //         sets: [
+  //           { weight: 255, reps: 9, rir: 0 },
+  //           { weight: 255, reps: 9, rir: 0 },
+  //         ],
+  //         rir: 0,
+  //         logs: [
+  //           { date: "2025-01-16", weight: 255, reps: 9, rir: 0 },
+  //           { date: "2025-01-10", weight: 255, reps: 9, rir: 0 },
+  //         ],
+  //       },
+  //       {
+  //         name: "Cable Curl",
+  //         sets: [{ weight: 35, reps: 3, rir: 0 }],
+  //         rir: 0,
+  //         logs: [
+  //           { date: "2025-01-16", weight: 35, reps: 10, rir: 0 },
+  //           { date: "2025-01-10", weight: 35, reps: 10, rir: 0 },
+  //         ],
+  //       },
+  //       {
+  //         name: "Smith jm press",
+  //         sets: [{ weight: 105, reps: 3, rir: 0 }],
+  //         rir: 0,
+  //         logs: [
+  //           { date: "2025-01-16", weight: 105, reps: 12, rir: 0 },
+  //           { date: "2025-01-10", weight: 105, reps: 12, rir: 0 },
+  //         ],
+  //       },
+  //     ],
+  //   },
+  //   {
+  //     workout_name: "Lower",
+  //     assigned_days: ["2025-01-16"],
+  //     exercises: [
+  //       {
+  //         name: "Squat",
+  //         sets: [
+  //           { weight: 225, reps: 15, rir: 0 },
+  //           { weight: 290, reps: 3, rir: 0 },
+  //         ],
+  //         rir: 0,
+  //         logs: [
+  //           { date: "2025-01-16", weight: 225, reps: 15, rir: 0 },
+  //           { date: "2025-01-16", weight: 290, reps: 3, rir: 0 },
+  //         ],
+  //       },
+  //       {
+  //         name: "Seated Leg Curl",
+  //         sets: [
+  //           { weight: 175, reps: 15, rir: 0 },
+  //           { weight: 230, reps: 3, rir: 0 },
+  //         ],
+  //         rir: 0,
+  //         logs: [
+  //           { date: "2025-01-16", weight: 175, reps: 15, rir: 0 },
+  //           { date: "2025-01-16", weight: 230, reps: 3, rir: 0 },
+  //         ],
+  //       },
+  //       {
+  //         name: "Leg extensions",
+  //         sets: [
+  //           { weight: 260, reps: 10, rir: 0 },
+  //           { weight: 340, reps: 3, rir: 0 },
+  //         ],
+  //         rir: 0,
+  //         logs: [
+  //           { date: "2025-01-16", weight: 260, reps: 10, rir: 0 },
+  //           { date: "2025-01-16", weight: 340, reps: 3, rir: 0 },
+  //         ],
+  //       },
+  //       {
+  //         name: "Hip adduction machine",
+  //         sets: [
+  //           { weight: 225, reps: 3, rir: 0 },
+  //           { weight: 295, reps: 3, rir: 0 },
+  //         ],
+  //         rir: 0,
+  //         logs: [
+  //           { date: "2025-01-16", weight: 225, reps: 3, rir: 0 },
+  //           { date: "2025-01-16", weight: 295, reps: 3, rir: 0 },
+  //         ],
+  //       },
+  //       {
+  //         name: "Calf press",
+  //         sets: [
+  //           { weight: 290, reps: 12, rir: 0 },
+  //           { weight: 375, reps: 3, rir: 0 },
+  //         ],
+  //         rir: 0,
+  //         logs: [
+  //           { date: "2025-01-16", weight: 290, reps: 12, rir: 0 },
+  //           { date: "2025-01-16", weight: 375, reps: 3, rir: 0 },
+  //         ],
+  //       },
+  //       {
+  //         name: "Abs crunch machine",
+  //         sets: [
+  //           { weight: 15, reps: 15, rir: 0 },
+  //           { weight: 20, reps: 3, rir: 0 },
+  //         ],
+  //         rir: 0,
+  //         logs: [
+  //           { date: "2025-01-16", weight: 15, reps: 15, rir: 0 },
+  //           { date: "2025-01-16", weight: 20, reps: 3, rir: 0 },
+  //         ],
+  //       },
+  //     ],
+  //   },
+  // ];
 
   const { data, error } = await supabase.from("workouts").upsert(
     defaultWorkouts.map((workout) => ({
