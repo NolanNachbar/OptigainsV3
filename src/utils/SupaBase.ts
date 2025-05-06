@@ -2,7 +2,7 @@
 
 // import { useAuth } from "@clerk/clerk-react";
 import { SupabaseClient } from "@supabase/supabase-js";
-import { Workout, Exercise } from "./types";
+import { Workout, Exercise, WorkoutSet } from "./types";
 // import { getSupabaseClient } from "../utils/supabaseClient";
 import { UserResource } from "@clerk/types";
 import { v5 as uuidv5 } from "uuid";
@@ -141,8 +141,20 @@ export const getWorkoutForToday = async (
 
     if (!data?.[0]) return null;
 
-    // Return the workout as is, preserving logged sets
-    return data[0];
+    // Create a fresh instance of the workout for today
+    const freshWorkout: Workout = {
+      ...data[0],
+      exercises: data[0].exercises.map((exercise: Exercise) => ({
+        ...exercise,
+        sets: exercise.sets.map((set: WorkoutSet) => ({
+          ...set,
+          isLogged: false, // Reset isLogged flag for all sets
+        })),
+        logs: [], // Clear logs for the new instance
+      })),
+    };
+
+    return freshWorkout;
   } catch (error) {
     console.error("Error in getWorkoutForToday:", error);
     return null;

@@ -1,12 +1,12 @@
 // src/utils/types.ts
 export interface Exercise {
   name: string;
-  sets: Set[];
+  sets: WorkoutSet[];
   rir: number;
   logs?: ExerciseLog[];
 }
 
-export interface Set {
+export interface WorkoutSet {
   weight: number;
   reps: number;
   rir: number;
