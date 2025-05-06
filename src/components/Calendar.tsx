@@ -12,11 +12,11 @@ import {
 import "../styles/CalendarComponent.css";
 import EditWorkoutComponent from "./EditWorkout";
 import { useUser } from "@clerk/clerk-react";
-import { useSupabaseClient } from "../utils/supabaseClient"; // Import the hook
+import { useSupabaseClient } from "../utils/supabaseClient";
 
 interface CalendarProps {
   savedWorkouts: Workout[];
-  onRemoveWorkout: (workout: Workout) => void; // Add this line
+  onRemoveWorkout: (workout: Workout) => void;
 }
 
 const CalendarComponent: React.FC<CalendarProps> = ({
@@ -24,7 +24,7 @@ const CalendarComponent: React.FC<CalendarProps> = ({
   onRemoveWorkout,
 }) => {
   const { user } = useUser();
-  const supabase = useSupabaseClient(); // Initialize Supabase client
+  const supabase = useSupabaseClient();
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedWorkouts, setSelectedWorkouts] = useState<Workout[]>([]);
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
@@ -35,11 +35,11 @@ const CalendarComponent: React.FC<CalendarProps> = ({
   const [search, setSearch] = useState<string>("");
 
   useEffect(() => {
-    if (!user) return; // Ensure user is authenticated
+    if (!user) return;
 
     const fetchWorkouts = async () => {
       const workouts = await getWorkoutsForDate(
-        supabase, // Pass supabase here
+        supabase,
         selectedDate.toISOString().split("T")[0],
         user
       );
@@ -47,14 +47,16 @@ const CalendarComponent: React.FC<CalendarProps> = ({
     };
 
     fetchWorkouts();
-  }, [selectedDate, user, modalWorkout, search, savedWorkouts, supabase]); // Add `supabase` to dependencies
+  }, [selectedDate, user, modalWorkout, search, savedWorkouts, supabase]);
 
   const handleUpdateWorkout = (updatedWorkout: Workout) => {
-    setModalWorkout(updatedWorkout); // Update the modalWorkout state
+    setModalWorkout(updatedWorkout);
   };
 
-  const handleDateChange = (date: Date) => {
-    setSelectedDate(date);
+  const handleDateChange = (value: Date | Date[] | null) => {
+    if (value instanceof Date) {
+      setSelectedDate(value);
+    }
   };
 
   const handleWorkoutSelection = (workout: Workout) => {
@@ -71,21 +73,19 @@ const CalendarComponent: React.FC<CalendarProps> = ({
     }
   };
 
-  const handleDaySelection = async (date: Date) => {
-    const selectedDateStr = date.toISOString().split("T")[0]; // Get the date in YYYY-MM-DD format
+  const handleDayClick = async (value: Date) => {
+    const selectedDateStr = value.toISOString().split("T")[0];
 
     if (selectedWorkouts.length === 0) {
-      // If no workout is selected, show all workouts for the selected day
       if (user) {
         const workouts = await getWorkoutsForDate(
-          supabase, // Pass supabase here
+          supabase,
           selectedDateStr,
           user
         );
         setWorkoutsForToday(workouts);
       }
     } else {
-      // Toggle selection of the day
       setSelectedDays((prevSelectedDays) => {
         if (prevSelectedDays.includes(selectedDateStr)) {
           return prevSelectedDays.filter((day) => day !== selectedDateStr);
@@ -103,7 +103,6 @@ const CalendarComponent: React.FC<CalendarProps> = ({
 
     for (const day of selectedDays) {
       for (const workout of selectedWorkouts) {
-        // Ensure the date format matches what's stored in the database
         const formattedDate = new Date(day).toISOString().split("T")[0];
         await assignWorkoutToDate(
           supabase,
@@ -124,24 +123,13 @@ const CalendarComponent: React.FC<CalendarProps> = ({
     workout: Workout,
     date: string
   ) => {
-    if (!user) return; // Ensure user is authenticated
+    if (!user) return;
 
-    await removeWorkoutFromDate(
-      supabase, // Pass supabase here
-      workout.workout_name,
-      date,
-      user
-    );
+    await removeWorkoutFromDate(supabase, workout.workout_name, date, user);
 
-    // Update workoutsForToday state
-    const updatedWorkouts = await getWorkoutsForDate(
-      supabase, // Pass supabase here
-      date,
-      user
-    );
+    const updatedWorkouts = await getWorkoutsForDate(supabase, date, user);
     setWorkoutsForToday(updatedWorkouts);
 
-    // Update assignedDays
     const updatedAssignedDays = { ...assignedDays };
     if (updatedWorkouts.length === 0) {
       delete updatedAssignedDays[date];
@@ -155,13 +143,9 @@ const CalendarComponent: React.FC<CalendarProps> = ({
     ) || [];
 
   const handleRemoveWorkoutFromList = async (workout: Workout) => {
-    if (!user) return; // Ensure user is authenticated
+    if (!user) return;
 
-    await removeWorkoutFromList(
-      supabase, // Pass supabase here
-      workout.workout_name,
-      user
-    );
+    await removeWorkoutFromList(supabase, workout.workout_name, user);
     setSelectedWorkouts((prevWorkouts) =>
       prevWorkouts.filter((w) => w.workout_name !== workout.workout_name)
     );
@@ -186,18 +170,16 @@ const CalendarComponent: React.FC<CalendarProps> = ({
       <Calendar
         onChange={() => handleDateChange} // Ensure onChange properly handles date change
         value={selectedDate}
-        onClickDay={handleDaySelection} // Pass the correct handler for day click
+        onClickDay={handleDayClick}
         tileClassName={({ date }) => {
           const day = date.toISOString().split("T")[0];
-          // Check if this day has workouts assigned
-          if (assignedDays[day]) return "react-calendar__tile--dot"; // Add a dot for assigned days
+          if (assignedDays[day]) return "react-calendar__tile--dot";
           return selectedDays.includes(day)
             ? "react-calendar__tile--highlight"
-            : ""; // Highlight selected days
+            : "";
         }}
       />
 
-      {/* <h3>Workouts for {selectedDate.toDateString()}</h3> */}
       <ul>
         {workoutsForToday.length ? (
           workoutsForToday.map((workout, index) => (
@@ -241,7 +223,6 @@ const CalendarComponent: React.FC<CalendarProps> = ({
 
       <h4>Saved Workouts</h4>
 
-      {/* Search and List of Workouts */}
       <div className="workout-container">
         <h4>Saved Workouts</h4>
         <div>
@@ -292,13 +273,8 @@ const CalendarComponent: React.FC<CalendarProps> = ({
           <h3>Selected Days to Assign Workouts</h3>
           <ul>
             {selectedDays.map((day, index) => {
-              // Convert day string to Date object
               const date = new Date(day);
-
-              // Add 1 day to the current date
               date.setDate(date.getDate() + 1);
-
-              // Return the formatted date after adding 1 day
               return <li key={index}>{date.toDateString()}</li>;
             })}
           </ul>
@@ -309,15 +285,13 @@ const CalendarComponent: React.FC<CalendarProps> = ({
         </>
       )}
 
-      {/* Modal to view workout details */}
       {modalWorkout && (
         <div className="modal">
-          {/* Modal to edit workout*/}
           {!editModal ? (
             <div>
               <h2> Edit Workout </h2>
               <EditWorkoutComponent
-                savedWorkout={modalWorkout} // Pass the function to update the workout in the parent
+                savedWorkout={modalWorkout}
                 onUpdateWorkout={handleUpdateWorkout}
               />
             </div>
@@ -343,7 +317,6 @@ const CalendarComponent: React.FC<CalendarProps> = ({
               </ul>
             </div>
           )}
-          {/* <button onClick={() => alert('Edit workout functionality to be added.')}>Edit Workout</button> */}
           <button onClick={() => handleRemoveWorkoutFromList(modalWorkout)}>
             Delete Workout
           </button>
