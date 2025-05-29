@@ -4,10 +4,9 @@ import {
   saveWorkouts,
   loadWorkouts,
   getConsolidatedExercises,
-} from "../utils/SupaBase";
+} from "../utils/localStorageDB";
 import { Workout, Exercise } from "../utils/types";
 import { useUser } from "@clerk/clerk-react"; // Import Clerk's useUser hook
-import { useSupabaseClient } from "../utils/supabaseClient"; // Import the custom hook
 
 interface WorkoutFormProps {
   setSavedWorkouts: React.Dispatch<React.SetStateAction<Workout[]>>;
@@ -15,7 +14,6 @@ interface WorkoutFormProps {
 
 const WorkoutForm: React.FC<WorkoutFormProps> = ({ setSavedWorkouts }) => {
   const { user } = useUser(); // Get the current user
-  const supabase = useSupabaseClient(); // Initialize Supabase client
   const [workoutName, setWorkoutName] = useState<string>("");
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [exerciseName, setExerciseName] = useState<string>("");
@@ -32,9 +30,9 @@ const WorkoutForm: React.FC<WorkoutFormProps> = ({ setSavedWorkouts }) => {
       if (user) {
         try {
           const consolidatedExercises = await getConsolidatedExercises(
-            supabase,
+            null,
             user
-          ); // Pass supabase here
+          ); // Pass null here
           const exerciseNames = consolidatedExercises.map((ex) => ex.name);
           setSuggestions(exerciseNames);
         } catch (error) {
@@ -44,7 +42,7 @@ const WorkoutForm: React.FC<WorkoutFormProps> = ({ setSavedWorkouts }) => {
     };
 
     fetchSuggestions();
-  }, [user, supabase]); // Add supabase as a dependency
+  }, [user]); // Remove supabase as a dependency
 
   const handleExerciseChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCurrentExercise(e.target.value);
@@ -92,8 +90,8 @@ const WorkoutForm: React.FC<WorkoutFormProps> = ({ setSavedWorkouts }) => {
       };
 
       try {
-        const savedWorkouts = await loadWorkouts(supabase, user);
-        await saveWorkouts(supabase, [...savedWorkouts, newWorkout], user);
+        const savedWorkouts = await loadWorkouts(null, user);
+        await saveWorkouts(null, [...savedWorkouts, newWorkout], user);
         setSavedWorkouts([...savedWorkouts, newWorkout]);
         setWorkoutName("");
         setExercises([]);

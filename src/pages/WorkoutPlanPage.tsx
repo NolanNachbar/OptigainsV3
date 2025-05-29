@@ -5,23 +5,21 @@ import {
   loadWorkouts,
   removeWorkoutFromList,
   preloadWorkouts,
-} from "../utils/SupaBase";
+} from "../utils/localStorageDB";
 import { Workout } from "../utils/types";
 import ActionBar from "../components/Actionbar";
 import { useUser } from "@clerk/clerk-react";
-import { useSupabaseClient } from "../utils/supabaseClient";
 
 const WorkoutPlanPage: React.FC = () => {
   const [savedWorkouts, setSavedWorkouts] = useState<Workout[]>([]);
   const { user } = useUser();
-  const supabase = useSupabaseClient();
 
   useEffect(() => {
     const fetchWorkouts = async () => {
-      if (user && supabase) {
+      if (user) {
         try {
-          await preloadWorkouts(supabase, user);
-          const workouts = await loadWorkouts(supabase, user);
+          await preloadWorkouts(null, user);
+          const workouts = await loadWorkouts(null, user);
           setSavedWorkouts(workouts);
         } catch (error) {
           console.error("Error loading workouts:", error);
@@ -30,15 +28,19 @@ const WorkoutPlanPage: React.FC = () => {
     };
 
     fetchWorkouts();
-  }, [user, supabase]);
+  }, [user]);
 
   const handleRemoveWorkout = async (workout: Workout) => {
-    if (user && supabase) {
-      await removeWorkoutFromList(supabase, workout.workout_name, user);
+    if (user) {
+      await removeWorkoutFromList(null, workout.workout_name, user);
       setSavedWorkouts((prevWorkouts) =>
         prevWorkouts.filter((w) => w.workout_name !== workout.workout_name)
       );
     }
+  };
+
+  const handleWorkoutAdded = (workout: Workout) => {
+    setSavedWorkouts((prevWorkouts) => [...prevWorkouts, workout]);
   };
 
   return (
@@ -50,6 +52,7 @@ const WorkoutPlanPage: React.FC = () => {
             <CalendarComponent
               savedWorkouts={savedWorkouts}
               onRemoveWorkout={handleRemoveWorkout}
+              onWorkoutAdded={handleWorkoutAdded}
             />
           </div>
           <div className="workout-form-section">

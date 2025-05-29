@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getWorkoutForToday } from "../utils/SupaBase"; // Ensure this is updated to use Supabase
+import { getWorkoutForToday } from "../utils/localStorageDB"; // Ensure this is updated to use localStorageDB
 import { Workout } from "../utils/types";
 import ActionBar from "../components/Actionbar";
 import { useUser } from "@clerk/clerk-react";
-import { useSupabaseClient } from "../utils/supabaseClient"; // Import the custom Supabase client hook
 
 const StartLiftPage: React.FC = () => {
   const { user } = useUser();
-  const supabase = useSupabaseClient(); // Get the Supabase client
   const [workoutToday, setWorkoutToday] = useState<Workout | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -24,7 +22,7 @@ const StartLiftPage: React.FC = () => {
 
       try {
         const workout = await getWorkoutForToday(
-          supabase,
+          null,
           new Date().toISOString().split("T")[0],
           user
         );
@@ -43,7 +41,7 @@ const StartLiftPage: React.FC = () => {
     };
 
     fetchWorkout();
-  }, [user, supabase]);
+  }, [user]);
 
   if (loading) {
     return <p>Loading...</p>;

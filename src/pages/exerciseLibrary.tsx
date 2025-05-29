@@ -5,7 +5,7 @@ import {
   saveWorkouts,
   loadWorkouts,
   normalizeExerciseName,
-} from "../utils/SupaBase";
+} from "../utils/localStorageDB";
 import { Exercise } from "../utils/types";
 import { Line } from "react-chartjs-2";
 import {
@@ -20,7 +20,6 @@ import {
 } from "chart.js";
 import ActionBar from "../components/Actionbar";
 import { useUser } from "@clerk/clerk-react";
-import { useSupabaseClient } from "../utils/supabaseClient"; // Import the custom Supabase client hook
 
 // Register Chart.js components
 ChartJS.register(
@@ -35,7 +34,6 @@ ChartJS.register(
 
 const ExerciseLibrary: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
   const { user } = useUser();
-  const supabase = useSupabaseClient();
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(
     null
@@ -51,11 +49,11 @@ const ExerciseLibrary: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
   const loadExercises = useCallback(async () => {
     if (!user) return;
     const consolidatedExercises = await getConsolidatedExercises(
-      supabase,
+      null,
       user
-    ); // Pass supabase here
+    ); // Pass null here
     setExercises(consolidatedExercises);
-  }, [user, supabase]); // Add user and supabase as dependencies
+  }, [user]); // Remove supabase as dependency
 
   useEffect(() => {
     loadExercises();
@@ -123,7 +121,7 @@ const ExerciseLibrary: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
 
       try {
         // Get all workouts that contain this exercise
-        const allWorkouts = await loadWorkouts(supabase, user);
+        const allWorkouts = await loadWorkouts(null, user);
         const updatedWorkouts = allWorkouts.map((workout) => {
           const matchingExercise = workout.exercises.find(
             (ex) =>
@@ -144,7 +142,7 @@ const ExerciseLibrary: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
           return workout;
         });
 
-        await saveWorkouts(supabase, updatedWorkouts, user);
+        await saveWorkouts(null, updatedWorkouts, user);
         setExercises(updatedExercises);
         setIsEditModalOpen(false);
         setEditingLog(null);
@@ -164,7 +162,7 @@ const ExerciseLibrary: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
 
       try {
         // Get all workouts that contain this exercise
-        const allWorkouts = await loadWorkouts(supabase, user);
+        const allWorkouts = await loadWorkouts(null, user);
         const updatedWorkouts = allWorkouts.map((workout) => {
           const matchingExercise = workout.exercises.find(
             (ex) =>
@@ -185,7 +183,7 @@ const ExerciseLibrary: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
           return workout;
         });
 
-        await saveWorkouts(supabase, updatedWorkouts, user);
+        await saveWorkouts(null, updatedWorkouts, user);
         setExercises(updatedExercises);
       } catch (error) {
         console.error("Error deleting log:", error);

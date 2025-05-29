@@ -8,23 +8,25 @@ import {
   getWorkoutsForDate,
   removeWorkoutFromDate,
   removeWorkoutFromList,
-} from "../utils/SupaBase";
+  copyWorkoutTemplate,
+  getWorkoutTemplate,
+} from "../utils/localStorageDB";
 import "../styles/CalendarComponent.css";
 import EditWorkoutComponent from "./EditWorkout";
 import { useUser } from "@clerk/clerk-react";
-import { useSupabaseClient } from "../utils/supabaseClient";
 
 interface CalendarProps {
   savedWorkouts: Workout[];
   onRemoveWorkout: (workout: Workout) => void;
+  onWorkoutAdded?: (workout: Workout) => void;
 }
 
 const CalendarComponent: React.FC<CalendarProps> = ({
   savedWorkouts = [],
   onRemoveWorkout,
+  onWorkoutAdded,
 }) => {
   const { user } = useUser();
-  const supabase = useSupabaseClient();
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedWorkouts, setSelectedWorkouts] = useState<Workout[]>([]);
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
@@ -33,13 +35,16 @@ const CalendarComponent: React.FC<CalendarProps> = ({
   const [modalWorkout, setModalWorkout] = useState<Workout | null>(null);
   const [editModal, setModalEdit] = useState(false);
   const [search, setSearch] = useState<string>("");
+  const [showCopyModal, setShowCopyModal] = useState(false);
+  const [copyWorkout, setCopyWorkout] = useState<Workout | null>(null);
+  const [copyName, setCopyName] = useState<string>("");
 
   useEffect(() => {
     if (!user) return;
 
     const fetchWorkouts = async () => {
       const workouts = await getWorkoutsForDate(
-        supabase,
+        null,
         selectedDate.toISOString().split("T")[0],
         user
       );
@@ -47,7 +52,7 @@ const CalendarComponent: React.FC<CalendarProps> = ({
     };
 
     fetchWorkouts();
-  }, [selectedDate, user, modalWorkout, search, savedWorkouts, supabase]);
+  }, [selectedDate, user, modalWorkout, search, savedWorkouts]);
 
   const handleUpdateWorkout = (updatedWorkout: Workout) => {
     setModalWorkout(updatedWorkout);
@@ -79,7 +84,7 @@ const CalendarComponent: React.FC<CalendarProps> = ({
     if (selectedWorkouts.length === 0) {
       if (user) {
         const workouts = await getWorkoutsForDate(
-          supabase,
+          null,
           selectedDateStr,
           user
         );
@@ -105,7 +110,7 @@ const CalendarComponent: React.FC<CalendarProps> = ({
       for (const workout of selectedWorkouts) {
         const formattedDate = new Date(day).toISOString().split("T")[0];
         await assignWorkoutToDate(
-          supabase,
+          null,
           workout.workout_name,
           formattedDate,
           user
@@ -125,9 +130,9 @@ const CalendarComponent: React.FC<CalendarProps> = ({
   ) => {
     if (!user) return;
 
-    await removeWorkoutFromDate(supabase, workout.workout_name, date, user);
+    await removeWorkoutFromDate(null, workout.workout_name, date, user);
 
-    const updatedWorkouts = await getWorkoutsForDate(supabase, date, user);
+    const updatedWorkouts = await getWorkoutsForDate(null, date, user);
     setWorkoutsForToday(updatedWorkouts);
 
     const updatedAssignedDays = { ...assignedDays };
@@ -145,7 +150,7 @@ const CalendarComponent: React.FC<CalendarProps> = ({
   const handleRemoveWorkoutFromList = async (workout: Workout) => {
     if (!user) return;
 
-    await removeWorkoutFromList(supabase, workout.workout_name, user);
+    await removeWorkoutFromList(null, workout.workout_name, user);
     setSelectedWorkouts((prevWorkouts) =>
       prevWorkouts.filter((w) => w.workout_name !== workout.workout_name)
     );
@@ -162,6 +167,55 @@ const CalendarComponent: React.FC<CalendarProps> = ({
   const handleCloseModal = () => {
     if (!editModal) setModalEdit((editModal) => !editModal);
     setModalWorkout(null);
+  };
+
+  const handleCopyWorkout = (workout: Workout) => {
+    setCopyWorkout(workout);
+    setCopyName(`${workout.workout_name} - Copy`);
+    setShowCopyModal(true);
+  };
+
+  const handleConfirmCopy = async () => {
+    if (!copyWorkout || !user || !copyName.trim()) return;
+
+    try {
+      // Get the original template
+      const template = await getWorkoutTemplate(null, copyWorkout.workout_name, user);
+      if (template) {
+        // Copy the template with new name
+        const copiedTemplate = await copyWorkoutTemplate(null, template, copyName.trim(), user);
+        
+        // Convert back to Workout format for compatibility
+        const newWorkout: Workout = {
+          id: copiedTemplate.id,
+          workout_name: copiedTemplate.workout_name,
+          assigned_days: [],
+          exercises: copiedTemplate.exercises,
+          clerk_user_id: copiedTemplate.clerk_user_id,
+          user_id: copiedTemplate.user_id
+        };
+
+        // Notify parent component
+        if (onWorkoutAdded) {
+          onWorkoutAdded(newWorkout);
+        }
+
+        alert(`Workout copied successfully as "${copyName}"`);
+      }
+    } catch (error) {
+      console.error("Error copying workout:", error);
+      alert("Failed to copy workout. Please try again.");
+    }
+
+    setShowCopyModal(false);
+    setCopyWorkout(null);
+    setCopyName("");
+  };
+
+  const handleCancelCopy = () => {
+    setShowCopyModal(false);
+    setCopyWorkout(null);
+    setCopyName("");
   };
 
   return (
@@ -256,10 +310,16 @@ const CalendarComponent: React.FC<CalendarProps> = ({
                     View
                   </button>
                   <button
+                    onClick={() => handleCopyWorkout(workout)}
+                    className="button action copy-button"
+                  >
+                    Copy
+                  </button>
+                  <button
                     onClick={() => handleRemoveWorkoutFromList(workout)}
                     className="button action delete-button"
                   >
-                    🗑️ Delete
+                    Delete
                   </button>
                 </div>
               </li>
@@ -327,6 +387,52 @@ const CalendarComponent: React.FC<CalendarProps> = ({
             {!editModal ? "Finish Editing" : "Edit Exercises"}
           </button>
           <button onClick={handleCloseModal}>Close</button>
+        </div>
+      )}
+
+      {showCopyModal && copyWorkout && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h2>Copy Workout</h2>
+            <p>Create a copy of "{copyWorkout.workout_name}" with a new name:</p>
+            
+            <div className="modal-input-group">
+              <label htmlFor="copy-workout-name">New Workout Name</label>
+              <input
+                type="text"
+                id="copy-workout-name"
+                value={copyName}
+                onChange={(e) => setCopyName(e.target.value)}
+                className="input-field"
+                placeholder="Enter new workout name"
+              />
+            </div>
+            
+            <div className="workout-preview">
+              <h4>What will be copied:</h4>
+              <ul>
+                <li><strong>{copyWorkout.exercises.length}</strong> exercises</li>
+                <li><strong>{copyWorkout.exercises.reduce((total, ex) => total + ex.sets.length, 0)}</strong> total sets</li>
+                <li>All exercise configurations and weights</li>
+              </ul>
+            </div>
+
+            <div className="modal-actions">
+              <button 
+                onClick={handleConfirmCopy}
+                className="button primary"
+                disabled={!copyName.trim()}
+              >
+                Create Copy
+              </button>
+              <button 
+                onClick={handleCancelCopy}
+                className="button secondary"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

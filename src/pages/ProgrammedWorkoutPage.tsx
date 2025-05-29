@@ -6,7 +6,7 @@ import {
   removeExerciseFromWorkout,
   getConsolidatedExercises,
   generateUserIdAsUuid,
-} from "../utils/SupaBase";
+} from "../utils/localStorageDB";
 import { Workout, Exercise, Set } from "../utils/types";
 import ActionBar from "../components/Actionbar";
 import {
@@ -16,7 +16,6 @@ import {
   DropResult,
 } from "react-beautiful-dnd";
 import { useUser } from "@clerk/clerk-react";
-import { useSupabaseClient } from "../utils/supabaseClient";
 import { useNavigate } from "react-router-dom";
 import { v5 as uuidv5 } from "uuid";
 const NAMESPACE = "6ba7b810-9dad-11d1-80b4-00c04fd430c8";
@@ -25,7 +24,6 @@ const normalizeExerciseName = (name: string) => name.toUpperCase();
 
 const StartProgrammedLiftPage: React.FC = () => {
   const { user } = useUser();
-  const supabase = useSupabaseClient();
   const [workoutToday, setWorkoutToday] = useState<Workout | null>(null);
   const [exerciseName, setExerciseName] = useState<string>("");
   const [suggestions, setSuggestions] = useState<string[]>([]);
@@ -82,10 +80,10 @@ const StartProgrammedLiftPage: React.FC = () => {
       try {
         // For testing: Use a different date to simulate a new day
         // You can modify this date to test different scenarios
-        const testDate = "2025-01-17"; // This is tomorrow's date compared to the sample data
+        const testDate = "2025-01-17"; // Day after sample data to see progressive overload immediately
 
         // First try to get today's workout
-        const workout = await getWorkoutForToday(supabase, testDate, user);
+        const workout = await getWorkoutForToday(null, testDate, user);
 
         if (workout) {
           // Check if any sets are logged
@@ -145,18 +143,18 @@ const StartProgrammedLiftPage: React.FC = () => {
     };
 
     fetchWorkout();
-  }, [user, supabase]);
+  }, [user]);
 
   useEffect(() => {
     if (user) {
       const loadExercises = async () => {
-        const exercises = await getConsolidatedExercises(supabase, user);
+        const exercises = await getConsolidatedExercises(null, user);
         const exerciseNames = exercises.map((ex) => ex.name);
         setSuggestions(exerciseNames);
       };
       loadExercises();
     }
-  }, [user, supabase]);
+  }, [user]);
 
   const handleInputChange = (
     exerciseName: string,
@@ -225,7 +223,7 @@ const StartProgrammedLiftPage: React.FC = () => {
         })),
       };
 
-      await saveWorkouts(supabase, [workoutToSave], user);
+      await saveWorkouts(null, [workoutToSave], user);
     } catch (error) {
       console.error("Error saving workout after logging set:", error);
       // Optionally show an error message to the user
@@ -336,7 +334,7 @@ const StartProgrammedLiftPage: React.FC = () => {
         })),
       };
 
-      await saveWorkouts(supabase, [workoutToSave], user);
+      await saveWorkouts(null, [workoutToSave], user);
       alert("Workout saved successfully!");
       navigate("/");
     } catch (error) {
@@ -355,7 +353,7 @@ const StartProgrammedLiftPage: React.FC = () => {
         assigned_days: [new Date().toISOString().split("T")[0]],
       };
 
-      await saveWorkouts(supabase, [newWorkout], user);
+      await saveWorkouts(null, [newWorkout], user);
       alert("New workout saved successfully!");
       setShowSaveModal(false);
       setExerciseName("");
@@ -442,7 +440,7 @@ const StartProgrammedLiftPage: React.FC = () => {
       };
       setWorkoutToday(updatedWorkout);
       await removeExerciseFromWorkout(
-        supabase,
+        null,
         workoutToday.workout_name,
         exerciseName,
         user
@@ -591,45 +589,109 @@ const StartProgrammedLiftPage: React.FC = () => {
                           {exercise.logs && exercise.logs.length > 0 && (
                             <div className="last-set-info">
                               <div className="set-history">
-                                Last Set:{" "}
-                                {exercise.logs[exercise.logs.length - 1].weight}
-                                lbs ×{" "}
-                                {
-                                  exercise.logs[exercise.logs.length - 1].reps
-                                }{" "}
-                                @RIR
-                                {exercise.logs[exercise.logs.length - 1].rir}
-                                <span className="date">
-                                  {new Date(
-                                    exercise.logs[exercise.logs.length - 1].date
-                                  ).toLocaleDateString()}
-                                </span>
-                              </div>
-                              <div className="recommended-settings-container">
-                                <div className="recommended-weight">
-                                  {calculateNextWeight(
-                                    exercise,
-                                    customReps, // Use customReps
-                                    customRir, // Use customRir
-                                    customPercentIncrease // Pass customPercentIncrease
-                                  )}
-                                  lbs × {customReps}, RIR {customRir} (+
-                                  {customPercentIncrease}%)
+                                <div className="performance-header">
+                                  <strong>Last Performance:</strong>
+                                  <span className={`performance-trend ${
+                                    exercise.logs.length > 1 && 
+                                    exercise.logs[exercise.logs.length - 1].weight > 
+                                    exercise.logs[exercise.logs.length - 2].weight ? "trend-up" : 
+                                    exercise.logs.length > 1 && 
+                                    exercise.logs[exercise.logs.length - 1].weight < 
+                                    exercise.logs[exercise.logs.length - 2].weight ? "trend-down" : "trend-same"
+                                  }`}>
+                                    {exercise.logs.length > 1 && 
+                                      exercise.logs[exercise.logs.length - 1].weight > 
+                                      exercise.logs[exercise.logs.length - 2].weight ? "IMPROVING" : 
+                                      exercise.logs.length > 1 && 
+                                      exercise.logs[exercise.logs.length - 1].weight < 
+                                      exercise.logs[exercise.logs.length - 2].weight ? "DECLINING" : "MAINTAINED"
+                                    }
+                                  </span>
                                 </div>
-                                <button
-                                  onClick={() => setShowCustomizeModal(true)}
-                                  className="button secondary"
-                                >
-                                  Adjust
-                                </button>
+                                <div className="performance-details">
+                                  <span className="weight-highlight">{exercise.logs[exercise.logs.length - 1].weight}lbs</span>
+                                  <span className="reps-highlight">× {exercise.logs[exercise.logs.length - 1].reps}</span>
+                                  <span className="rir-highlight">@RIR{exercise.logs[exercise.logs.length - 1].rir}</span>
+                                  <span className="date">
+                                    ({new Date(
+                                      exercise.logs[exercise.logs.length - 1].date
+                                    ).toLocaleDateString()})
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="progressive-overload-section">
+                                <div className="recommended-weight">
+                                  <strong>Recommended Progressive Overload:</strong><br/>
+                                  <span className="overload-values">
+                                    {calculateNextWeight(
+                                      exercise,
+                                      customReps,
+                                      customRir,
+                                      customPercentIncrease
+                                    )}
+                                    lbs × {customReps} reps, RIR {customRir} (+{customPercentIncrease}%)
+                                  </span>
+                                </div>
+                                <div className="overload-controls">
+                                  <button
+                                    onClick={() => setShowCustomizeModal(true)}
+                                    className="button secondary"
+                                    title="Adjust progressive overload parameters"
+                                  >
+                                    Adjust Parameters
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      const newWeight = calculateNextWeight(
+                                        exercise,
+                                        customReps,
+                                        customRir,
+                                        customPercentIncrease
+                                      );
+                                      // Auto-fill first set with recommended values
+                                      setInputState((prev) => ({
+                                        ...prev,
+                                        [exercise.name]: prev[exercise.name] ? prev[exercise.name].map((set, idx) =>
+                                          idx === 0 ? { 
+                                            weight: String(newWeight), 
+                                            reps: String(customReps), 
+                                            rir: String(customRir) 
+                                          } : set
+                                        ) : [{ 
+                                          weight: String(newWeight), 
+                                          reps: String(customReps), 
+                                          rir: String(customRir) 
+                                        }]
+                                      }));
+                                    }}
+                                    className="button primary"
+                                    title="Apply recommended values to first set"
+                                  >
+                                    Apply Recommendation
+                                  </button>
+                                </div>
                               </div>
 
                               {showCustomizeModal && (
                                 <div className="modal-overlay">
                                   <div className="modal-content">
-                                    <h2>Customize Recommended Settings</h2>
+                                    <h2>Customize Progressive Overload</h2>
+                                    <p className="modal-description">
+                                      Adjust these parameters to control how the progressive overload is calculated based on your last performance.
+                                    </p>
+                                    
+                                    <div className="progressive-overload-preview">
+                                      <strong>Current Recommendation:</strong>{" "}
+                                      {calculateNextWeight(
+                                        exercise,
+                                        customReps,
+                                        customRir,
+                                        customPercentIncrease
+                                      )}lbs × {customReps} reps, RIR {customRir}
+                                    </div>
+
                                     <div className="modal-input-group">
-                                      <label>Reps</label>
+                                      <label>Target Reps</label>
                                       <input
                                         type="number"
                                         value={customReps}
@@ -637,10 +699,14 @@ const StartProgrammedLiftPage: React.FC = () => {
                                           setCustomReps(Number(e.target.value))
                                         }
                                         className="input-field"
+                                        min="1"
+                                        max="30"
                                       />
+                                      <small>Reps you plan to perform (1-30)</small>
                                     </div>
+                                    
                                     <div className="modal-input-group">
-                                      <label>RIR</label>
+                                      <label>Target RIR (Reps in Reserve)</label>
                                       <input
                                         type="number"
                                         value={customRir}
@@ -648,12 +714,17 @@ const StartProgrammedLiftPage: React.FC = () => {
                                           setCustomRir(Number(e.target.value))
                                         }
                                         className="input-field"
+                                        min="0"
+                                        max="5"
                                       />
+                                      <small>How many reps left in the tank (0-5)</small>
                                     </div>
+                                    
                                     <div className="modal-input-group">
-                                      <label>Percent Increase</label>
+                                      <label>Weight Increase (%)</label>
                                       <input
                                         type="number"
+                                        step="0.5"
                                         value={customPercentIncrease}
                                         onChange={(e) =>
                                           setCustomPercentIncrease(
@@ -661,7 +732,49 @@ const StartProgrammedLiftPage: React.FC = () => {
                                           )
                                         }
                                         className="input-field"
+                                        min="0"
+                                        max="10"
                                       />
+                                      <small>Additional weight increase (0-10%)</small>
+                                    </div>
+                                    
+                                    <div className="quick-presets">
+                                      <strong>Quick Presets:</strong>
+                                      <div className="preset-buttons">
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            setCustomReps(8);
+                                            setCustomRir(2);
+                                            setCustomPercentIncrease(2.5);
+                                          }}
+                                          className="button secondary small"
+                                        >
+                                          Strength (8×2 +2.5%)
+                                        </button>
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            setCustomReps(12);
+                                            setCustomRir(1);
+                                            setCustomPercentIncrease(1.5);
+                                          }}
+                                          className="button secondary small"
+                                        >
+                                          Hypertrophy (12×1 +1.5%)
+                                        </button>
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            setCustomReps(15);
+                                            setCustomRir(0);
+                                            setCustomPercentIncrease(1.0);
+                                          }}
+                                          className="button secondary small"
+                                        >
+                                          Endurance (15×0 +1.0%)
+                                        </button>
+                                      </div>
                                     </div>
                                     <div className="modal-actions">
                                       <button

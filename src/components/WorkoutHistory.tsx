@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { useUser } from "@clerk/clerk-react";
-import { useSupabaseClient } from "../utils/supabaseClient";
-import { Workout } from "../utils/types";
-import { loadWorkouts } from "../utils/SupaBase";
+import { useUser } from "@clerk/clerk-react";import { Workout } from "../utils/types";
+import { loadWorkouts } from "../utils/localStorageDB";
 
 interface WorkoutCardProps {
   workout: Workout;
@@ -61,13 +59,12 @@ const WorkoutHistory: React.FC<WorkoutHistoryProps> = ({
 }) => {
   const [workouts, setWorkouts] = useState<Workout[]>([]);
   const { user } = useUser();
-  const supabase = useSupabaseClient();
 
   useEffect(() => {
     const fetchWorkouts = async () => {
-      if (user && supabase) {
+      if (user) {
         try {
-          const data = await loadWorkouts(supabase, user);
+          const data = await loadWorkouts(null, user);
           setWorkouts(data);
         } catch (error) {
           console.error("Error fetching workouts:", error);
@@ -76,7 +73,7 @@ const WorkoutHistory: React.FC<WorkoutHistoryProps> = ({
     };
 
     fetchWorkouts();
-  }, [user, supabase]);
+  }, [user]);
 
   const filteredWorkouts = workouts.filter((workout) => {
     const matchesSearch = workout.workout_name

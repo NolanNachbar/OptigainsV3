@@ -12,7 +12,6 @@
   "dependencies": {
     "@clerk/clerk-react": "^5.23.0",
     "@clerk/types": "^4.46.1",
-    "@supabase/supabase-js": "^2.49.1",
     "@types/react-datepicker": "^6.2.0",
     "chart.js": "^4.4.7",
     "date-fns": "^4.1.0",

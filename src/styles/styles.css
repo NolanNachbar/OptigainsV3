@@ -461,6 +461,46 @@ h2 {
   border: 1px solid var(--danger);
 }
 
+.copy-button {
+  background-color: var(--secondary);
+  color: white;
+  border: none;
+}
+
+.copy-button:hover {
+  background-color: var(--primary);
+}
+
+/* Copy Modal Styles */
+.workout-preview {
+  background: var(--input-background);
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 1rem 0;
+  border-left: 4px solid var(--primary);
+}
+
+.workout-preview h4 {
+  margin-top: 0;
+  color: var(--text);
+  font-size: 1rem;
+}
+
+.workout-preview ul {
+  margin: 0.5rem 0 0 0;
+  padding-left: 1.5rem;
+}
+
+.workout-preview li {
+  color: var(--text);
+  margin-bottom: 0.25rem;
+  font-size: 0.9rem;
+}
+
+.workout-preview strong {
+  color: var(--primary);
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .workout-card {
@@ -785,7 +825,7 @@ h2 {
   align-items: center;
   justify-content: center;
   gap: 2rem;
-  max-width: 800px;
+  max-width: 1200px;
   margin: 0 auto;
   width: 100%;
   padding-top: 60px;
@@ -851,6 +891,98 @@ h2 {
   font-weight: 500;
 }
 
+/* Button content styles for homepage */
+.button-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 0.5rem;
+}
+
+.button-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: inherit;
+  margin: 0;
+}
+
+.button-description {
+  font-size: 1rem;
+  font-weight: 400;
+  color: inherit;
+  opacity: 0.8;
+  margin: 0;
+}
+
+/* Hero Section */
+.hero-section {
+  text-align: center;
+  margin: 1rem 0 2rem 0;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  border-radius: 16px;
+  box-shadow: 0 8px 16px rgba(0, 123, 255, 0.2);
+  max-width: 900px;
+  width: 100%;
+}
+
+.welcome-message h2 {
+  color: white;
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem 0;
+}
+
+.welcome-message p {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1.1rem;
+  margin: 0;
+  font-weight: 400;
+}
+
+/* Stats Overview */
+.stats-overview {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 900px;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: var(--card-background);
+  border-radius: 12px;
+  padding: 1.5rem 1rem;
+  text-align: center;
+  box-shadow: 0 4px 8px var(--shadow);
+  border: 1px solid var(--border);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px var(--shadow);
+}
+
+.stat-number {
+  display: block;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 0.25rem;
+}
+
+.stat-label {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--text);
+  opacity: 0.8;
+  font-weight: 500;
+}
+
 @keyframes float {
   0% {
     transform: translateY(0px);
@@ -885,6 +1017,41 @@ h2 {
 
   .app-title {
     font-size: 2rem;
+  }
+
+  .button-title {
+    font-size: 1.2rem;
+  }
+
+  .button-description {
+    font-size: 0.9rem;
+  }
+
+  .hero-section {
+    padding: 1rem;
+    margin: 0.5rem 0 1.5rem 0;
+  }
+
+  .welcome-message h2 {
+    font-size: 1.5rem;
+  }
+
+  .welcome-message p {
+    font-size: 1rem;
+  }
+
+  .stats-overview {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .stat-card {
+    padding: 1rem;
+  }
+
+  .stat-number {
+    font-size: 1.5rem;
   }
 }
 
@@ -1557,4 +1724,178 @@ h2 {
 
 .button.secondary {
   margin: 0; /* Remove default margin */
+}
+
+/* Progressive Overload Styles */
+.progressive-overload-section {
+  background: linear-gradient(135deg, var(--secondary), var(--primary));
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 1rem;
+  border: 1px solid var(--primary);
+}
+
+.progressive-overload-section .recommended-weight {
+  margin-bottom: 1rem;
+}
+
+.progressive-overload-section .overload-values {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 0.5rem;
+  border-radius: 4px;
+  display: inline-block;
+  margin-top: 0.5rem;
+}
+
+.overload-controls {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.overload-controls .button {
+  min-width: 140px;
+  font-weight: bold;
+}
+
+.progressive-overload-preview {
+  background: rgba(0, 123, 255, 0.1);
+  border: 1px solid var(--primary);
+  border-radius: 6px;
+  padding: 1rem;
+  margin: 1rem 0;
+  color: var(--primary);
+  font-weight: bold;
+  text-align: center;
+}
+
+.modal-description {
+  color: var(--text);
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.4;
+}
+
+.modal-input-group small {
+  color: #888;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+  display: block;
+}
+
+.quick-presets {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background: var(--input-background);
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+
+.quick-presets strong {
+  color: var(--text);
+  display: block;
+  margin-bottom: 0.75rem;
+}
+
+.preset-buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.preset-buttons .button.small {
+  font-size: 0.8rem;
+  padding: 0.4rem 0.8rem;
+  min-width: auto;
+}
+
+.set-history {
+  background: var(--input-background);
+  border-radius: 6px;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  border-left: 4px solid var(--primary);
+}
+
+.set-history .date {
+  color: #888;
+  font-size: 0.85rem;
+  margin-left: 0.5rem;
+}
+
+/* Enhanced Performance Display */
+.performance-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.performance-trend {
+  font-size: 0.8rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 12px;
+  background: var(--input-background);
+  color: var(--text);
+  font-weight: bold;
+}
+
+.performance-details {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.weight-highlight {
+  background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+  color: white;
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.reps-highlight {
+  background: linear-gradient(135deg, #74b9ff, #0984e3);
+  color: white;
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.rir-highlight {
+  background: linear-gradient(135deg, #55a3ff, #2d3436);
+  color: white;
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+/* Mobile responsiveness for progressive overload */
+@media (max-width: 768px) {
+  .overload-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .overload-controls .button {
+    min-width: auto;
+    width: 100%;
+  }
+  
+  .preset-buttons {
+    flex-direction: column;
+  }
+  
+  .preset-buttons .button.small {
+    width: 100%;
+  }
+}
 }

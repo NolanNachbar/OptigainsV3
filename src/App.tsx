@@ -13,6 +13,7 @@ import { ClerkProvider } from "@clerk/clerk-react";
 import { SignedIn, SignedOut, RedirectToSignIn } from "@clerk/clerk-react";
 import SignInPage from "./pages/SignInPage";
 
+
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
 const App: React.FC = () => {
@@ -30,7 +31,6 @@ const App: React.FC = () => {
             <Route path="/" element={<HomePage />} />
             <Route path="/sign-in" element={<SignInPage />} />
             <Route path="/calc-page" element={<CalcPage />} />
-
             {/* Protected routes */}
             <Route
               path="/workout-plan"

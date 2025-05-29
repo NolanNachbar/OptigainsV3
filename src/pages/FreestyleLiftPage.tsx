@@ -4,7 +4,7 @@ import {
   saveWorkouts,
   getConsolidatedExercises,
   calculateNextWeight,
-} from "../utils/SupaBase";
+} from "../utils/localStorageDB";
 import { Workout, Exercise, Set } from "../utils/types";
 import ActionBar from "../components/Actionbar";
 import {
@@ -14,13 +14,11 @@ import {
   DropResult,
 } from "react-beautiful-dnd";
 import { useUser } from "@clerk/clerk-react";
-import { useSupabaseClient } from "../utils/supabaseClient";
 
 const normalizeExerciseName = (name: string) => name.toUpperCase();
 
 const FreestyleLiftPage: React.FC = () => {
   const { user } = useUser(); // Get the current user
-  const supabase = useSupabaseClient(); // Get the Supabase client
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [currentExercise, setCurrentExercise] = useState("");
   const [workoutName, setWorkoutName] = useState("");
@@ -33,13 +31,13 @@ const FreestyleLiftPage: React.FC = () => {
   useEffect(() => {
     if (user) {
       const loadExercises = async () => {
-        const exercises = await getConsolidatedExercises(supabase, user); // Pass supabase here
+        const exercises = await getConsolidatedExercises(null, user); // Pass null here
         const exerciseNames = exercises.map((ex) => ex.name);
         setSuggestions(exerciseNames);
       };
       loadExercises();
     }
-  }, [user, supabase]); // Add supabase to dependencies
+  }, [user]); // Remove supabase from dependencies
 
   const handleExerciseChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCurrentExercise(e.target.value);
@@ -138,7 +136,7 @@ const FreestyleLiftPage: React.FC = () => {
     };
 
     try {
-      await saveWorkouts(supabase, [newWorkout], user); // Pass supabase here
+      await saveWorkouts(null, [newWorkout], user); // Pass null here
       setExercises([]);
       setWorkoutName("");
       alert("Workout saved successfully!");
@@ -160,7 +158,7 @@ const FreestyleLiftPage: React.FC = () => {
       return;
     }
 
-    const exercises = await getConsolidatedExercises(supabase, user); // Pass supabase here
+    const exercises = await getConsolidatedExercises(null, user); // Pass null here
     const exercise = exercises.find(
       (ex) =>
         normalizeExerciseName(ex.name) === normalizeExerciseName(exerciseName)
