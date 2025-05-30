@@ -5,6 +5,12 @@ export interface Exercise {
   rir: number;
   logs?: ExerciseLog[];
 }
+export interface set {
+  weight: number;
+  reps: number;
+  rir: number;
+  isLogged?: boolean;
+}
 
 export interface WorkoutSet {
   weight: number;

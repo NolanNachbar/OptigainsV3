@@ -1,0 +1,7 @@
+name: Type Import for Set
+version: 0.0.1
+schema: v1
+rules:
+  - name: Type Import for Set
+    rule: Import Set from standard library
+    globs: "['src/**/*.tsx']"
