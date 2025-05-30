@@ -1,0 +1,8 @@
+name: Code block formatting
+version: 0.0.1
+schema: v1
+rules:
+  - name: Code block formatting
+    rule: Always include the language and file name in the info string when you
+      write code blocks.
+    globs: "[**/*.{ts,tsx}']"
