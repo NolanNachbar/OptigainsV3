@@ -5,7 +5,7 @@ export interface Exercise {
   rir: number;
   logs?: ExerciseLog[];
 }
-export interface Set {
+export type Set = {
   weight: number;
   reps: number;
   rir: number;
