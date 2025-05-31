@@ -4,6 +4,7 @@ import { preloadWorkouts, resetWorkouts } from "../utils/localStorageDB"; // Ens
 import OptigainDumbell from "../assets/react3.svg";
 import { useUser } from "@clerk/clerk-react"; // Import Clerk's useUser hook
 import ActionBar from "../components/Actionbar";
+import WeekViewWidget from "../components/WeekViewWidget";
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
@@ -53,6 +54,8 @@ const HomePage: React.FC = () => {
             <p>Ready to crush your next workout?</p>
           </div>
         </div>
+
+        <WeekViewWidget />
 
         <div className="stats-overview">
           <div className="stat-card">

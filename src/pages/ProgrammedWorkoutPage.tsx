@@ -968,7 +968,7 @@ const StartProgrammedLiftPage: React.FC = () => {
             onClick={() => setIsReorderMode(!isReorderMode)}
             className={`button ${isReorderMode ? "primary" : "secondary"}`}
           >
-            {isReorderMode ? "Finish Reordering" : "Reorder Exercises"}
+            {isReorderMode ? "Reorder Exercises" : "Finish Reordering"}
           </button>
         </div>
 

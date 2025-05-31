@@ -3,6 +3,7 @@
 import { Workout, Exercise, WorkoutSet, WorkoutTemplate, WorkoutInstance } from "./types";
 import { UserResource } from "@clerk/types";
 import { v5 as uuidv5 } from "uuid";
+import { FULL_BODY_SPLIT_PROGRAM } from './preloadedWorkouts';
 
 const NAMESPACE = "6ba7b810-9dad-11d1-80b4-00c04fd430c8";
 
@@ -568,10 +569,24 @@ export const preloadWorkouts = async (
   initializeUser(user);
   const existingTemplates = getStoredTemplates(user.id);
   
-  // Don't overwrite existing templates
-  if (existingTemplates && existingTemplates.length > 0) return;
+  // Check if our specific templates are already loaded
+  const hasOurTemplates = existingTemplates.some(template => 
+    FULL_BODY_SPLIT_PROGRAM.some(programWorkout => 
+      programWorkout.workout_name === template.workout_name
+    )
+  );
+  
+  if (hasOurTemplates) return;
 
-  const defaultTemplates: WorkoutTemplate[] = [
+  // Convert our workout program to WorkoutTemplate format
+  const defaultTemplates: WorkoutTemplate[] = FULL_BODY_SPLIT_PROGRAM.map(workout => ({
+    workout_name: workout.workout_name,
+    exercises: workout.exercises,
+    clerk_user_id: user.id,
+    user_id: generateUserIdAsUuid(user.id),
+  }));
+
+  const oldTemplates: WorkoutTemplate[] = [
     {
       workout_name: "FB 1 Chest Focus",
       exercises: [
@@ -912,7 +927,7 @@ export const preloadWorkouts = async (
       clerk_user_id: user.id,
       user_id: generateUserIdAsUuid(user.id),
     },
-  ];
+  ]; // End of oldTemplates - not used anymore
 
   // Save all templates
   for (const template of defaultTemplates) {

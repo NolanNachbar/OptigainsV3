@@ -452,7 +452,7 @@ const EditWorkoutComponent: React.FC<EditProps> = ({
           }}
           className={`button ${editing ? "secondary" : "primary"}`}
         >
-          {editing ? "Reorder Exercises" : "Finish Reordering"}
+          {editing ? "Finish Reordering" : "Reorder Exercises"}
         </button>
         <button
           onClick={handleUndo}

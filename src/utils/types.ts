@@ -64,3 +64,61 @@ export interface Workout {
   clerk_user_id: string;
   user_id?: string;
 }
+
+// Bodybuilding-specific types
+export type MuscleGroup = 
+  | 'Chest' 
+  | 'Back' 
+  | 'Shoulders' 
+  | 'Biceps' 
+  | 'Triceps' 
+  | 'Forearms'
+  | 'Quadriceps' 
+  | 'Hamstrings' 
+  | 'Calves' 
+  | 'Glutes'
+  | 'Abs' 
+  | 'Core';
+
+export type TrainingPhase = 'Hypertrophy' | 'Strength' | 'Power';
+export type TrainingSplit = 'PPL' | 'Upper/Lower' | 'Full Body' | 'Full Body/Upper/Lower';
+export type VolumeLevel = 'Low' | 'Moderate';
+export type Priority = 'High' | 'Moderate' | 'Maintenance';
+
+export interface TrainingBlock {
+  id: string;
+  name: string;
+  phase: TrainingPhase;
+  startDate: string;
+  duration: number; // weeks
+  currentWeek: number;
+  volumeLevel: VolumeLevel;
+  intensityRange: [number, number]; // % 1RM
+  trainingDaysPerWeek: number;
+  split: TrainingSplit;
+  specialization?: MuscleGroup[];
+  notes?: string;
+}
+
+export interface VolumeTarget {
+  muscleGroup: MuscleGroup;
+  weeklySetTarget: number;
+  frequency: number; // times per week
+  priority: Priority;
+  currentVolume?: number;
+}
+
+export interface MuscleGroupVolume {
+  muscleGroup: MuscleGroup;
+  sets: number;
+  lastTrained?: string;
+  frequency: number;
+  weeklyTarget: number;
+}
+
+export interface ExerciseMuscleMapping {
+  exerciseName: string;
+  primaryMuscles: MuscleGroup[];
+  secondaryMuscles: MuscleGroup[];
+  setsContribution: number; // 0.5 for secondary, 1.0 for primary
+}
