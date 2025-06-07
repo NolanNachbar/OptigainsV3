@@ -82,22 +82,24 @@ export type MuscleGroup =
 
 export type TrainingPhase = 'Hypertrophy' | 'Strength' | 'Power';
 export type TrainingSplit = 'PPL' | 'Upper/Lower' | 'Full Body' | 'Full Body/Upper/Lower';
-export type VolumeLevel = 'Low' | 'Moderate';
+export type VolumeLevel = 'Low' | 'Moderate' | 'High';
 export type Priority = 'High' | 'Moderate' | 'Maintenance';
 
 export interface TrainingBlock {
   id: string;
   name: string;
-  phase: TrainingPhase;
   startDate: string;
   duration: number; // weeks
   currentWeek: number;
-  volumeLevel: VolumeLevel;
-  intensityRange: [number, number]; // % 1RM
   trainingDaysPerWeek: number;
-  split: TrainingSplit;
-  specialization?: MuscleGroup[];
+  split: string; // More flexible - can be 'PPL', 'Upper/Lower', 'Custom', etc.
   notes?: string;
+  isActive?: boolean;
+  phase?: TrainingPhase;
+  volumeLevel?: VolumeLevel;
+  intensityRange?: [number, number];
+  deloadWeek?: number;
+  workoutRotation?: string[];
 }
 
 export interface VolumeTarget {

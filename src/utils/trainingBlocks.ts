@@ -322,30 +322,35 @@ export const isBlockCompleted = (block: TrainingBlock): boolean => {
   return block.currentWeek >= block.duration;
 };
 
-// Local storage functions for training blocks
+// Note: These functions are deprecated - components should use the database directly
+// They're kept here for backward compatibility but will use localStorage as fallback
+
 const TRAINING_BLOCKS_KEY = 'trainingBlocks';
 
-export const saveTrainingBlocks = (blocks: TrainingBlock[]): void => {
+const saveTrainingBlocks = (blocks: TrainingBlock[]): void => {
   localStorage.setItem(TRAINING_BLOCKS_KEY, JSON.stringify(blocks));
 };
 
-export const loadTrainingBlocks = (): TrainingBlock[] => {
+const loadTrainingBlocks = (): TrainingBlock[] => {
   const stored = localStorage.getItem(TRAINING_BLOCKS_KEY);
   return stored ? JSON.parse(stored) : [];
 };
 
 export const getCurrentTrainingBlock = (): TrainingBlock | null => {
+  // This is a synchronous fallback - components should use db.getActiveTrainingBlock() instead
   const blocks = loadTrainingBlocks();
-  return blocks.find(block => !isBlockCompleted(block)) || null;
+  return blocks.find(block => block.isActive && !isBlockCompleted(block)) || null;
 };
 
 export const addTrainingBlock = (block: TrainingBlock): void => {
+  // This is a synchronous fallback - components should use db.saveTrainingBlock() instead
   const blocks = loadTrainingBlocks();
   blocks.push(block);
   saveTrainingBlocks(blocks);
 };
 
 export const updateTrainingBlock = (updatedBlock: TrainingBlock): void => {
+  // This is a synchronous fallback - components should use db.updateTrainingBlock() instead
   const blocks = loadTrainingBlocks();
   const index = blocks.findIndex(block => block.id === updatedBlock.id);
   if (index !== -1) {

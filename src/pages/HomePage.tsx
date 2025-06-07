@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { preloadWorkouts, resetWorkouts } from "../utils/localStorageDB"; // Ensure this path is correct
+import { preloadWorkouts, resetWorkouts } from "../utils/localStorageDB";
 import OptigainDumbell from "../assets/react3.svg";
 import { useUser } from "@clerk/clerk-react"; // Import Clerk's useUser hook
 import ActionBar from "../components/Actionbar";

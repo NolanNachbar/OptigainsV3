@@ -1,4 +1,4 @@
-import { Workout, Exercise } from './types';
+import { Workout } from './types';
 
 // Preloaded Full Body workout template
 export const FULL_BODY_WORKOUT_TEMPLATE: Workout = {

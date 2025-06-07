@@ -344,6 +344,7 @@ const WorkoutAssignmentForm: React.FC<WorkoutAssignmentFormProps> = ({
           </button>
         </div>
       </div>
+    </div>
 
       {viewingWorkout && (
         <div className="workout-view-modal-overlay" onClick={() => setViewingWorkout(null)}>

@@ -3,9 +3,9 @@ import {
   getWorkoutForToday,
   saveWorkouts,
   calculateNextWeight,
-  removeExerciseFromWorkout,
   getConsolidatedExercises,
   generateUserIdAsUuid,
+  removeExerciseFromWorkout,
 } from "../utils/localStorageDB";
 import { Workout, Exercise, Set } from "../utils/types";
 import ActionBar from "../components/Actionbar";
@@ -223,7 +223,7 @@ const StartProgrammedLiftPage: React.FC = () => {
         })),
       };
 
-      await saveWorkouts(null, [workoutToSave], user);
+      await saveWorkouts(null, workoutToSave, user);
     } catch (error) {
       console.error("Error saving workout after logging set:", error);
       // Optionally show an error message to the user
@@ -334,7 +334,7 @@ const StartProgrammedLiftPage: React.FC = () => {
         })),
       };
 
-      await saveWorkouts(null, [workoutToSave], user);
+      await saveWorkouts(null, workoutToSave, user);
       alert("Workout saved successfully!");
       navigate("/");
     } catch (error) {
@@ -353,7 +353,7 @@ const StartProgrammedLiftPage: React.FC = () => {
         assigned_days: [new Date().toISOString().split("T")[0]],
       };
 
-      await saveWorkouts(null, [newWorkout], user);
+      await saveWorkouts(null, newWorkout, user);
       alert("New workout saved successfully!");
       setShowSaveModal(false);
       setExerciseName("");

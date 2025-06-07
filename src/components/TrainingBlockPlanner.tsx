@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { TrainingBlock, TrainingSplit, TrainingPhase, VolumeLevel, Workout } from '../utils/types';
+import React, { useState, useEffect } from 'react';
+import { TrainingBlock, TrainingPhase, VolumeLevel } from '../utils/types';
 import {
   TRAINING_BLOCK_TEMPLATES,
   createTrainingBlock,
@@ -11,110 +11,33 @@ import {
   isDeloadWeek,
   isBlockCompleted
 } from '../utils/trainingBlocks';
-import { assignWorkoutToDate } from '../utils/localStorageDB';
-import { useUser } from '@clerk/clerk-react';
-import RotationPreview from './RotationPreview';
-import InteractiveRotationEditor from './InteractiveRotationEditor';
 
 interface TrainingBlockPlannerProps {
   onBlockChange?: (block: TrainingBlock | null) => void;
-  availableWorkouts?: Workout[];
-  onEditWorkout?: (workout: Workout) => void;
 }
 
-const TrainingBlockPlanner: React.FC<TrainingBlockPlannerProps> = ({ onBlockChange, availableWorkouts = [], onEditWorkout }) => {
-  const { user } = useUser();
+const TrainingBlockPlanner: React.FC<TrainingBlockPlannerProps> = ({ onBlockChange }) => {
   const [currentBlock, setCurrentBlock] = useState<TrainingBlock | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<number>(0);
-  const [startDate, setStartDate] = useState<string>(new Date().toISOString().split('T')[0]);
-  const [duration, setDuration] = useState<number>(8);
-  const [isPopulating, setIsPopulating] = useState(false);
-  const [showRotationPreview, setShowRotationPreview] = useState(false);
-  const [customRotationPattern, setCustomRotationPattern] = useState<any[]>([]);
-  const [showRotationEditor, setShowRotationEditor] = useState(false);
-  const [showCustomForm, setShowCustomForm] = useState(false);
-  const [customTemplate, setCustomTemplate] = useState<Omit<TrainingBlock, 'id' | 'startDate' | 'currentWeek'>>({
-    name: '',
-    phase: 'Hypertrophy',
-    duration: 8,
-    volumeLevel: 'Moderate',
-    intensityRange: [70, 85],
-    trainingDaysPerWeek: 4,
-    split: 'Upper/Lower',
-    notes: ''
-  });
-
-  const handlePatternChange = useCallback((pattern: any[]) => {
-    setCustomRotationPattern(pattern);
-  }, []);
 
   useEffect(() => {
     const block = getCurrentTrainingBlock();
     setCurrentBlock(block);
     onBlockChange?.(block);
-  }, []);
+  }, [onBlockChange]);
 
-  const handleCreateBlock = async () => {
-    let template;
-    
-    if (showCustomForm) {
-      // Validate custom template
-      if (!customTemplate.name.trim()) {
-        alert('Please provide a name for your custom training block.');
-        return;
-      }
-      template = customTemplate;
-    } else {
-      template = TRAINING_BLOCK_TEMPLATES[selectedTemplate];
-    }
-    
-    const blockWithDuration = { ...template, duration: showCustomForm ? customTemplate.duration : duration };
-    const newBlock = createTrainingBlock(blockWithDuration, startDate);
+  const handleCreateBlock = () => {
+    const template = TRAINING_BLOCK_TEMPLATES[selectedTemplate];
+    const startDate = new Date().toISOString().split('T')[0];
+    const newBlock = createTrainingBlock(template, startDate);
     
     addTrainingBlock(newBlock);
     setCurrentBlock(newBlock);
-    
-    // If we have a custom rotation pattern, populate the calendar immediately
-    if (customRotationPattern.length > 0 && user) {
-      await populateCalendarWithCustomPattern(newBlock, customRotationPattern);
-    }
-    
     setShowCreateModal(false);
-    setShowRotationEditor(false);
-    setCustomRotationPattern([]);
-    setShowCustomForm(false);
     onBlockChange?.(newBlock);
   };
 
-  const populateCalendarWithCustomPattern = async (block: TrainingBlock, pattern: any[]) => {
-    try {
-      let scheduledCount = 0;
-      
-      for (let week = 0; week < block.duration; week++) {
-        const weekStartDate = new Date(block.startDate);
-        weekStartDate.setDate(weekStartDate.getDate() + (week * 7));
-        
-        for (let day = 0; day < 7; day++) {
-          const patternItem = pattern[day];
-          if (patternItem && !patternItem.isRest && patternItem.workout) {
-            const workoutDate = new Date(weekStartDate);
-            workoutDate.setDate(weekStartDate.getDate() + day);
-            const dateString = workoutDate.toISOString().split('T')[0];
-            
-            await assignWorkoutToDate(null, patternItem.workout.workout_name, dateString, user!);
-            scheduledCount++;
-          }
-        }
-      }
-      
-      if (scheduledCount > 0) {
-        alert(`Successfully scheduled ${scheduledCount} workouts across ${block.duration} weeks using your custom rotation!`);
-      }
-    } catch (error) {
-      console.error('Error populating calendar with custom pattern:', error);
-    }
-  };
 
   const handleAdvanceWeek = () => {
     if (currentBlock) {
@@ -125,7 +48,7 @@ const TrainingBlockPlanner: React.FC<TrainingBlockPlannerProps> = ({ onBlockChan
     }
   };
 
-  const getPhaseColor = (phase: TrainingPhase | string): string => {
+  const getPhaseColor = (phase: TrainingPhase | string | undefined): string => {
     switch (phase) {
       case 'Hypertrophy': return '#4CAF50';
       case 'Strength': return '#FF9800';
@@ -134,203 +57,12 @@ const TrainingBlockPlanner: React.FC<TrainingBlockPlannerProps> = ({ onBlockChan
     }
   };
 
-  const getVolumeColor = (level: VolumeLevel): string => {
+  const getVolumeColor = (level: VolumeLevel | undefined): string => {
     switch (level) {
       case 'Low': return '#4CAF50';
       case 'Moderate': return '#FF9800';
+      case 'High': return '#F44336';
       default: return '#757575';
-    }
-  };
-
-  const getEndDate = (start: string, weeks: number): string => {
-    const startDate = new Date(start);
-    const endDate = new Date(startDate);
-    endDate.setDate(endDate.getDate() + (weeks * 7) - 1);
-    return endDate.toLocaleDateString();
-  };
-
-  const calculateTrainingPattern = (split: string, trainingDaysPerWeek: number): number[] => {
-    switch (split.toLowerCase()) {
-      case 'full body':
-        // Every other day pattern - some weeks 3 days, some weeks 4 days
-        return [0, 2, 4, 6].slice(0, Math.ceil(trainingDaysPerWeek));
-        
-      case 'upper/lower':
-        if (trainingDaysPerWeek === 4) {
-          return [0, 1, 3, 4]; // Mon (Upper), Tue (Lower), Thu (Upper), Fri (Lower)
-        } else if (trainingDaysPerWeek === 6) {
-          return [0, 1, 2, 4, 5, 6];
-        }
-        return [0, 1, 3, 4];
-        
-      case 'ppl':
-      case 'push/pull/legs':
-        if (trainingDaysPerWeek === 6) {
-          return [0, 1, 2, 4, 5, 6]; // Push, Pull, Legs, Push, Pull, Legs
-        } else if (trainingDaysPerWeek === 3) {
-          return [0, 2, 4];
-        }
-        return [0, 1, 2, 4, 5, 6];
-        
-      default:
-        const pattern: number[] = [];
-        const daySpacing = Math.floor(7 / trainingDaysPerWeek);
-        for (let i = 0; i < trainingDaysPerWeek; i++) {
-          pattern.push(i * daySpacing);
-        }
-        return pattern;
-    }
-  };
-
-  const selectWorkoutForDay = (workouts: Workout[], split: string, dayOffset: number, totalWorkoutCount: number): Workout | null => {
-    if (workouts.length === 0) return null;
-    
-    switch (split.toLowerCase()) {
-      case 'full body':
-        // Alternate between FB1 and FB2 workouts
-        const fb1Workout = workouts.find(w => 
-          w.workout_name.toLowerCase().includes('fb1') ||
-          w.workout_name.toLowerCase().includes('full body 1') ||
-          w.workout_name.toLowerCase().includes('fullbody1')
-        );
-        const fb2Workout = workouts.find(w => 
-          w.workout_name.toLowerCase().includes('fb2') ||
-          w.workout_name.toLowerCase().includes('full body 2') ||
-          w.workout_name.toLowerCase().includes('fullbody2')
-        );
-        
-        // If we have FB1 and FB2, alternate between them
-        if (fb1Workout && fb2Workout) {
-          return totalWorkoutCount % 2 === 0 ? fb1Workout : fb2Workout;
-        }
-        
-        // Fallback to any full body workout
-        const fullBodyWorkout = workouts.find(w => 
-          w.workout_name.toLowerCase().includes('full body') ||
-          w.workout_name.toLowerCase().includes('full')
-        );
-        return fullBodyWorkout || workouts[0];
-        
-      case 'upper/lower':
-        const isUpperDay = dayOffset % 2 === 0;
-        const upperWorkout = workouts.find(w => 
-          w.workout_name.toLowerCase().includes('upper') ||
-          w.workout_name.toLowerCase().includes('push') ||
-          w.workout_name.toLowerCase().includes('chest') ||
-          w.workout_name.toLowerCase().includes('back')
-        );
-        const lowerWorkout = workouts.find(w => 
-          w.workout_name.toLowerCase().includes('lower') ||
-          w.workout_name.toLowerCase().includes('legs') ||
-          w.workout_name.toLowerCase().includes('squat') ||
-          w.workout_name.toLowerCase().includes('deadlift')
-        );
-        
-        if (isUpperDay && upperWorkout) return upperWorkout;
-        if (!isUpperDay && lowerWorkout) return lowerWorkout;
-        return workouts[0];
-        
-      case 'ppl':
-      case 'push/pull/legs':
-        const dayType = totalWorkoutCount % 6; // Full 6-day cycle
-        
-        // Look for Push1, Push2, Pull1, Pull2, Legs1, Legs2 workouts
-        const push1Workout = workouts.find(w => 
-          w.workout_name.toLowerCase().includes('push1') ||
-          w.workout_name.toLowerCase().includes('push 1')
-        );
-        const push2Workout = workouts.find(w => 
-          w.workout_name.toLowerCase().includes('push2') ||
-          w.workout_name.toLowerCase().includes('push 2')
-        );
-        const pull1Workout = workouts.find(w => 
-          w.workout_name.toLowerCase().includes('pull1') ||
-          w.workout_name.toLowerCase().includes('pull 1')
-        );
-        const pull2Workout = workouts.find(w => 
-          w.workout_name.toLowerCase().includes('pull2') ||
-          w.workout_name.toLowerCase().includes('pull 2')
-        );
-        const legs1Workout = workouts.find(w => 
-          w.workout_name.toLowerCase().includes('legs1') ||
-          w.workout_name.toLowerCase().includes('legs 1')
-        );
-        const legs2Workout = workouts.find(w => 
-          w.workout_name.toLowerCase().includes('legs2') ||
-          w.workout_name.toLowerCase().includes('legs 2')
-        );
-        
-        // P1-P2-L-P1-P2-L-R pattern
-        const pplPattern = [push1Workout, pull1Workout, legs1Workout, push2Workout, pull2Workout, legs2Workout];
-        const selectedWorkout = pplPattern[dayType % 6];
-        
-        if (selectedWorkout) return selectedWorkout;
-        
-        // Fallback to basic PPL
-        const basicDayType = dayType % 3;
-        const pushWorkout = workouts.find(w => 
-          w.workout_name.toLowerCase().includes('push') ||
-          w.workout_name.toLowerCase().includes('chest')
-        );
-        const pullWorkout = workouts.find(w => 
-          w.workout_name.toLowerCase().includes('pull') ||
-          w.workout_name.toLowerCase().includes('back')
-        );
-        const legWorkout = workouts.find(w => 
-          w.workout_name.toLowerCase().includes('legs') ||
-          w.workout_name.toLowerCase().includes('leg')
-        );
-        
-        if (basicDayType === 0 && pushWorkout) return pushWorkout;
-        if (basicDayType === 1 && pullWorkout) return pullWorkout;
-        if (basicDayType === 2 && legWorkout) return legWorkout;
-        return workouts[dayOffset % workouts.length];
-        
-      default:
-        return workouts[dayOffset % workouts.length];
-    }
-  };
-
-  const handlePopulateCalendar = async () => {
-    if (!currentBlock || !user || availableWorkouts.length === 0) {
-      alert('No active training block, user, or available workouts to schedule.');
-      return;
-    }
-
-    setShowRotationPreview(false);
-    setIsPopulating(true);
-    
-    try {
-      const startDate = new Date(currentBlock.startDate);
-      const trainingPattern = calculateTrainingPattern(currentBlock.split, currentBlock.trainingDaysPerWeek);
-      let scheduledCount = 0;
-      let totalWorkoutCount = 0;
-      
-      for (let week = 0; week < currentBlock.duration; week++) {
-        const weekStartDate = new Date(startDate);
-        weekStartDate.setDate(startDate.getDate() + (week * 7));
-        
-        for (const dayOffset of trainingPattern) {
-          const workoutDate = new Date(weekStartDate);
-          workoutDate.setDate(weekStartDate.getDate() + dayOffset);
-          
-          const workout = selectWorkoutForDay(availableWorkouts, currentBlock.split, dayOffset, totalWorkoutCount);
-          
-          if (workout) {
-            const dateString = workoutDate.toISOString().split('T')[0];
-            await assignWorkoutToDate(null, workout.workout_name, dateString, user);
-            scheduledCount++;
-            totalWorkoutCount++;
-          }
-        }
-      }
-      
-      alert(`Successfully scheduled ${scheduledCount} workouts across ${currentBlock.duration} weeks!`);
-    } catch (error) {
-      console.error('Error populating calendar:', error);
-      alert('Failed to populate calendar. Please try again.');
-    } finally {
-      setIsPopulating(false);
     }
   };
 
@@ -354,12 +86,22 @@ const TrainingBlockPlanner: React.FC<TrainingBlockPlannerProps> = ({ onBlockChan
             <div className="block-title">
               <h4>{currentBlock.name}</h4>
               <div className="block-badges">
-                <span 
-                  className="phase-badge"
-                  style={{ backgroundColor: getPhaseColor(currentBlock.phase) }}
-                >
-                  {currentBlock.phase}
-                </span>
+                {currentBlock.phase && (
+                  <span 
+                    className="phase-badge"
+                    style={{ backgroundColor: getPhaseColor(currentBlock.phase) }}
+                  >
+                    {currentBlock.phase}
+                  </span>
+                )}
+                {currentBlock.volumeLevel && (
+                  <span 
+                    className="volume-badge"
+                    style={{ backgroundColor: getVolumeColor(currentBlock.volumeLevel) }}
+                  >
+                    {currentBlock.volumeLevel} Volume
+                  </span>
+                )}
               </div>
             </div>
 
@@ -385,18 +127,10 @@ const TrainingBlockPlanner: React.FC<TrainingBlockPlannerProps> = ({ onBlockChan
                 <span className="label">Training Days:</span>
                 <span>{currentBlock.trainingDaysPerWeek}x per week</span>
               </div>
-              <div className="detail-row">
-                <span className="label">Start Date:</span>
-                <span>{new Date(currentBlock.startDate).toLocaleDateString()}</span>
-              </div>
-              <div className="detail-row">
-                <span className="label">End Date:</span>
-                <span>{getEndDate(currentBlock.startDate, currentBlock.duration)}</span>
-              </div>
-              {currentBlock.specialization && (
+              {currentBlock.intensityRange && (
                 <div className="detail-row">
-                  <span className="label">Specialization:</span>
-                  <span>{currentBlock.specialization.join(', ')}</span>
+                  <span className="label">Intensity:</span>
+                  <span>{currentBlock.intensityRange[0]}-{currentBlock.intensityRange[1]}% 1RM</span>
                 </div>
               )}
             </div>
@@ -408,44 +142,20 @@ const TrainingBlockPlanner: React.FC<TrainingBlockPlannerProps> = ({ onBlockChan
             )}
 
             <div className="block-actions">
-              <div className="action-row">
-                {!isBlockCompleted(currentBlock) ? (
-                  <button 
-                    onClick={handleAdvanceWeek}
-                    className="button primary"
-                  >
-                    Complete Week {currentBlock.currentWeek}
-                  </button>
-                ) : (
-                  <button 
-                    onClick={() => setShowCreateModal(true)}
-                    className="button primary"
-                  >
-                    Start Next Block
-                  </button>
-                )}
-                
+              {!isBlockCompleted(currentBlock) ? (
                 <button 
-                  onClick={() => setShowRotationPreview(true)}
-                  className="button secondary"
-                  disabled={availableWorkouts.length === 0}
+                  onClick={handleAdvanceWeek}
+                  className="button primary"
                 >
-                  Show Rotation Preview
+                  Complete Week {currentBlock.currentWeek}
                 </button>
-                
+              ) : (
                 <button 
-                  onClick={handlePopulateCalendar}
-                  className="button secondary"
-                  disabled={isPopulating || availableWorkouts.length === 0}
+                  onClick={() => setShowCreateModal(true)}
+                  className="button primary"
                 >
-                  {isPopulating ? 'Populating...' : 'Populate Calendar'}
+                  Start Next Block
                 </button>
-              </div>
-              
-              {availableWorkouts.length === 0 && (
-                <div className="calendar-warning">
-                  <span>⚠️ No workouts available. Create workouts first to populate calendar.</span>
-                </div>
               )}
             </div>
 
@@ -460,44 +170,64 @@ const TrainingBlockPlanner: React.FC<TrainingBlockPlannerProps> = ({ onBlockChan
         <div className="no-block">
           <div className="empty-state">
             <h4>No Active Training Block</h4>
-            <p>Start a structured training program to optimize your progress with proper periodization.</p>
+            <p>Start a structured training program to optimize your bodybuilding progress with proper periodization.</p>
+            <button 
+              onClick={() => setShowCreateModal(true)}
+              className="button primary"
+            >
+              Create Your First Block
+            </button>
           </div>
         </div>
       )}
+
 
       {showCreateModal && (
         <div className="modal-overlay">
           <div className="modal-content large">
             <h2>Create Training Block</h2>
             
+            <div className="modal-tabs">
+              <button 
+                className="tab-button active"
+                onClick={() => setSelectedTemplate(0)}
+              >
+                Templates
+              </button>
+              <button 
+                className="tab-button"
+                onClick={() => {}}
+              >
+                Custom
+              </button>
+            </div>
+
             <div className="template-selection">
               <h3>Choose a Template</h3>
               <div className="template-grid">
                 {TRAINING_BLOCK_TEMPLATES.map((template, index) => (
                   <div 
                     key={index}
-                    className={`template-card ${selectedTemplate === index && !showCustomForm ? 'selected' : ''}`}
-                    onClick={() => {
-                      setSelectedTemplate(index);
-                      setDuration(template.duration);
-                      setShowCustomForm(false);
-                    }}
+                    className={`template-card ${selectedTemplate === index ? 'selected' : ''}`}
+                    onClick={() => setSelectedTemplate(index)}
                   >
                     <div className="template-header">
                       <h4>{template.name}</h4>
                       <div className="template-badges">
-                        <span 
-                          className="phase-badge small"
-                          style={{ backgroundColor: getPhaseColor(template.phase) }}
-                        >
-                          {template.phase}
-                        </span>
+                        {template.phase && (
+                          <span 
+                            className="phase-badge small"
+                            style={{ backgroundColor: getPhaseColor(template.phase) }}
+                          >
+                            {template.phase}
+                          </span>
+                        )}
                       </div>
                     </div>
                     
                     <div className="template-details">
                       <div className="detail-item">
-                        <span>Default Duration: {template.duration} weeks</span>
+                        <span>Duration: {template.duration} weeks</span>
                       </div>
                       <div className="detail-item">
                         <span>Split: {template.split}</span>
@@ -505,6 +235,16 @@ const TrainingBlockPlanner: React.FC<TrainingBlockPlannerProps> = ({ onBlockChan
                       <div className="detail-item">
                         <span>Training Days: {template.trainingDaysPerWeek}x/week</span>
                       </div>
+                      {template.volumeLevel && (
+                        <div className="detail-item">
+                          <span>Volume: {template.volumeLevel}</span>
+                        </div>
+                      )}
+                      {template.intensityRange && (
+                        <div className="detail-item">
+                          <span>Intensity: {template.intensityRange[0]}-{template.intensityRange[1]}%</span>
+                        </div>
+                      )}
                     </div>
 
                     <div className="template-description">
@@ -512,212 +252,6 @@ const TrainingBlockPlanner: React.FC<TrainingBlockPlannerProps> = ({ onBlockChan
                     </div>
                   </div>
                 ))}
-                
-                {/* Custom Template Card */}
-                <div 
-                  className={`template-card custom-template ${showCustomForm ? 'selected' : ''}`}
-                  onClick={() => setShowCustomForm(true)}
-                >
-                  <div className="template-header">
-                    <h4>Create Custom Template</h4>
-                    <div className="template-badges">
-                      <span className="phase-badge small" style={{ backgroundColor: '#9C27B0' }}>
-                        Custom
-                      </span>
-                    </div>
-                  </div>
-                  
-                  <div className="template-details">
-                    <div className="detail-item">
-                      <span>Design your own training block</span>
-                    </div>
-                  </div>
-
-                  <div className="template-description">
-                    <p>Build a personalized training block with your preferred split, phase, and duration.</p>
-                  </div>
-                  
-                  <div className="custom-template-icon">
-                    <span>+</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="block-setup">
-                <h3>{showCustomForm ? 'Custom Block Setup' : 'Block Setup'}</h3>
-                
-                {showCustomForm && (
-                  <div className="custom-form-fields">
-                    <div className="setup-fields">
-                      <div className="setup-field">
-                        <label>Block Name:</label>
-                        <input
-                          type="text"
-                          value={customTemplate.name}
-                          onChange={(e) => setCustomTemplate({...customTemplate, name: e.target.value})}
-                          placeholder="e.g., Summer Strength Block"
-                          className="text-input"
-                        />
-                      </div>
-                      
-                      <div className="setup-field">
-                        <label>Training Phase:</label>
-                        <select
-                          value={customTemplate.phase}
-                          onChange={(e) => setCustomTemplate({...customTemplate, phase: e.target.value as TrainingPhase})}
-                          className="select-input"
-                        >
-                          <option value="Hypertrophy">Hypertrophy</option>
-                          <option value="Strength">Strength</option>
-                          <option value="Power">Power</option>
-                        </select>
-                      </div>
-                      
-                      <div className="setup-field">
-                        <label>Training Split:</label>
-                        <select
-                          value={customTemplate.split}
-                          onChange={(e) => setCustomTemplate({...customTemplate, split: e.target.value as TrainingSplit})}
-                          className="select-input"
-                        >
-                          <option value="Full Body">Full Body</option>
-                          <option value="Upper/Lower">Upper/Lower</option>
-                          <option value="PPL">Push/Pull/Legs</option>
-                          <option value="Full Body/Upper/Lower">Full Body/Upper/Lower</option>
-                        </select>
-                      </div>
-                      
-                      <div className="setup-field">
-                        <label>Training Days/Week:</label>
-                        <input
-                          type="number"
-                          min="1"
-                          max="7"
-                          value={customTemplate.trainingDaysPerWeek}
-                          onChange={(e) => setCustomTemplate({...customTemplate, trainingDaysPerWeek: Number(e.target.value)})}
-                          className="number-input"
-                        />
-                      </div>
-                      
-                      <div className="setup-field">
-                        <label>Volume Level:</label>
-                        <select
-                          value={customTemplate.volumeLevel}
-                          onChange={(e) => setCustomTemplate({...customTemplate, volumeLevel: e.target.value as VolumeLevel})}
-                          className="select-input"
-                        >
-                          <option value="Low">Low</option>
-                          <option value="Moderate">Moderate</option>
-                        </select>
-                      </div>
-                      
-                      <div className="setup-field">
-                        <label>Intensity Range (% 1RM):</label>
-                        <div className="intensity-inputs">
-                          <input
-                            type="number"
-                            min="0"
-                            max="100"
-                            value={customTemplate.intensityRange[0]}
-                            onChange={(e) => setCustomTemplate({
-                              ...customTemplate, 
-                              intensityRange: [Number(e.target.value), customTemplate.intensityRange[1]]
-                            })}
-                            className="intensity-input"
-                          />
-                          <span>to</span>
-                          <input
-                            type="number"
-                            min="0"
-                            max="100"
-                            value={customTemplate.intensityRange[1]}
-                            onChange={(e) => setCustomTemplate({
-                              ...customTemplate, 
-                              intensityRange: [customTemplate.intensityRange[0], Number(e.target.value)]
-                            })}
-                            className="intensity-input"
-                          />
-                        </div>
-                      </div>
-                      
-                      <div className="setup-field full-width">
-                        <label>Notes (optional):</label>
-                        <textarea
-                          value={customTemplate.notes || ''}
-                          onChange={(e) => setCustomTemplate({...customTemplate, notes: e.target.value})}
-                          placeholder="Additional notes about this training block..."
-                          className="textarea-input"
-                          rows={3}
-                        />
-                      </div>
-                    </div>
-                    
-                    <div className="divider"></div>
-                  </div>
-                )}
-                
-                <div className="setup-fields">
-                  <div className="setup-field">
-                    <label>Start Date:</label>
-                    <input
-                      type="date"
-                      value={startDate}
-                      onChange={(e) => setStartDate(e.target.value)}
-                      className="date-input"
-                    />
-                  </div>
-                  <div className="setup-field">
-                    <label>Duration (weeks):</label>
-                    <input
-                      type="number"
-                      min="1"
-                      max="52"
-                      value={showCustomForm ? customTemplate.duration : duration}
-                      onChange={(e) => {
-                        const newDuration = Number(e.target.value);
-                        if (showCustomForm) {
-                          setCustomTemplate({...customTemplate, duration: newDuration});
-                        } else {
-                          setDuration(newDuration);
-                        }
-                      }}
-                      className="duration-input"
-                    />
-                  </div>
-                  <div className="setup-field">
-                    <label>End Date:</label>
-                    <span className="calculated-date">
-                      {getEndDate(startDate, showCustomForm ? customTemplate.duration : duration)}
-                    </span>
-                  </div>
-                </div>
-                
-                <div className="rotation-setup">
-                  <div className="rotation-header">
-                    <h4>Training Rotation</h4>
-                    <button 
-                      onClick={() => setShowRotationEditor(!showRotationEditor)}
-                      className="button secondary small"
-                    >
-                      {showRotationEditor ? 'Hide Editor' : 'Customize Rotation'}
-                    </button>
-                  </div>
-                  
-                  {showRotationEditor && (
-                    <InteractiveRotationEditor
-                      trainingBlock={{
-                        ...(showCustomForm ? customTemplate : TRAINING_BLOCK_TEMPLATES[selectedTemplate]),
-                        duration: showCustomForm ? customTemplate.duration : duration,
-                        startDate,
-                        id: '',
-                        currentWeek: 1
-                      }}
-                      availableWorkouts={availableWorkouts}
-                      onPatternChange={handlePatternChange}
-                      onEditWorkout={onEditWorkout}
-                    />
-                  )}
-                </div>
               </div>
             </div>
 
@@ -726,7 +260,7 @@ const TrainingBlockPlanner: React.FC<TrainingBlockPlannerProps> = ({ onBlockChan
                 onClick={handleCreateBlock}
                 className="button primary"
               >
-                {customRotationPattern.length > 0 ? 'Create Block & Schedule Workouts' : 'Start This Block'}
+                Start This Block
               </button>
               <button 
                 onClick={() => setShowCreateModal(false)}
@@ -737,15 +271,6 @@ const TrainingBlockPlanner: React.FC<TrainingBlockPlannerProps> = ({ onBlockChan
             </div>
           </div>
         </div>
-      )}
-
-      {showRotationPreview && currentBlock && (
-        <RotationPreview
-          trainingBlock={currentBlock}
-          availableWorkouts={availableWorkouts}
-          onConfirm={handlePopulateCalendar}
-          onCancel={() => setShowRotationPreview(false)}
-        />
       )}
 
       <style>{`
@@ -864,23 +389,6 @@ const TrainingBlockPlanner: React.FC<TrainingBlockPlannerProps> = ({ onBlockChan
           margin-bottom: 1rem;
         }
 
-        .action-row {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 1rem;
-          margin-bottom: 0.75rem;
-        }
-
-        .calendar-warning {
-          padding: 0.5rem;
-          background: #1a1a1a;
-          border: 1px solid #ff9800;
-          border-radius: 6px;
-          color: #ff9800;
-          font-size: 0.9rem;
-          text-align: center;
-        }
-
         .block-notes {
           font-style: italic;
           color: #888888;
@@ -986,54 +494,29 @@ const TrainingBlockPlanner: React.FC<TrainingBlockPlannerProps> = ({ onBlockChan
           margin-top: 0;
         }
 
+        .modal-tabs {
+          display: flex;
+          margin-bottom: 1.5rem;
+          border-bottom: 1px solid #404040;
+        }
+
+        .tab-button {
+          padding: 0.75rem 1.5rem;
+          border: none;
+          background: none;
+          cursor: pointer;
+          font-weight: 600;
+          color: #888888;
+          border-bottom: 2px solid transparent;
+        }
+
+        .tab-button.active {
+          color: #2196F3;
+          border-bottom-color: #2196F3;
+        }
+
         .template-selection h3 {
           color: #ffffff;
-          margin-bottom: 1rem;
-        }
-
-        .block-setup {
-          margin-top: 2rem;
-          padding-top: 2rem;
-          border-top: 1px solid #404040;
-        }
-
-        .block-setup h3 {
-          color: #ffffff;
-          margin-bottom: 1rem;
-        }
-
-        .setup-fields {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-          gap: 1.5rem;
-        }
-
-        .setup-field {
-          display: flex;
-          flex-direction: column;
-          gap: 0.5rem;
-        }
-
-        .setup-field label {
-          font-weight: 600;
-          color: #ffffff;
-        }
-
-        .date-input, .duration-input {
-          padding: 0.75rem;
-          border: 1px solid #404040;
-          border-radius: 6px;
-          background: #2a2a2a;
-          color: #ffffff;
-          font-size: 1rem;
-        }
-
-        .calculated-date {
-          padding: 0.75rem;
-          background: #2a2a2a;
-          border: 1px solid #404040;
-          border-radius: 6px;
-          color: #b0b0b0;
         }
 
         .modal-actions {
@@ -1071,105 +554,57 @@ const TrainingBlockPlanner: React.FC<TrainingBlockPlannerProps> = ({ onBlockChan
           background: #555555;
         }
 
-        .button.small {
-          padding: 0.5rem 1rem;
-          font-size: 0.875rem;
+        .volume-customization {
+          margin-top: 1rem;
+          text-align: center;
         }
 
-        .rotation-setup {
-          margin-top: 2rem;
-          padding-top: 2rem;
-          border-top: 1px solid #404040;
+        .modal-subtitle {
+          color: #b0b0b0;
+          margin-bottom: 1.5rem;
+          font-size: 0.9rem;
         }
 
-        .rotation-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 1rem;
-        }
-
-        .rotation-header h4 {
-          margin: 0;
-          color: #ffffff;
-        }
-
-        .custom-template {
-          position: relative;
-          background: #2a2a2a;
-          border: 2px dashed #666666;
-        }
-
-        .custom-template:hover {
-          border-color: #9C27B0;
-          background: #333333;
-        }
-
-        .custom-template.selected {
-          border-color: #9C27B0;
-          background: #1a2332;
-        }
-
-        .custom-template-icon {
-          position: absolute;
-          bottom: 1rem;
-          right: 1rem;
-          width: 40px;
-          height: 40px;
-          background: #9C27B0;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: white;
-          font-size: 24px;
-          font-weight: bold;
-        }
-
-        .custom-form-fields {
+        .volume-targets-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+          gap: 1rem;
           margin-bottom: 2rem;
-          padding-bottom: 2rem;
+          max-height: 400px;
+          overflow-y: auto;
         }
 
-        .text-input, .select-input, .number-input, .textarea-input {
-          padding: 0.75rem;
-          border: 1px solid #404040;
-          border-radius: 6px;
-          background: #2a2a2a;
+        .volume-target-item {
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+        }
+
+        .volume-target-item label {
+          font-weight: 600;
           color: #ffffff;
-          font-size: 1rem;
-          width: 100%;
+          font-size: 0.9rem;
         }
 
-        .text-input:focus, .select-input:focus, .number-input:focus, .textarea-input:focus {
-          outline: none;
-          border-color: #2196F3;
-        }
-
-        .intensity-inputs {
+        .target-input-group {
           display: flex;
           align-items: center;
           gap: 0.5rem;
         }
 
-        .intensity-input {
-          padding: 0.75rem;
+        .target-input {
+          width: 80px;
+          padding: 0.5rem;
           border: 1px solid #404040;
-          border-radius: 6px;
+          border-radius: 4px;
           background: #2a2a2a;
           color: #ffffff;
           font-size: 1rem;
-          width: 80px;
         }
 
-        .full-width {
-          grid-column: 1 / -1;
-        }
-
-        .divider {
-          height: 1px;
-          background: #404040;
-          margin: 2rem 0;
+        .target-range {
+          font-size: 0.8rem;
+          color: #888888;
         }
 
         @media (max-width: 768px) {
@@ -1189,10 +624,6 @@ const TrainingBlockPlanner: React.FC<TrainingBlockPlannerProps> = ({ onBlockChan
           .modal-content {
             margin: 1rem;
             padding: 1.5rem;
-          }
-
-          .setup-fields {
-            grid-template-columns: 1fr;
           }
         }
       `}</style>

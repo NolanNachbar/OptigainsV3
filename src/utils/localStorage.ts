@@ -94,7 +94,8 @@ export const lastSet = (
 export const calculateNextWeight = (
   exercise: Exercise,
   reps: number,
-  rir: number
+  rir: number,
+  percentIncrease: number = 0
 ): number => {
   // Check if the exercise has logs
   if (!exercise.logs || exercise.logs.length === 0) {
@@ -128,10 +129,16 @@ export const calculateNextWeight = (
   const estimatedWeight = calculatedOneRm / (1 + 0.0333 * adjustedReps);
 
   // If the estimated weight is invalid (NaN or <= 0), fallback to last known weight
-  const result =
+  let result =
     isNaN(estimatedWeight) || estimatedWeight <= 0
       ? lastLog.weight
       : estimatedWeight;
+  
+  // Apply the percentage increase if specified
+  if (percentIncrease > 0) {
+    result = result * (1 + percentIncrease / 100);
+  }
+  
   return Math.round(result / 5) * 5;
 };
 

@@ -1,4 +1,4 @@
-import React, { Suspense } from "react";
+import React, { Suspense, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import WorkoutPlanPage from "./pages/WorkoutPlanPage";
@@ -9,12 +9,25 @@ import CalcPage from "./pages/CalculatorPage";
 // import ExerciseLibrary from "./pages/exerciseLibrary";
 import LibraryPage from "./pages/LibraryPage";
 import BodyWeightLog from "./pages/weightLogging";
-import { ClerkProvider } from "@clerk/clerk-react";
+import { ClerkProvider, useAuth } from "@clerk/clerk-react";
 import { SignedIn, SignedOut, RedirectToSignIn } from "@clerk/clerk-react";
 import SignInPage from "./pages/SignInPage";
+import { initializeDatabase } from "./utils/database";
 
 
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+
+// Component to initialize database with Clerk auth
+const DatabaseInitializer: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { getToken } = useAuth();
+  
+  useEffect(() => {
+    // Initialize database with Clerk token getter
+    initializeDatabase(() => getToken({ template: 'supabase' }));
+  }, [getToken]);
+  
+  return <>{children}</>;
+};
 
 const App: React.FC = () => {
   if (!clerkPubKey) {
@@ -24,8 +37,9 @@ const App: React.FC = () => {
 
   return (
     <ClerkProvider publishableKey={clerkPubKey}>
-      <Suspense fallback={<div>Loading...</div>}>
-        <Router>
+      <DatabaseInitializer>
+        <Suspense fallback={<div>Loading...</div>}>
+          <Router>
           <Routes>
             {/* Public routes */}
             <Route path="/" element={<HomePage />} />
@@ -113,6 +127,7 @@ const App: React.FC = () => {
           </Routes>
         </Router>
       </Suspense>
+      </DatabaseInitializer>
     </ClerkProvider>
   );
 };

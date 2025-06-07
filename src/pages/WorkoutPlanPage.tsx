@@ -111,24 +111,22 @@ const WorkoutPlanPage: React.FC = () => {
                   <h3>Current Block Insights</h3>
                   <div className="insights-content">
                     <div className="insight-item">
-                      <span className="insight-label">Phase:</span>
-                      <span className="insight-value">{currentTrainingBlock.phase}</span>
-                    </div>
-                    <div className="insight-item">
                       <span className="insight-label">Split:</span>
                       <span className="insight-value">{currentTrainingBlock.split}</span>
                     </div>
+                    <div className="insight-item">
+                      <span className="insight-label">Training Days:</span>
+                      <span className="insight-value">{currentTrainingBlock.trainingDaysPerWeek} per week</span>
+                    </div>
+                    <div className="insight-item">
+                      <span className="insight-label">Progress:</span>
+                      <span className="insight-value">Week {currentTrainingBlock.currentWeek} of {currentTrainingBlock.duration}</span>
+                    </div>
                   </div>
-                  {currentTrainingBlock.specialization && (
-                    <div className="specialization-info">
-                      <h4>Specialization Focus</h4>
-                      <div className="specialization-tags">
-                        {currentTrainingBlock.specialization.map((muscle) => (
-                          <span key={muscle} className="specialization-tag">
-                            {muscle}
-                          </span>
-                        ))}
-                      </div>
+                  {currentTrainingBlock.notes && (
+                    <div className="block-notes">
+                      <h4>Notes</h4>
+                      <p>{currentTrainingBlock.notes}</p>
                     </div>
                   )}
                 </div>
