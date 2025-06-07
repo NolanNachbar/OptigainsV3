@@ -337,25 +337,6 @@ const InteractiveRotationEditor: React.FC<InteractiveRotationEditorProps> = ({
     return '#00BCD4'; // Cyan for generic workouts
   };
 
-  const generateDayLabels = (length: number) => {
-    const standardDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    if (length <= 7) return standardDays.slice(0, length);
-    
-    const labels = [];
-    for (let i = 0; i < length; i++) {
-      if (i < 7) {
-        labels.push(standardDays[i]);
-      } else {
-        const weekNum = Math.floor(i / 7) + 1;
-        const dayInWeek = standardDays[i % 7];
-        labels.push(`W${weekNum} ${dayInWeek}`);
-      }
-    }
-    return labels;
-  };
-
-  const dayLabels = generateDayLabels(rotationLength);
-
   return (
     <div className="interactive-rotation-editor">
       <h3>Customize Your Training Rotation</h3>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { TrainingBlock, TrainingPhase, VolumeLevel } from '../utils/types';
+import { TrainingBlock, TrainingPhase, VolumeLevel, Workout } from '../utils/types';
 import {
   TRAINING_BLOCK_TEMPLATES,
   createTrainingBlock,
@@ -14,6 +14,8 @@ import {
 
 interface TrainingBlockPlannerProps {
   onBlockChange?: (block: TrainingBlock | null) => void;
+  availableWorkouts?: Workout[];
+  onEditWorkout?: (workout: Workout) => void;
 }
 
 const TrainingBlockPlanner: React.FC<TrainingBlockPlannerProps> = ({ onBlockChange }) => {
