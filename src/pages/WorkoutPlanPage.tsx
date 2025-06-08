@@ -10,7 +10,7 @@ import {
 } from "../utils/localStorageDB";
 import { Workout, TrainingBlock } from "../utils/types";
 import ActionBar from "../components/Actionbar";
-import { useUser } from "@clerk/clerk-react";
+import { useUser, useAuth } from "@clerk/clerk-react";
 
 const WorkoutPlanPage: React.FC = () => {
   const [savedWorkouts, setSavedWorkouts] = useState<Workout[]>([]);
@@ -18,13 +18,32 @@ const WorkoutPlanPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'overview' | 'schedule' | 'create'>('overview');
   const [editingWorkout, setEditingWorkout] = useState<Workout | null>(null);
   const { user } = useUser();
+  const { getToken } = useAuth();
 
   useEffect(() => {
     const fetchWorkouts = async () => {
-      if (user) {
+      if (user && getToken) {
         try {
+          // Ensure database is initialized with auth token
+          const { initializeDatabase } = await import('../utils/database');
+          await initializeDatabase(() => getToken({ template: 'supabase' }));
+          
+          // Debug: Check the token
+          const token = await getToken({ template: 'supabase' });
+          if (token) {
+            // Decode JWT to see claims
+            const payload = token.split('.')[1];
+            const decodedPayload = JSON.parse(atob(payload));
+            console.log('JWT Token claims:', decodedPayload);
+            console.log('User ID from Clerk:', user.id);
+          }
+          
+          // Small delay to ensure auth is propagated
+          await new Promise(resolve => setTimeout(resolve, 100));
+          
           await preloadWorkouts(null, user);
           const workouts = await loadWorkouts(null, user);
+          console.log('WorkoutPlanPage - Loaded workouts:', workouts.length, workouts.map(w => w.workout_name));
           setSavedWorkouts(workouts);
         } catch (error) {
           console.error("Error loading workouts:", error);
@@ -33,7 +52,7 @@ const WorkoutPlanPage: React.FC = () => {
     };
 
     fetchWorkouts();
-  }, [user]);
+  }, [user, getToken]);
 
   const handleRemoveWorkout = async (workout: Workout) => {
     if (user) {

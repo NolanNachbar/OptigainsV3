@@ -190,7 +190,13 @@ const WorkoutAssignmentForm: React.FC<WorkoutAssignmentFormProps> = ({
                     </div>
                   </div>
                   
-                  {availableWorkouts.map((workout, workoutIndex) => (
+                  {availableWorkouts.length === 0 ? (
+                    <div className="no-workouts-message">
+                      <p>No saved workouts available yet.</p>
+                      <p className="sub-text">Create custom workouts or go to the Create tab to build workout templates.</p>
+                    </div>
+                  ) : (
+                    availableWorkouts.map((workout, workoutIndex) => (
                     <div 
                       key={workoutIndex}
                       className={`workout-option ${assignment.assignedWorkout?.workout_name === workout.workout_name ? 'selected' : ''}`}
@@ -233,7 +239,7 @@ const WorkoutAssignmentForm: React.FC<WorkoutAssignmentFormProps> = ({
                         )}
                       </div>
                     </div>
-                  ))}
+                  )))}
                 </div>
               </div>
 
@@ -862,6 +868,21 @@ const WorkoutAssignmentForm: React.FC<WorkoutAssignmentFormProps> = ({
           color: #2196F3;
           font-size: 2rem;
           font-weight: 700;
+        }
+
+        .no-workouts-message {
+          text-align: center;
+          padding: 2rem;
+          color: #b0b0b0;
+        }
+
+        .no-workouts-message p {
+          margin: 0 0 0.5rem 0;
+        }
+
+        .no-workouts-message .sub-text {
+          font-size: 0.875rem;
+          color: #888888;
         }
 
         .exercises-detail h4 {

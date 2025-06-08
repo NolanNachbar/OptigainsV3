@@ -229,7 +229,8 @@ export const createTrainingBlock = (template: Omit<TrainingBlock, 'id' | 'startD
     ...template,
     id: uuidv4(),
     startDate,
-    currentWeek: 1
+    currentWeek: 1,
+    isActive: true
   };
 };
 
@@ -345,6 +346,12 @@ export const getCurrentTrainingBlock = (): TrainingBlock | null => {
 export const addTrainingBlock = (block: TrainingBlock): void => {
   // This is a synchronous fallback - components should use db.saveTrainingBlock() instead
   const blocks = loadTrainingBlocks();
+  
+  // Deactivate all existing blocks if this one is active
+  if (block.isActive) {
+    blocks.forEach(b => b.isActive = false);
+  }
+  
   blocks.push(block);
   saveTrainingBlocks(blocks);
 };

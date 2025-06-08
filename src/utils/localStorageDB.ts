@@ -4,7 +4,7 @@
 import { db, generateUserIdAsUuid } from './database';
 import { Workout, WorkoutTemplate, WorkoutInstance, Exercise } from './types';
 import { UserResource } from '@clerk/types';
-import { FULL_BODY_SPLIT_PROGRAM } from './preloadedWorkouts';
+import { ALL_PRELOADED_PROGRAMS } from './preloadedWorkouts';
 
 // Re-export utility functions
 export { generateUserIdAsUuid };
@@ -268,18 +268,38 @@ export const updateExerciseUsage = async (exerciseName: string, user: UserResour
 
 // Utility functions
 export const preloadWorkouts = async (_supabase: any, user: UserResource): Promise<void> => {
+  console.log('preloadWorkouts called for user:', user.id);
   const existingTemplates = await db.getWorkoutTemplates(user.id);
+  console.log('Existing templates:', existingTemplates.length, existingTemplates.map(t => t.workout_name));
   
-  if (existingTemplates.length === 0) {
-    // Only preload if user has no workouts
-    for (const workout of FULL_BODY_SPLIT_PROGRAM) {
+  // Check which preloaded workouts are missing
+  const existingNames = existingTemplates.map(t => t.workout_name.toLowerCase());
+  const missingWorkouts = ALL_PRELOADED_PROGRAMS.filter(
+    workout => !existingNames.includes(workout.workout_name.toLowerCase())
+  );
+  
+  console.log('ALL_PRELOADED_PROGRAMS count:', ALL_PRELOADED_PROGRAMS.length);
+  console.log('Missing workouts:', missingWorkouts.length, missingWorkouts.map(w => w.workout_name));
+  
+  if (missingWorkouts.length > 0) {
+    console.log(`Preloading ${missingWorkouts.length} missing workout templates...`);
+    for (const workout of missingWorkouts) {
       const template: WorkoutTemplate = {
         workout_name: workout.workout_name,
         exercises: workout.exercises,
         clerk_user_id: user.id
       };
-      await db.saveWorkoutTemplate(template, user);
+      console.log('Saving workout template with clerk_user_id:', user.id);
+      try {
+        await db.saveWorkoutTemplate(template, user);
+        console.log('Successfully saved:', workout.workout_name);
+      } catch (error) {
+        console.error('Failed to save workout:', workout.workout_name, error);
+      }
     }
+    console.log(`Successfully preloaded ${missingWorkouts.length} workout templates`);
+  } else {
+    console.log('All preloaded workouts already exist');
   }
 };
 

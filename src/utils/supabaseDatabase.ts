@@ -166,7 +166,8 @@ export class SupabaseDB implements IDatabase {
     if (updates.notes !== undefined) updateData.notes = updates.notes;
     if (updates.isActive !== undefined) updateData.is_active = updates.isActive;
 
-    const { data, error } = await this.supabase
+    const client = await this.getAuthClient();
+    const { data, error } = await client
       .from('training_blocks')
       .update(updateData)
       .eq('id', blockId)
@@ -190,7 +191,8 @@ export class SupabaseDB implements IDatabase {
   }
 
   async deleteTrainingBlock(blockId: string, user: UserResource): Promise<void> {
-    const { error } = await this.supabase
+    const client = await this.getAuthClient();
+    const { error } = await client
       .from('training_blocks')
       .delete()
       .eq('id', blockId)
@@ -201,7 +203,8 @@ export class SupabaseDB implements IDatabase {
 
   // Workout Templates
   async getWorkoutTemplates(userId: string): Promise<WorkoutTemplate[]> {
-    const { data, error } = await this.supabase
+    const client = await this.getAuthClient();
+    const { data, error } = await client
       .from('workout_templates')
       .select('*')
       .eq('clerk_user_id', userId)
@@ -212,7 +215,8 @@ export class SupabaseDB implements IDatabase {
   }
 
   async getWorkoutTemplate(templateId: string, userId: string): Promise<WorkoutTemplate | null> {
-    const { data, error } = await this.supabase
+    const client = await this.getAuthClient();
+    const { data, error } = await client
       .from('workout_templates')
       .select('*')
       .eq('id', templateId)
@@ -228,7 +232,9 @@ export class SupabaseDB implements IDatabase {
   }
 
   async saveWorkoutTemplate(template: WorkoutTemplate, user: UserResource): Promise<WorkoutTemplate> {
-    const { data, error } = await this.supabase
+    const client = await this.getAuthClient();
+    
+    const { data, error } = await client
       .from('workout_templates')
       .upsert({
         id: template.id || undefined,
@@ -247,7 +253,8 @@ export class SupabaseDB implements IDatabase {
   }
 
   async updateWorkoutTemplate(templateId: string, updates: Partial<WorkoutTemplate>, user: UserResource): Promise<WorkoutTemplate> {
-    const { data, error } = await this.supabase
+    const client = await this.getAuthClient();
+    const { data, error } = await client
       .from('workout_templates')
       .update(updates)
       .eq('id', templateId)
@@ -260,7 +267,8 @@ export class SupabaseDB implements IDatabase {
   }
 
   async deleteWorkoutTemplate(templateId: string, user: UserResource): Promise<void> {
-    const { error } = await this.supabase
+    const client = await this.getAuthClient();
+    const { error } = await client
       .from('workout_templates')
       .delete()
       .eq('id', templateId)
@@ -271,7 +279,8 @@ export class SupabaseDB implements IDatabase {
 
   // Workout Instances
   async getWorkoutInstances(userId: string, dateRange?: { start: string; end: string }): Promise<WorkoutInstance[]> {
-    let query = this.supabase
+    const client = await this.getAuthClient();
+    let query = client
       .from('workout_instances')
       .select('*')
       .eq('clerk_user_id', userId);
@@ -289,7 +298,8 @@ export class SupabaseDB implements IDatabase {
   }
 
   async getWorkoutInstance(instanceId: string, userId: string): Promise<WorkoutInstance | null> {
-    const { data, error } = await this.supabase
+    const client = await this.getAuthClient();
+    const { data, error } = await client
       .from('workout_instances')
       .select('*')
       .eq('id', instanceId)
@@ -305,7 +315,8 @@ export class SupabaseDB implements IDatabase {
   }
 
   async saveWorkoutInstance(instance: WorkoutInstance, user: UserResource): Promise<WorkoutInstance> {
-    const { data, error } = await this.supabase
+    const client = await this.getAuthClient();
+    const { data, error } = await client
       .from('workout_instances')
       .upsert({
         id: instance.id || undefined,
@@ -326,7 +337,8 @@ export class SupabaseDB implements IDatabase {
   }
 
   async updateWorkoutInstance(instanceId: string, updates: Partial<WorkoutInstance>, user: UserResource): Promise<WorkoutInstance> {
-    const { data, error } = await this.supabase
+    const client = await this.getAuthClient();
+    const { data, error } = await client
       .from('workout_instances')
       .update(updates)
       .eq('id', instanceId)
@@ -339,7 +351,8 @@ export class SupabaseDB implements IDatabase {
   }
 
   async deleteWorkoutInstance(instanceId: string, user: UserResource): Promise<void> {
-    const { error } = await this.supabase
+    const client = await this.getAuthClient();
+    const { error } = await client
       .from('workout_instances')
       .delete()
       .eq('id', instanceId)
@@ -350,7 +363,8 @@ export class SupabaseDB implements IDatabase {
 
   // Calendar
   async getCalendarAssignments(userId: string, dateRange?: { start: string; end: string }): Promise<CalendarAssignment[]> {
-    let query = this.supabase
+    const client = await this.getAuthClient();
+    let query = client
       .from('calendar_assignments')
       .select('*')
       .eq('clerk_user_id', userId);
@@ -368,15 +382,16 @@ export class SupabaseDB implements IDatabase {
   }
 
   async saveCalendarAssignment(assignment: CalendarAssignment, user: UserResource): Promise<CalendarAssignment> {
+    const client = await this.getAuthClient();
     // First delete any existing assignment for the same template and date
-    await this.supabase
+    await client
       .from('calendar_assignments')
       .delete()
       .eq('clerk_user_id', user.id)
       .eq('template_id', assignment.template_id)
       .eq('assigned_date', assignment.assigned_date);
 
-    const { data, error } = await this.supabase
+    const { data, error } = await client
       .from('calendar_assignments')
       .insert({
         clerk_user_id: user.id,
@@ -393,7 +408,8 @@ export class SupabaseDB implements IDatabase {
   }
 
   async deleteCalendarAssignment(assignmentId: string, user: UserResource): Promise<void> {
-    const { error } = await this.supabase
+    const client = await this.getAuthClient();
+    const { error } = await client
       .from('calendar_assignments')
       .delete()
       .eq('id', assignmentId)
@@ -415,7 +431,8 @@ export class SupabaseDB implements IDatabase {
 
   // Exercise Library
   async getExerciseLibrary(userId: string): Promise<ExerciseLibraryEntry[]> {
-    const { data, error } = await this.supabase
+    const client = await this.getAuthClient();
+    const { data, error } = await client
       .from('exercise_library')
       .select('*')
       .eq('clerk_user_id', userId)
@@ -426,8 +443,9 @@ export class SupabaseDB implements IDatabase {
   }
 
   async updateExerciseUsage(exerciseName: string, user: UserResource): Promise<void> {
+    const client = await this.getAuthClient();
     // Check if exercise exists
-    const { data: existing } = await this.supabase
+    const { data: existing } = await client
       .from('exercise_library')
       .select('*')
       .eq('clerk_user_id', user.id)
@@ -436,7 +454,7 @@ export class SupabaseDB implements IDatabase {
 
     if (existing) {
       // Update existing
-      await this.supabase
+      await client
         .from('exercise_library')
         .update({
           use_count: existing.use_count + 1,
@@ -445,7 +463,7 @@ export class SupabaseDB implements IDatabase {
         .eq('id', existing.id);
     } else {
       // Create new
-      await this.supabase
+      await client
         .from('exercise_library')
         .insert({
           clerk_user_id: user.id,

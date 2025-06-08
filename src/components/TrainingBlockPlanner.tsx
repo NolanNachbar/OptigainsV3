@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { TrainingBlock, TrainingPhase, VolumeLevel, Workout } from '../utils/types';
+import { TrainingBlock, Workout } from '../utils/types';
 import {
   TRAINING_BLOCK_TEMPLATES,
   createTrainingBlock,
@@ -11,6 +11,8 @@ import {
   isDeloadWeek,
   isBlockCompleted
 } from '../utils/trainingBlocks';
+import RotationPreview from './RotationPreview';
+import WorkoutAssignmentForm from './WorkoutAssignmentForm';
 
 interface TrainingBlockPlannerProps {
   onBlockChange?: (block: TrainingBlock | null) => void;
@@ -18,14 +20,23 @@ interface TrainingBlockPlannerProps {
   onEditWorkout?: (workout: Workout) => void;
 }
 
-const TrainingBlockPlanner: React.FC<TrainingBlockPlannerProps> = ({ onBlockChange }) => {
+const TrainingBlockPlanner: React.FC<TrainingBlockPlannerProps> = ({ 
+  onBlockChange,
+  availableWorkouts = [],
+  onEditWorkout
+}) => {
   const [currentBlock, setCurrentBlock] = useState<TrainingBlock | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<number>(0);
+  const [showAssignmentForm, setShowAssignmentForm] = useState(false);
+  const [workoutRotation, setWorkoutRotation] = useState<string[]>([]);
 
   useEffect(() => {
     const block = getCurrentTrainingBlock();
     setCurrentBlock(block);
+    if (block && block.workoutRotation) {
+      setWorkoutRotation(block.workoutRotation);
+    }
     onBlockChange?.(block);
   }, [onBlockChange]);
 
@@ -34,10 +45,66 @@ const TrainingBlockPlanner: React.FC<TrainingBlockPlannerProps> = ({ onBlockChan
     const startDate = new Date().toISOString().split('T')[0];
     const newBlock = createTrainingBlock(template, startDate);
     
+    // Set initial workout rotation based on template
+    const initialRotation = getInitialRotation(template.split, template.trainingDaysPerWeek);
+    setWorkoutRotation(initialRotation);
+    newBlock.workoutRotation = initialRotation;
+    
     addTrainingBlock(newBlock);
     setCurrentBlock(newBlock);
     setShowCreateModal(false);
+    setShowAssignmentForm(true);
     onBlockChange?.(newBlock);
+  };
+
+  const getInitialRotation = (split: string, daysPerWeek: number): string[] => {
+    // Try to find appropriate workouts from availableWorkouts
+    const pushWorkout = availableWorkouts.find(w => w.workout_name.toLowerCase().includes('push'))?.workout_name || 'Push Day';
+    const pullWorkout = availableWorkouts.find(w => w.workout_name.toLowerCase().includes('pull'))?.workout_name || 'Pull Day';
+    const legsWorkout = availableWorkouts.find(w => w.workout_name.toLowerCase().includes('legs'))?.workout_name || 'Legs Day';
+    const upperWorkout = availableWorkouts.find(w => w.workout_name.toLowerCase().includes('upper'))?.workout_name || 'Upper Body Day';
+    const lowerWorkout = availableWorkouts.find(w => w.workout_name.toLowerCase().includes('lower'))?.workout_name || 'Lower Body Day';
+    const fullBodyWorkouts = availableWorkouts.filter(w => w.workout_name.toLowerCase().includes('full body'));
+    
+    switch (split) {
+      case 'PPL':
+        if (daysPerWeek === 6) {
+          return [pushWorkout, pullWorkout, legsWorkout, pushWorkout, pullWorkout, legsWorkout];
+        }
+        return [pushWorkout, pullWorkout, legsWorkout, 'Rest'];
+      case 'Upper/Lower':
+        if (daysPerWeek === 4) {
+          return [upperWorkout, lowerWorkout, 'Rest', upperWorkout, lowerWorkout];
+        }
+        return [upperWorkout, lowerWorkout];
+      case 'Full Body':
+        if (daysPerWeek === 3 && fullBodyWorkouts.length >= 3) {
+          return [fullBodyWorkouts[0].workout_name, 'Rest', fullBodyWorkouts[1].workout_name, 'Rest', fullBodyWorkouts[2].workout_name];
+        } else if (fullBodyWorkouts.length > 0) {
+          return [fullBodyWorkouts[0].workout_name, 'Rest'];
+        }
+        return ['Full Body Day 1', 'Rest', 'Full Body Day 2', 'Rest', 'Full Body Day 3'];
+      default:
+        if (availableWorkouts.length > 0) {
+          return Array(daysPerWeek).fill(availableWorkouts[0].workout_name).concat(['Rest']);
+        }
+        return Array(daysPerWeek).fill('Workout').concat(['Rest']);
+    }
+  };
+
+  const handleRotationChange = (newRotation: string[]) => {
+    setWorkoutRotation(newRotation);
+    if (currentBlock) {
+      const updatedBlock = { ...currentBlock, workoutRotation: newRotation };
+      updateTrainingBlock(updatedBlock);
+      setCurrentBlock(updatedBlock);
+      onBlockChange?.(updatedBlock);
+    }
+  };
+
+  const handleAssignmentComplete = (assignments: any[]) => {
+    setShowAssignmentForm(false);
+    // Additional logic to save assignments can be added here
   };
 
 
@@ -47,24 +114,6 @@ const TrainingBlockPlanner: React.FC<TrainingBlockPlannerProps> = ({ onBlockChan
       updateTrainingBlock(advancedBlock);
       setCurrentBlock(advancedBlock);
       onBlockChange?.(advancedBlock);
-    }
-  };
-
-  const getPhaseColor = (phase: TrainingPhase | string | undefined): string => {
-    switch (phase) {
-      case 'Hypertrophy': return '#4CAF50';
-      case 'Strength': return '#FF9800';
-      case 'Power': return '#F44336';
-      default: return '#757575';
-    }
-  };
-
-  const getVolumeColor = (level: VolumeLevel | undefined): string => {
-    switch (level) {
-      case 'Low': return '#4CAF50';
-      case 'Moderate': return '#FF9800';
-      case 'High': return '#F44336';
-      default: return '#757575';
     }
   };
 
@@ -87,24 +136,6 @@ const TrainingBlockPlanner: React.FC<TrainingBlockPlannerProps> = ({ onBlockChan
           <div className="block-card">
             <div className="block-title">
               <h4>{currentBlock.name}</h4>
-              <div className="block-badges">
-                {currentBlock.phase && (
-                  <span 
-                    className="phase-badge"
-                    style={{ backgroundColor: getPhaseColor(currentBlock.phase) }}
-                  >
-                    {currentBlock.phase}
-                  </span>
-                )}
-                {currentBlock.volumeLevel && (
-                  <span 
-                    className="volume-badge"
-                    style={{ backgroundColor: getVolumeColor(currentBlock.volumeLevel) }}
-                  >
-                    {currentBlock.volumeLevel} Volume
-                  </span>
-                )}
-              </div>
             </div>
 
             <div className="block-progress">
@@ -167,6 +198,27 @@ const TrainingBlockPlanner: React.FC<TrainingBlockPlannerProps> = ({ onBlockChan
               </div>
             )}
           </div>
+
+          {workoutRotation && workoutRotation.length > 0 && (
+            <div className="rotation-section">
+              <RotationPreview
+                trainingBlock={currentBlock}
+                workoutRotation={workoutRotation}
+                availableWorkouts={availableWorkouts}
+                onRotationChange={handleRotationChange}
+                readOnly={false}
+              />
+            </div>
+          )}
+
+          <div className="assignment-actions">
+            <button
+              onClick={() => setShowAssignmentForm(true)}
+              className="button secondary"
+            >
+              Assign Workouts to Days
+            </button>
+          </div>
         </div>
       ) : (
         <div className="no-block">
@@ -215,16 +267,6 @@ const TrainingBlockPlanner: React.FC<TrainingBlockPlannerProps> = ({ onBlockChan
                   >
                     <div className="template-header">
                       <h4>{template.name}</h4>
-                      <div className="template-badges">
-                        {template.phase && (
-                          <span 
-                            className="phase-badge small"
-                            style={{ backgroundColor: getPhaseColor(template.phase) }}
-                          >
-                            {template.phase}
-                          </span>
-                        )}
-                      </div>
                     </div>
                     
                     <div className="template-details">
@@ -237,11 +279,6 @@ const TrainingBlockPlanner: React.FC<TrainingBlockPlannerProps> = ({ onBlockChan
                       <div className="detail-item">
                         <span>Training Days: {template.trainingDaysPerWeek}x/week</span>
                       </div>
-                      {template.volumeLevel && (
-                        <div className="detail-item">
-                          <span>Volume: {template.volumeLevel}</span>
-                        </div>
-                      )}
                       {template.intensityRange && (
                         <div className="detail-item">
                           <span>Intensity: {template.intensityRange[0]}-{template.intensityRange[1]}%</span>
@@ -273,6 +310,16 @@ const TrainingBlockPlanner: React.FC<TrainingBlockPlannerProps> = ({ onBlockChan
             </div>
           </div>
         </div>
+      )}
+
+      {showAssignmentForm && currentBlock && (
+        <WorkoutAssignmentForm
+          trainingBlock={currentBlock}
+          availableWorkouts={availableWorkouts}
+          onComplete={handleAssignmentComplete}
+          onCancel={() => setShowAssignmentForm(false)}
+          onEditWorkout={onEditWorkout}
+        />
       )}
 
       <style>{`
@@ -607,6 +654,16 @@ const TrainingBlockPlanner: React.FC<TrainingBlockPlannerProps> = ({ onBlockChan
         .target-range {
           font-size: 0.8rem;
           color: #888888;
+        }
+
+        .rotation-section {
+          margin-top: 1.5rem;
+        }
+
+        .assignment-actions {
+          margin-top: 1.5rem;
+          display: flex;
+          justify-content: center;
         }
 
         @media (max-width: 768px) {
