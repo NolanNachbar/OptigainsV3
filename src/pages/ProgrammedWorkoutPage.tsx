@@ -78,12 +78,11 @@ const StartProgrammedLiftPage: React.FC = () => {
       if (!user) return;
 
       try {
-        // For testing: Use a different date to simulate a new day
-        // You can modify this date to test different scenarios
-        const testDate = "2025-01-17"; // Day after sample data to see progressive overload immediately
+        // Get today's actual date
+        const todayDate = new Date().toISOString().split("T")[0];
 
         // First try to get today's workout
-        const workout = await getWorkoutForToday(null, testDate, user);
+        const workout = await getWorkoutForToday(null, todayDate, user);
 
         if (workout) {
           // Check if any sets are logged
@@ -397,10 +396,13 @@ const StartProgrammedLiftPage: React.FC = () => {
 
   const handleCalculateWeight = (exerciseName: string, setIndex: number) => {
     const setInput = inputState[exerciseName]?.[setIndex];
-    if (!setInput) return;
+    if (!setInput || !setInput.reps || !setInput.rir) {
+      alert("Please enter reps and RIR first");
+      return;
+    }
 
-    const reps = Number(setInput.reps || customReps); // Use customReps as default
-    const rir = Number(setInput.rir || customRir); // Use customRir as default
+    const reps = Number(setInput.reps);
+    const rir = Number(setInput.rir);
 
     if (reps === 0) {
       alert("Please enter valid reps");
@@ -516,10 +518,46 @@ const StartProgrammedLiftPage: React.FC = () => {
     }));
   };
 
+  if (!workoutToday) {
+    return (
+      <div className="programmed-workout-page">
+        <ActionBar />
+        <div className="no-workout-container" style={{
+          textAlign: 'center',
+          padding: '4rem 2rem',
+          maxWidth: '500px',
+          margin: '0 auto'
+        }}>
+          <h2 style={{ marginBottom: '1rem', color: '#ffffff' }}>No Workout Scheduled</h2>
+          <p style={{ marginBottom: '2rem', color: '#888888' }}>There's no workout scheduled for today.</p>
+          <div className="action-buttons" style={{
+            display: 'flex',
+            gap: '1rem',
+            justifyContent: 'center'
+          }}>
+            <button 
+              onClick={() => navigate("/workout-plan")} 
+              className="button primary"
+            >
+              View Calendar
+            </button>
+            <button 
+              onClick={() => navigate("/freestyle-lift")} 
+              className="button secondary"
+            >
+              Start Freestyle Workout
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="programmed-workout-page">
       <ActionBar />
       <div className="workout-content">
+        <h2>{workoutToday.workout_name}</h2>
         <div className="workout-stats-bar">
           <div className="stat-item">
             <div className="stat-item-label">Total Sets</div>
@@ -919,17 +957,24 @@ const StartProgrammedLiftPage: React.FC = () => {
                                       >
                                         Log Set
                                       </button>
-                                      <button
-                                        onClick={() =>
-                                          handleCalculateWeight(
-                                            exercise.name,
-                                            setIndex
-                                          )
-                                        }
-                                        className="button secondary"
-                                      >
-                                        Calculate
-                                      </button>
+                                      {exercise.logs && exercise.logs.length > 0 && (
+                                        <button
+                                          onClick={() =>
+                                            handleCalculateWeight(
+                                              exercise.name,
+                                              setIndex
+                                            )
+                                          }
+                                          className="button secondary"
+                                          disabled={
+                                            !inputState[exercise.name]?.[setIndex]?.reps || 
+                                            !inputState[exercise.name]?.[setIndex]?.rir
+                                          }
+                                          title="Enter reps and RIR to calculate weight"
+                                        >
+                                          Calculate
+                                        </button>
+                                      )}
                                     </div>
                                   </>
                                 )}

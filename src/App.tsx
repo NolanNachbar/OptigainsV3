@@ -12,7 +12,9 @@ import BodyWeightLog from "./pages/weightLogging";
 import { ClerkProvider, useAuth } from "@clerk/clerk-react";
 import { SignedIn, SignedOut, RedirectToSignIn } from "@clerk/clerk-react";
 import SignInPage from "./pages/SignInPage";
+import SettingsPage from "./pages/SettingsPage";
 import { initializeDatabase } from "./utils/database";
+import Footer from "./components/Footer";
 
 
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
@@ -45,6 +47,7 @@ const App: React.FC = () => {
             <Route path="/" element={<HomePage />} />
             <Route path="/sign-in" element={<SignInPage />} />
             <Route path="/calc-page" element={<CalcPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
             {/* Protected routes */}
             <Route
               path="/workout-plan"
@@ -125,6 +128,7 @@ const App: React.FC = () => {
               }
             />
           </Routes>
+          <Footer />
         </Router>
       </Suspense>
       </DatabaseInitializer>

@@ -16,61 +16,27 @@ const RotationPreview: React.FC<RotationPreviewProps> = ({
   onRotationChange,
   readOnly = false
 }) => {
-  const [rotation, setRotation] = useState<string[]>(workoutRotation || []);
+  const [rotation, setRotation] = useState<string[]>(() => 
+    Array.isArray(workoutRotation) ? workoutRotation : []
+  );
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
   useEffect(() => {
-    if (workoutRotation) {
+    if (Array.isArray(workoutRotation)) {
       setRotation(workoutRotation);
     }
   }, [workoutRotation]);
 
-  const getWorkoutType = (workoutName: string): string | null => {
-    const name = workoutName.toLowerCase();
-    if (name === 'rest') return 'rest';
-    if (name.includes('push')) return 'push';
-    if (name.includes('pull')) return 'pull';
-    if (name.includes('legs') || name.includes('leg')) return 'legs';
-    if (name.includes('upper')) return 'upper';
-    if (name.includes('lower')) return 'lower';
-    if (name.includes('full') || name.includes('fb')) return 'full';
-    return null;
-  };
 
   const conflictWarnings = useMemo(() => {
     const warnings = new Map<number, string>();
-    
-    if (!rotation || rotation.length === 0) {
-      return warnings;
-    }
-    
-    for (let i = 0; i < rotation.length; i++) {
-      const workout = rotation[i];
-      const workoutType = getWorkoutType(workout);
-      
-      // Check for consecutive leg days
-      if (workoutType === 'legs' && i > 0) {
-        const prevWorkout = rotation[i - 1];
-        if (getWorkoutType(prevWorkout) === 'legs') {
-          warnings.set(i, 'Warning: Consecutive leg days may impact recovery');
-        }
-      }
-      
-      // Check for too many consecutive training days
-      let consecutiveTrainingDays = 0;
-      for (let j = i; j >= 0 && rotation[j] !== 'Rest'; j--) {
-        consecutiveTrainingDays++;
-      }
-      if (consecutiveTrainingDays >= 5) {
-        warnings.set(i, 'Warning: 5+ consecutive training days without rest');
-      }
-    }
-    
+    // Removed all warnings for now
     return warnings;
   }, [rotation]);
 
   const getWorkoutColor = (workoutName: string): string => {
+    if (!workoutName) return '#757575';
     const name = workoutName.toLowerCase();
     if (name === 'rest') return '#333333';
     if (name.includes('push')) return '#4CAF50';
@@ -155,58 +121,6 @@ const RotationPreview: React.FC<RotationPreviewProps> = ({
     }
   };
 
-  const applyPreset = (preset: string) => {
-    if (readOnly) return;
-    
-    let newRotation: string[] = [];
-    
-    // Try to find appropriate workouts from availableWorkouts
-    const pushWorkout = availableWorkouts.find(w => w.workout_name.toLowerCase().includes('push'))?.workout_name || 'Push Day';
-    const pullWorkout = availableWorkouts.find(w => w.workout_name.toLowerCase().includes('pull'))?.workout_name || 'Pull Day';
-    const legsWorkout = availableWorkouts.find(w => w.workout_name.toLowerCase().includes('legs'))?.workout_name || 'Legs Day';
-    const upperWorkout = availableWorkouts.find(w => w.workout_name.toLowerCase().includes('upper'))?.workout_name || 'Upper Body Day';
-    const lowerWorkout = availableWorkouts.find(w => w.workout_name.toLowerCase().includes('lower'))?.workout_name || 'Lower Body Day';
-    const fullBodyWorkouts = availableWorkouts.filter(w => w.workout_name.toLowerCase().includes('full body'));
-    
-    switch (preset) {
-      case 'PPL':
-        newRotation = [pushWorkout, pullWorkout, legsWorkout];
-        break;
-      case 'PPLR':
-        newRotation = [pushWorkout, pullWorkout, legsWorkout, 'Rest'];
-        break;
-      case 'PPLPPL':
-        newRotation = [pushWorkout, pullWorkout, legsWorkout, pushWorkout, pullWorkout, legsWorkout];
-        break;
-      case 'PPLRPPLR':
-        newRotation = [pushWorkout, pullWorkout, legsWorkout, 'Rest', pushWorkout, pullWorkout, legsWorkout, 'Rest'];
-        break;
-      case 'UL':
-        newRotation = [upperWorkout, lowerWorkout];
-        break;
-      case 'ULRUL':
-        newRotation = [upperWorkout, lowerWorkout, 'Rest', upperWorkout, lowerWorkout];
-        break;
-      case 'FB':
-        // Use different full body workouts if available
-        if (fullBodyWorkouts.length >= 3) {
-          newRotation = [fullBodyWorkouts[0].workout_name, 'Rest', fullBodyWorkouts[1].workout_name, 'Rest', fullBodyWorkouts[2].workout_name];
-        } else if (fullBodyWorkouts.length > 0) {
-          newRotation = [fullBodyWorkouts[0].workout_name, 'Rest', fullBodyWorkouts[0].workout_name, 'Rest', fullBodyWorkouts[0].workout_name];
-        } else {
-          newRotation = ['Full Body Day 1', 'Rest', 'Full Body Day 2', 'Rest', 'Full Body Day 3'];
-        }
-        break;
-      default:
-        return;
-    }
-    
-    setRotation(newRotation);
-    
-    if (onRotationChange) {
-      onRotationChange(newRotation);
-    }
-  };
 
   const getWeeklySchedule = () => {
     const weeks = [];
@@ -236,16 +150,6 @@ const RotationPreview: React.FC<RotationPreviewProps> = ({
     <div className="rotation-preview">
       <div className="rotation-header">
         <h3>Workout Rotation</h3>
-        {!readOnly && (
-          <div className="preset-buttons">
-            <button onClick={() => applyPreset('PPL')} className="preset-btn">PPL</button>
-            <button onClick={() => applyPreset('PPLR')} className="preset-btn">PPLR</button>
-            <button onClick={() => applyPreset('PPLPPL')} className="preset-btn">PPL×2</button>
-            <button onClick={() => applyPreset('UL')} className="preset-btn">U/L</button>
-            <button onClick={() => applyPreset('ULRUL')} className="preset-btn">ULRUL</button>
-            <button onClick={() => applyPreset('FB')} className="preset-btn">FB</button>
-          </div>
-        )}
       </div>
 
       <div className="rotation-sequence">
@@ -262,7 +166,7 @@ const RotationPreview: React.FC<RotationPreviewProps> = ({
                 onDragOver={(e) => handleDragOver(e, index)}
                 onDragLeave={handleDragLeave}
                 onDrop={(e) => handleDrop(e, index)}
-                style={{ borderColor: getWorkoutColor(workout) }}
+                style={{ borderColor: workout ? getWorkoutColor(workout) : '#757575' }}
               >
                 <div className="item-header">
                   <span className="item-number">{index + 1}</span>
@@ -349,7 +253,7 @@ const RotationPreview: React.FC<RotationPreviewProps> = ({
                       day.hasWarning ? 'has-warning' : ''
                     }`}
                     style={{
-                      borderColor: getWorkoutColor(day.workout),
+                      borderColor: day.workout ? getWorkoutColor(day.workout) : '#757575',
                       backgroundColor: day.workout === 'Rest' ? '#1a1a1a' : 'transparent'
                     }}
                   >

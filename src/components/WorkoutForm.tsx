@@ -15,6 +15,7 @@ interface WorkoutFormProps {
 const WorkoutForm: React.FC<WorkoutFormProps> = ({ setSavedWorkouts }) => {
   const { user } = useUser(); // Get the current user
   const [workoutName, setWorkoutName] = useState<string>("");
+  const [workoutNotes, setWorkoutNotes] = useState<string>("");
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [exerciseName, setExerciseName] = useState<string>("");
   const [currentExercise, setCurrentExercise] = useState("");
@@ -86,6 +87,7 @@ const WorkoutForm: React.FC<WorkoutFormProps> = ({ setSavedWorkouts }) => {
         workout_name: workoutName,
         assigned_days: [],
         exercises,
+        notes: workoutNotes,
         clerk_user_id: user.id,
       };
 
@@ -94,6 +96,7 @@ const WorkoutForm: React.FC<WorkoutFormProps> = ({ setSavedWorkouts }) => {
         await saveWorkouts(null, [...savedWorkouts, newWorkout], user);
         setSavedWorkouts([...savedWorkouts, newWorkout]);
         setWorkoutName("");
+        setWorkoutNotes("");
         setExercises([]);
         setFeedback("Workout saved successfully!");
       } catch (error) {
@@ -157,6 +160,18 @@ const WorkoutForm: React.FC<WorkoutFormProps> = ({ setSavedWorkouts }) => {
           placeholder=" "
         />
         <span className="floating-label">Workout Name</span>
+      </div>
+      
+      {/* Workout Notes */}
+      <div style={{ marginBottom: "2rem", marginTop: "1rem" }}>
+        <textarea
+          placeholder="Add overall workout notes, focus points, or reminders..."
+          value={workoutNotes}
+          onChange={(e) => setWorkoutNotes(e.target.value)}
+          className="workout-notes-input"
+          rows={3}
+          style={{ width: "100%" }}
+        />
       </div>
 
       {/* Workout Type

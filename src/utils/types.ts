@@ -6,6 +6,8 @@ export interface Exercise {
   sets: WorkoutSet[];
   rir: number;
   logs?: ExerciseLog[];
+  restTime?: number; // Rest time in seconds (per-exercise override)
+  minWeightIncrement?: number; // Minimum weight increment for this exercise
 }
 
 export type Set = {
@@ -38,6 +40,7 @@ export interface WorkoutTemplate {
   id?: string;
   workout_name: string;
   exercises: Exercise[];
+  notes?: string; // Overall workout notes, form cues, focus points
   clerk_user_id: string;
   user_id?: string;
   created_at?: string;
@@ -50,6 +53,7 @@ export interface WorkoutInstance {
   scheduled_date: string;
   completed_at?: string;
   exercises: Exercise[];
+  notes?: string; // Session-specific notes
   clerk_user_id: string;
   user_id?: string;
   created_at?: string;
@@ -61,6 +65,7 @@ export interface Workout {
   workout_name: string;
   assigned_days: string[];
   exercises: Exercise[];
+  notes?: string; // Overall workout notes
   clerk_user_id: string;
   user_id?: string;
 }
@@ -100,6 +105,9 @@ export interface TrainingBlock {
   intensityRange?: [number, number];
   deloadWeek?: number;
   workoutRotation?: string[];
+  rotationAssignments?: Record<string, string>; // Maps rotation slot names to workout template IDs
+  currentRotationIndex?: number; // Tracks current position in rotation
+  lastRotationDate?: string; // Last date rotation was applied
 }
 
 export interface VolumeTarget {
@@ -118,9 +126,22 @@ export interface MuscleGroupVolume {
   weeklyTarget: number;
 }
 
+export type Equipment = 
+  | 'Barbell'
+  | 'Dumbbell'
+  | 'Cable'
+  | 'Machine'
+  | 'Bodyweight'
+  | 'EZ Bar'
+  | 'Smith Machine'
+  | 'Resistance Band'
+  | 'None';
+
 export interface ExerciseMuscleMapping {
   exerciseName: string;
   primaryMuscles: MuscleGroup[];
   secondaryMuscles: MuscleGroup[];
   setsContribution: number; // 0.5 for secondary, 1.0 for primary
+  equipment?: Equipment;
+  difficulty?: 'Beginner' | 'Intermediate' | 'Advanced';
 }

@@ -619,3 +619,34 @@ export const rearrangeExercisesInWorkout = (
 
 //   saveWorkouts(defaultWorkouts);
 // };
+
+// Custom Template Management
+export interface CustomTemplate {
+  id: string;
+  name: string;
+  rotation: string[];
+  createdAt: string;
+}
+
+export const saveCustomTemplate = (template: CustomTemplate): void => {
+  const templates = getCustomTemplates();
+  const index = templates.findIndex(t => t.id === template.id);
+  
+  if (index >= 0) {
+    templates[index] = template;
+  } else {
+    templates.push(template);
+  }
+  
+  localStorage.setItem('customTemplates', JSON.stringify(templates));
+};
+
+export const getCustomTemplates = (): CustomTemplate[] => {
+  const stored = localStorage.getItem('customTemplates');
+  return stored ? JSON.parse(stored) : [];
+};
+
+export const deleteCustomTemplate = (id: string): void => {
+  const templates = getCustomTemplates().filter(t => t.id !== id);
+  localStorage.setItem('customTemplates', JSON.stringify(templates));
+};

@@ -180,6 +180,26 @@ const EditWorkoutComponent: React.FC<EditProps> = ({
     }
   };
 
+  const handleWorkoutNotesChange = async (notes: string) => {
+    if (!user || !workout) return;
+    
+    const updatedWorkout = {
+      ...workout,
+      notes
+    };
+    
+    updateWorkoutWithHistory(updatedWorkout);
+    
+    const workouts = await loadWorkouts(null, user);
+    const workoutIndex = workouts.findIndex(
+      (w) => w.workout_name === updatedWorkout.workout_name
+    );
+    if (workoutIndex !== -1) {
+      workouts[workoutIndex] = updatedWorkout;
+    }
+    await saveWorkouts(null, workouts, user);
+  };
+
   const handleRemoveExercise = async (exerciseName: string) => {
     if (workout && user) {
       const updatedExercises = workout.exercises.filter(
@@ -277,6 +297,19 @@ const EditWorkoutComponent: React.FC<EditProps> = ({
 
   return (
     <div className="container">
+      {workout && (
+        <div className="workout-notes-section">
+          <h3>Workout Notes</h3>
+          <textarea
+            placeholder="Add overall workout notes, focus points, or reminders..."
+            value={workout.notes || ''}
+            onChange={(e) => handleWorkoutNotesChange(e.target.value)}
+            className="workout-notes-input"
+            rows={3}
+          />
+        </div>
+      )}
+      
       <DragDropContext onDragEnd={handleReorderExercises}>
         <Droppable droppableId="exercises">
           {(provided) => (
@@ -300,7 +333,9 @@ const EditWorkoutComponent: React.FC<EditProps> = ({
                       className="exercise-card"
                     >
                       <div className="exercise-header">
-                        <h3>{exercise.name}</h3>
+                        <div className="exercise-title">
+                          <h3>{exercise.name}</h3>
+                        </div>
                         <div className="exercise-actions">
                           <button
                             onClick={() => handleAddSet(exercise.name)}

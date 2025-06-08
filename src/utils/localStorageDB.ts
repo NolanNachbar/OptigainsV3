@@ -165,8 +165,53 @@ export const getWorkoutsForDate = async (_supabase: any, date: string, user: Use
 };
 
 export const getWorkoutForToday = async (_supabase: any, date: string, user: UserResource): Promise<Workout | null> => {
+  // First check if there's a manual assignment for this date
   const workouts = await getWorkoutsForDate(_supabase, date, user);
-  return workouts.length > 0 ? workouts[0] : null;
+  if (workouts.length > 0) {
+    return workouts[0];
+  }
+  
+  // If no manual assignment, check if there's an active training block with rotation
+  try {
+    const activeBlock = await db.getActiveTrainingBlock(user.id);
+    
+    if (activeBlock && activeBlock.workoutRotation && activeBlock.workoutRotation.length > 0 && activeBlock.rotationAssignments) {
+      // Calculate days since last rotation was applied
+      const targetDate = new Date(date || new Date().toISOString().split('T')[0]);
+      const lastRotationDate = activeBlock.lastRotationDate ? new Date(activeBlock.lastRotationDate) : new Date(activeBlock.startDate);
+      
+      // Calculate which day we're on
+      const daysDiff = Math.floor((targetDate.getTime() - lastRotationDate.getTime()) / (1000 * 60 * 60 * 24));
+      
+      // Get current rotation index
+      const currentIndex = ((activeBlock.currentRotationIndex || 0) + daysDiff) % activeBlock.workoutRotation.length;
+      const rotationSlot = activeBlock.workoutRotation[currentIndex];
+      
+      // Get the template ID for this rotation slot
+      const templateId = activeBlock.rotationAssignments[rotationSlot];
+      
+      if (templateId) {
+        // Get the workout template
+        const template = await db.getWorkoutTemplate(templateId, user.id);
+        
+        if (template) {
+          // Convert to Workout format
+          return {
+            id: template.id,
+            workout_name: template.workout_name,
+            assigned_days: [date],
+            exercises: template.exercises,
+            clerk_user_id: template.clerk_user_id,
+            user_id: template.user_id
+          };
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Error checking training block rotation:', error);
+  }
+  
+  return null;
 };
 
 export const assignWorkoutToDate = async (_supabase: any, workoutNameOrTemplateId: string, date: string, user: UserResource): Promise<void> => {

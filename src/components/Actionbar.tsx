@@ -51,8 +51,36 @@ const ActionBar: React.FC = () => {
         Optigains
       </h1>
 
-      {/* Clerk Authentication */}
+      {/* Clerk Authentication and Settings */}
       <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+        {/* Settings Button */}
+        <button
+          onClick={() => navigate("/settings")}
+          style={{
+            background: "transparent",
+            border: "1px solid #666",
+            borderRadius: "6px",
+            padding: "0.4rem 0.8rem",
+            color: "#fff",
+            cursor: "pointer",
+            fontSize: "0.9rem",
+            display: "flex",
+            alignItems: "center",
+            gap: "0.5rem",
+            transition: "all 0.2s ease",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = "#444";
+            e.currentTarget.style.borderColor = "#888";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = "transparent";
+            e.currentTarget.style.borderColor = "#666";
+          }}
+        >
+          Settings
+        </button>
+        
         {/* Show UserButton if signed in */}
         <SignedIn>
           <UserButton afterSignOutUrl="/" />

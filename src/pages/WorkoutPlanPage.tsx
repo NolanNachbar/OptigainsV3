@@ -17,6 +17,7 @@ const WorkoutPlanPage: React.FC = () => {
   const [currentTrainingBlock, setCurrentTrainingBlock] = useState<TrainingBlock | null>(null);
   const [activeTab, setActiveTab] = useState<'overview' | 'schedule' | 'create'>('overview');
   const [editingWorkout, setEditingWorkout] = useState<Workout | null>(null);
+  const [calendarRefreshKey, setCalendarRefreshKey] = useState(0);
   const { user } = useUser();
   const { getToken } = useAuth();
 
@@ -26,7 +27,7 @@ const WorkoutPlanPage: React.FC = () => {
         try {
           // Ensure database is initialized with auth token
           const { initializeDatabase } = await import('../utils/database');
-          await initializeDatabase(() => getToken({ template: 'supabase' }));
+          initializeDatabase(() => getToken({ template: 'supabase' }));
           
           // Debug: Check the token
           const token = await getToken({ template: 'supabase' });
@@ -85,6 +86,13 @@ const WorkoutPlanPage: React.FC = () => {
     setEditingWorkout(null);
   };
 
+  const handleRotationApplied = () => {
+    // Force calendar to refresh by changing its key
+    setCalendarRefreshKey(prev => prev + 1);
+    // Switch to schedule tab to show the applied rotation
+    setActiveTab('schedule');
+  };
+
   return (
     <div className="workout-plan-page">
       <ActionBar />
@@ -121,6 +129,7 @@ const WorkoutPlanPage: React.FC = () => {
                 onBlockChange={handleTrainingBlockChange} 
                 availableWorkouts={savedWorkouts}
                 onEditWorkout={handleEditWorkout}
+                onRotationApplied={handleRotationApplied}
               />
             </div>
             
@@ -157,6 +166,7 @@ const WorkoutPlanPage: React.FC = () => {
         {activeTab === 'schedule' && (
           <div className="schedule-tab">
             <ImprovedCalendar
+              key={calendarRefreshKey}
               savedWorkouts={savedWorkouts}
               onRemoveWorkout={handleRemoveWorkout}
               onWorkoutAdded={handleWorkoutAdded}

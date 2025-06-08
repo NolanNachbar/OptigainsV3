@@ -8,8 +8,6 @@ export const FULL_BODY_DAY_1: Workout = {
     {
       name: 'CONVERGING MACHINE PRESS',
       sets: [
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
         { weight: 0, reps: 10, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -18,8 +16,6 @@ export const FULL_BODY_DAY_1: Workout = {
     {
       name: 'BEHIND THE BACK CUFF LAT RAISES',
       sets: [
-        { weight: 0, reps: 12, rir: 2, isLogged: false },
-        { weight: 0, reps: 12, rir: 2, isLogged: false },
         { weight: 0, reps: 12, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -28,8 +24,6 @@ export const FULL_BODY_DAY_1: Workout = {
     {
       name: 'CHEST-SUPPORTED ROW',
       sets: [
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
         { weight: 0, reps: 10, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -38,8 +32,6 @@ export const FULL_BODY_DAY_1: Workout = {
     {
       name: 'SEATED LEG CURL',
       sets: [
-        { weight: 0, reps: 12, rir: 2, isLogged: false },
-        { weight: 0, reps: 12, rir: 2, isLogged: false },
         { weight: 0, reps: 12, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -48,8 +40,6 @@ export const FULL_BODY_DAY_1: Workout = {
     {
       name: 'MACHINE SHOULDER PRESS',
       sets: [
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
         { weight: 0, reps: 10, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -58,8 +48,6 @@ export const FULL_BODY_DAY_1: Workout = {
     {
       name: 'LEG PRESS',
       sets: [
-        { weight: 0, reps: 12, rir: 2, isLogged: false },
-        { weight: 0, reps: 12, rir: 2, isLogged: false },
         { weight: 0, reps: 12, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -68,7 +56,6 @@ export const FULL_BODY_DAY_1: Workout = {
     {
       name: 'CABLE TRICEP PUSHDOWN',
       sets: [
-        { weight: 0, reps: 12, rir: 2, isLogged: false },
         { weight: 0, reps: 12, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -77,8 +64,6 @@ export const FULL_BODY_DAY_1: Workout = {
     {
       name: 'WIDE GRIP LAT PULLDOWN',
       sets: [
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
         { weight: 0, reps: 10, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -87,7 +72,6 @@ export const FULL_BODY_DAY_1: Workout = {
     {
       name: 'LEG EXTENSION',
       sets: [
-        { weight: 0, reps: 15, rir: 1, isLogged: false },
         { weight: 0, reps: 15, rir: 1, isLogged: false }
       ],
       rir: 1,
@@ -96,7 +80,6 @@ export const FULL_BODY_DAY_1: Workout = {
     {
       name: 'INCLINE DUMBBELL CURL',
       sets: [
-        { weight: 0, reps: 12, rir: 2, isLogged: false },
         { weight: 0, reps: 12, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -105,7 +88,6 @@ export const FULL_BODY_DAY_1: Workout = {
     {
       name: 'CALF PRESS',
       sets: [
-        { weight: 0, reps: 15, rir: 1, isLogged: false },
         { weight: 0, reps: 15, rir: 1, isLogged: false }
       ],
       rir: 1,
@@ -114,7 +96,6 @@ export const FULL_BODY_DAY_1: Workout = {
     {
       name: 'HANGING LEG RAISE',
       sets: [
-        { weight: 0, reps: 12, rir: 2, isLogged: false },
         { weight: 0, reps: 12, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -123,7 +104,6 @@ export const FULL_BODY_DAY_1: Workout = {
     {
       name: 'SKULL CRUSHER',
       sets: [
-        { weight: 0, reps: 12, rir: 2, isLogged: false },
         { weight: 0, reps: 12, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -141,8 +121,6 @@ export const FULL_BODY_DAY_2: Workout = {
     {
       name: 'INCLINE DUMBBELL PRESS',
       sets: [
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
         { weight: 0, reps: 10, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -151,8 +129,6 @@ export const FULL_BODY_DAY_2: Workout = {
     {
       name: 'CABLE LATERAL RAISE',
       sets: [
-        { weight: 0, reps: 12, rir: 2, isLogged: false },
-        { weight: 0, reps: 12, rir: 2, isLogged: false },
         { weight: 0, reps: 12, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -161,8 +137,6 @@ export const FULL_BODY_DAY_2: Workout = {
     {
       name: 'CABLE ROW',
       sets: [
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
         { weight: 0, reps: 10, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -171,8 +145,6 @@ export const FULL_BODY_DAY_2: Workout = {
     {
       name: 'SEATED LEG CURL',
       sets: [
-        { weight: 0, reps: 12, rir: 2, isLogged: false },
-        { weight: 0, reps: 12, rir: 2, isLogged: false },
         { weight: 0, reps: 12, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -181,8 +153,6 @@ export const FULL_BODY_DAY_2: Workout = {
     {
       name: 'DUMBBELL SHOULDER PRESS',
       sets: [
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
         { weight: 0, reps: 10, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -191,8 +161,6 @@ export const FULL_BODY_DAY_2: Workout = {
     {
       name: 'HACK SQUAT',
       sets: [
-        { weight: 0, reps: 12, rir: 2, isLogged: false },
-        { weight: 0, reps: 12, rir: 2, isLogged: false },
         { weight: 0, reps: 12, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -201,7 +169,6 @@ export const FULL_BODY_DAY_2: Workout = {
     {
       name: 'ROPE FACE PULL',
       sets: [
-        { weight: 0, reps: 15, rir: 1, isLogged: false },
         { weight: 0, reps: 15, rir: 1, isLogged: false }
       ],
       rir: 1,
@@ -210,8 +177,6 @@ export const FULL_BODY_DAY_2: Workout = {
     {
       name: 'STRAIGHT ARM PULLDOWN',
       sets: [
-        { weight: 0, reps: 12, rir: 2, isLogged: false },
-        { weight: 0, reps: 12, rir: 2, isLogged: false },
         { weight: 0, reps: 12, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -220,7 +185,6 @@ export const FULL_BODY_DAY_2: Workout = {
     {
       name: 'BULGARIAN SPLIT SQUAT',
       sets: [
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
         { weight: 0, reps: 10, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -229,7 +193,6 @@ export const FULL_BODY_DAY_2: Workout = {
     {
       name: 'PREACHER CURL',
       sets: [
-        { weight: 0, reps: 12, rir: 2, isLogged: false },
         { weight: 0, reps: 12, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -238,7 +201,6 @@ export const FULL_BODY_DAY_2: Workout = {
     {
       name: 'STANDING CALF RAISE',
       sets: [
-        { weight: 0, reps: 15, rir: 1, isLogged: false },
         { weight: 0, reps: 15, rir: 1, isLogged: false }
       ],
       rir: 1,
@@ -247,7 +209,6 @@ export const FULL_BODY_DAY_2: Workout = {
     {
       name: 'LYING LEG RAISE',
       sets: [
-        { weight: 0, reps: 15, rir: 1, isLogged: false },
         { weight: 0, reps: 15, rir: 1, isLogged: false }
       ],
       rir: 1,
@@ -256,7 +217,6 @@ export const FULL_BODY_DAY_2: Workout = {
     {
       name: 'CROSS BODY TRICEP EXTENSION',
       sets: [
-        { weight: 0, reps: 12, rir: 2, isLogged: false },
         { weight: 0, reps: 12, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -274,9 +234,6 @@ export const FULL_BODY_DAY_3: Workout = {
     {
       name: 'BARBELL BENCH PRESS',
       sets: [
-        { weight: 0, reps: 8, rir: 2, isLogged: false },
-        { weight: 0, reps: 8, rir: 2, isLogged: false },
-        { weight: 0, reps: 8, rir: 2, isLogged: false },
         { weight: 0, reps: 8, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -285,9 +242,6 @@ export const FULL_BODY_DAY_3: Workout = {
     {
       name: 'T-BAR ROW',
       sets: [
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
         { weight: 0, reps: 10, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -296,8 +250,6 @@ export const FULL_BODY_DAY_3: Workout = {
     {
       name: 'DUMBBELL SHOULDER PRESS',
       sets: [
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
         { weight: 0, reps: 10, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -306,8 +258,6 @@ export const FULL_BODY_DAY_3: Workout = {
     {
       name: 'INCLINE DUMBBELL FLY',
       sets: [
-        { weight: 0, reps: 12, rir: 2, isLogged: false },
-        { weight: 0, reps: 12, rir: 2, isLogged: false },
         { weight: 0, reps: 12, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -316,8 +266,6 @@ export const FULL_BODY_DAY_3: Workout = {
     {
       name: 'STRAIGHT ARM PULLDOWN',
       sets: [
-        { weight: 0, reps: 12, rir: 2, isLogged: false },
-        { weight: 0, reps: 12, rir: 2, isLogged: false },
         { weight: 0, reps: 12, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -326,8 +274,6 @@ export const FULL_BODY_DAY_3: Workout = {
     {
       name: 'CABLE LATERAL RAISE',
       sets: [
-        { weight: 0, reps: 15, rir: 1, isLogged: false },
-        { weight: 0, reps: 15, rir: 1, isLogged: false },
         { weight: 0, reps: 15, rir: 1, isLogged: false }
       ],
       rir: 1,
@@ -336,8 +282,6 @@ export const FULL_BODY_DAY_3: Workout = {
     {
       name: 'EZ BAR CURL',
       sets: [
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
         { weight: 0, reps: 10, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -346,8 +290,6 @@ export const FULL_BODY_DAY_3: Workout = {
     {
       name: 'JM PRESS',
       sets: [
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
         { weight: 0, reps: 10, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -356,7 +298,6 @@ export const FULL_BODY_DAY_3: Workout = {
     {
       name: 'CABLE HAMMER CURL',
       sets: [
-        { weight: 0, reps: 12, rir: 2, isLogged: false },
         { weight: 0, reps: 12, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -365,7 +306,6 @@ export const FULL_BODY_DAY_3: Workout = {
     {
       name: 'OVERHEAD CABLE TRICEP EXTENSION',
       sets: [
-        { weight: 0, reps: 12, rir: 2, isLogged: false },
         { weight: 0, reps: 12, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -374,7 +314,6 @@ export const FULL_BODY_DAY_3: Workout = {
     {
       name: 'ROPE FACE PULL',
       sets: [
-        { weight: 0, reps: 20, rir: 0, isLogged: false },
         { weight: 0, reps: 20, rir: 0, isLogged: false }
       ],
       rir: 0,
@@ -392,9 +331,6 @@ export const FULL_BODY_DAY_4: Workout = {
     {
       name: 'SQUAT',
       sets: [
-        { weight: 0, reps: 8, rir: 2, isLogged: false },
-        { weight: 0, reps: 8, rir: 2, isLogged: false },
-        { weight: 0, reps: 8, rir: 2, isLogged: false },
         { weight: 0, reps: 8, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -403,9 +339,6 @@ export const FULL_BODY_DAY_4: Workout = {
     {
       name: 'RDL',
       sets: [
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
         { weight: 0, reps: 10, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -414,8 +347,6 @@ export const FULL_BODY_DAY_4: Workout = {
     {
       name: 'LEG PRESS',
       sets: [
-        { weight: 0, reps: 12, rir: 2, isLogged: false },
-        { weight: 0, reps: 12, rir: 2, isLogged: false },
         { weight: 0, reps: 12, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -424,8 +355,6 @@ export const FULL_BODY_DAY_4: Workout = {
     {
       name: 'SEATED LEG CURL',
       sets: [
-        { weight: 0, reps: 12, rir: 2, isLogged: false },
-        { weight: 0, reps: 12, rir: 2, isLogged: false },
         { weight: 0, reps: 12, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -434,8 +363,6 @@ export const FULL_BODY_DAY_4: Workout = {
     {
       name: 'BULGARIAN SPLIT SQUAT',
       sets: [
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
         { weight: 0, reps: 10, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -444,8 +371,6 @@ export const FULL_BODY_DAY_4: Workout = {
     {
       name: 'LEG EXTENSION',
       sets: [
-        { weight: 0, reps: 15, rir: 1, isLogged: false },
-        { weight: 0, reps: 15, rir: 1, isLogged: false },
         { weight: 0, reps: 15, rir: 1, isLogged: false }
       ],
       rir: 1,
@@ -454,7 +379,6 @@ export const FULL_BODY_DAY_4: Workout = {
     {
       name: 'WALKING LUNGES',
       sets: [
-        { weight: 0, reps: 20, rir: 1, isLogged: false },
         { weight: 0, reps: 20, rir: 1, isLogged: false }
       ],
       rir: 1,
@@ -463,8 +387,6 @@ export const FULL_BODY_DAY_4: Workout = {
     {
       name: 'STANDING CALF RAISE',
       sets: [
-        { weight: 0, reps: 12, rir: 2, isLogged: false },
-        { weight: 0, reps: 12, rir: 2, isLogged: false },
         { weight: 0, reps: 12, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -473,8 +395,6 @@ export const FULL_BODY_DAY_4: Workout = {
     {
       name: 'SEATED CALF RAISE',
       sets: [
-        { weight: 0, reps: 15, rir: 1, isLogged: false },
-        { weight: 0, reps: 15, rir: 1, isLogged: false },
         { weight: 0, reps: 15, rir: 1, isLogged: false }
       ],
       rir: 1,
@@ -483,20 +403,9 @@ export const FULL_BODY_DAY_4: Workout = {
     {
       name: 'ABS CRUNCH MACHINE',
       sets: [
-        { weight: 0, reps: 15, rir: 1, isLogged: false },
-        { weight: 0, reps: 15, rir: 1, isLogged: false },
         { weight: 0, reps: 15, rir: 1, isLogged: false }
       ],
       rir: 1,
-      logs: []
-    },
-    {
-      name: 'PLANK',
-      sets: [
-        { weight: 0, reps: 60, rir: 0, isLogged: false },
-        { weight: 0, reps: 60, rir: 0, isLogged: false }
-      ],
-      rir: 0,
       logs: []
     }
   ],
@@ -511,9 +420,6 @@ export const UPPER_BODY_DAY: Workout = {
     {
       name: 'BARBELL BENCH PRESS',
       sets: [
-        { weight: 0, reps: 8, rir: 2, isLogged: false },
-        { weight: 0, reps: 8, rir: 2, isLogged: false },
-        { weight: 0, reps: 8, rir: 2, isLogged: false },
         { weight: 0, reps: 8, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -522,9 +428,6 @@ export const UPPER_BODY_DAY: Workout = {
     {
       name: 'T-BAR ROW',
       sets: [
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
         { weight: 0, reps: 10, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -533,8 +436,6 @@ export const UPPER_BODY_DAY: Workout = {
     {
       name: 'DUMBBELL SHOULDER PRESS',
       sets: [
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
         { weight: 0, reps: 10, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -543,8 +444,6 @@ export const UPPER_BODY_DAY: Workout = {
     {
       name: 'INCLINE DUMBBELL FLY',
       sets: [
-        { weight: 0, reps: 12, rir: 2, isLogged: false },
-        { weight: 0, reps: 12, rir: 2, isLogged: false },
         { weight: 0, reps: 12, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -553,8 +452,6 @@ export const UPPER_BODY_DAY: Workout = {
     {
       name: 'STRAIGHT ARM PULLDOWN',
       sets: [
-        { weight: 0, reps: 12, rir: 2, isLogged: false },
-        { weight: 0, reps: 12, rir: 2, isLogged: false },
         { weight: 0, reps: 12, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -563,8 +460,6 @@ export const UPPER_BODY_DAY: Workout = {
     {
       name: 'CABLE LATERAL RAISE',
       sets: [
-        { weight: 0, reps: 15, rir: 1, isLogged: false },
-        { weight: 0, reps: 15, rir: 1, isLogged: false },
         { weight: 0, reps: 15, rir: 1, isLogged: false }
       ],
       rir: 1,
@@ -573,8 +468,6 @@ export const UPPER_BODY_DAY: Workout = {
     {
       name: 'EZ BAR CURL',
       sets: [
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
         { weight: 0, reps: 10, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -583,8 +476,6 @@ export const UPPER_BODY_DAY: Workout = {
     {
       name: 'JM PRESS',
       sets: [
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
         { weight: 0, reps: 10, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -593,7 +484,6 @@ export const UPPER_BODY_DAY: Workout = {
     {
       name: 'CABLE HAMMER CURL',
       sets: [
-        { weight: 0, reps: 12, rir: 2, isLogged: false },
         { weight: 0, reps: 12, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -602,7 +492,6 @@ export const UPPER_BODY_DAY: Workout = {
     {
       name: 'OVERHEAD CABLE TRICEP EXTENSION',
       sets: [
-        { weight: 0, reps: 12, rir: 2, isLogged: false },
         { weight: 0, reps: 12, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -611,7 +500,6 @@ export const UPPER_BODY_DAY: Workout = {
     {
       name: 'ROPE FACE PULL',
       sets: [
-        { weight: 0, reps: 20, rir: 0, isLogged: false },
         { weight: 0, reps: 20, rir: 0, isLogged: false }
       ],
       rir: 0,
@@ -629,9 +517,6 @@ export const LOWER_BODY_DAY: Workout = {
     {
       name: 'SQUAT',
       sets: [
-        { weight: 0, reps: 8, rir: 2, isLogged: false },
-        { weight: 0, reps: 8, rir: 2, isLogged: false },
-        { weight: 0, reps: 8, rir: 2, isLogged: false },
         { weight: 0, reps: 8, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -640,9 +525,6 @@ export const LOWER_BODY_DAY: Workout = {
     {
       name: 'RDL',
       sets: [
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
         { weight: 0, reps: 10, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -651,8 +533,6 @@ export const LOWER_BODY_DAY: Workout = {
     {
       name: 'LEG PRESS',
       sets: [
-        { weight: 0, reps: 12, rir: 2, isLogged: false },
-        { weight: 0, reps: 12, rir: 2, isLogged: false },
         { weight: 0, reps: 12, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -661,8 +541,6 @@ export const LOWER_BODY_DAY: Workout = {
     {
       name: 'SEATED LEG CURL',
       sets: [
-        { weight: 0, reps: 12, rir: 2, isLogged: false },
-        { weight: 0, reps: 12, rir: 2, isLogged: false },
         { weight: 0, reps: 12, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -671,8 +549,6 @@ export const LOWER_BODY_DAY: Workout = {
     {
       name: 'BULGARIAN SPLIT SQUAT',
       sets: [
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
         { weight: 0, reps: 10, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -681,8 +557,6 @@ export const LOWER_BODY_DAY: Workout = {
     {
       name: 'LEG EXTENSION',
       sets: [
-        { weight: 0, reps: 15, rir: 1, isLogged: false },
-        { weight: 0, reps: 15, rir: 1, isLogged: false },
         { weight: 0, reps: 15, rir: 1, isLogged: false }
       ],
       rir: 1,
@@ -691,8 +565,6 @@ export const LOWER_BODY_DAY: Workout = {
     {
       name: 'STANDING CALF RAISE',
       sets: [
-        { weight: 0, reps: 12, rir: 2, isLogged: false },
-        { weight: 0, reps: 12, rir: 2, isLogged: false },
         { weight: 0, reps: 12, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -701,8 +573,6 @@ export const LOWER_BODY_DAY: Workout = {
     {
       name: 'SEATED CALF RAISE',
       sets: [
-        { weight: 0, reps: 15, rir: 1, isLogged: false },
-        { weight: 0, reps: 15, rir: 1, isLogged: false },
         { weight: 0, reps: 15, rir: 1, isLogged: false }
       ],
       rir: 1,
@@ -711,8 +581,6 @@ export const LOWER_BODY_DAY: Workout = {
     {
       name: 'ABS CRUNCH MACHINE',
       sets: [
-        { weight: 0, reps: 15, rir: 1, isLogged: false },
-        { weight: 0, reps: 15, rir: 1, isLogged: false },
         { weight: 0, reps: 15, rir: 1, isLogged: false }
       ],
       rir: 1,
@@ -730,9 +598,6 @@ export const PUSH_DAY: Workout = {
     {
       name: 'BARBELL BENCH PRESS',
       sets: [
-        { weight: 0, reps: 8, rir: 2, isLogged: false },
-        { weight: 0, reps: 8, rir: 2, isLogged: false },
-        { weight: 0, reps: 8, rir: 2, isLogged: false },
         { weight: 0, reps: 8, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -741,8 +606,6 @@ export const PUSH_DAY: Workout = {
     {
       name: 'DUMBBELL SHOULDER PRESS',
       sets: [
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
         { weight: 0, reps: 10, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -751,8 +614,6 @@ export const PUSH_DAY: Workout = {
     {
       name: 'INCLINE DUMBBELL PRESS',
       sets: [
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
         { weight: 0, reps: 10, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -761,8 +622,6 @@ export const PUSH_DAY: Workout = {
     {
       name: 'CABLE LATERAL RAISE',
       sets: [
-        { weight: 0, reps: 15, rir: 1, isLogged: false },
-        { weight: 0, reps: 15, rir: 1, isLogged: false },
         { weight: 0, reps: 15, rir: 1, isLogged: false }
       ],
       rir: 1,
@@ -771,8 +630,6 @@ export const PUSH_DAY: Workout = {
     {
       name: 'PEC DECK',
       sets: [
-        { weight: 0, reps: 12, rir: 2, isLogged: false },
-        { weight: 0, reps: 12, rir: 2, isLogged: false },
         { weight: 0, reps: 12, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -781,8 +638,6 @@ export const PUSH_DAY: Workout = {
     {
       name: 'JM PRESS',
       sets: [
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
         { weight: 0, reps: 10, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -791,7 +646,6 @@ export const PUSH_DAY: Workout = {
     {
       name: 'OVERHEAD CABLE TRICEP EXTENSION',
       sets: [
-        { weight: 0, reps: 12, rir: 2, isLogged: false },
         { weight: 0, reps: 12, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -800,7 +654,6 @@ export const PUSH_DAY: Workout = {
     {
       name: 'CABLE TRICEP PUSHDOWN',
       sets: [
-        { weight: 0, reps: 15, rir: 1, isLogged: false },
         { weight: 0, reps: 15, rir: 1, isLogged: false }
       ],
       rir: 1,
@@ -818,9 +671,6 @@ export const PULL_DAY: Workout = {
     {
       name: 'WIDE GRIP LAT PULLDOWN',
       sets: [
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
         { weight: 0, reps: 10, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -829,8 +679,6 @@ export const PULL_DAY: Workout = {
     {
       name: 'T-BAR ROW',
       sets: [
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
         { weight: 0, reps: 10, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -839,8 +687,6 @@ export const PULL_DAY: Workout = {
     {
       name: 'CHEST-SUPPORTED ROW',
       sets: [
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
         { weight: 0, reps: 10, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -849,8 +695,6 @@ export const PULL_DAY: Workout = {
     {
       name: 'STRAIGHT ARM PULLDOWN',
       sets: [
-        { weight: 0, reps: 12, rir: 2, isLogged: false },
-        { weight: 0, reps: 12, rir: 2, isLogged: false },
         { weight: 0, reps: 12, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -859,8 +703,6 @@ export const PULL_DAY: Workout = {
     {
       name: 'ROPE FACE PULL',
       sets: [
-        { weight: 0, reps: 20, rir: 0, isLogged: false },
-        { weight: 0, reps: 20, rir: 0, isLogged: false },
         { weight: 0, reps: 20, rir: 0, isLogged: false }
       ],
       rir: 0,
@@ -869,8 +711,6 @@ export const PULL_DAY: Workout = {
     {
       name: 'EZ BAR CURL',
       sets: [
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
         { weight: 0, reps: 10, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -879,7 +719,6 @@ export const PULL_DAY: Workout = {
     {
       name: 'CABLE HAMMER CURL',
       sets: [
-        { weight: 0, reps: 12, rir: 2, isLogged: false },
         { weight: 0, reps: 12, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -888,7 +727,6 @@ export const PULL_DAY: Workout = {
     {
       name: 'PREACHER CURL',
       sets: [
-        { weight: 0, reps: 12, rir: 2, isLogged: false },
         { weight: 0, reps: 12, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -906,9 +744,6 @@ export const LEGS_DAY: Workout = {
     {
       name: 'SQUAT',
       sets: [
-        { weight: 0, reps: 8, rir: 2, isLogged: false },
-        { weight: 0, reps: 8, rir: 2, isLogged: false },
-        { weight: 0, reps: 8, rir: 2, isLogged: false },
         { weight: 0, reps: 8, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -917,9 +752,6 @@ export const LEGS_DAY: Workout = {
     {
       name: 'RDL',
       sets: [
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
         { weight: 0, reps: 10, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -928,8 +760,6 @@ export const LEGS_DAY: Workout = {
     {
       name: 'LEG PRESS',
       sets: [
-        { weight: 0, reps: 12, rir: 2, isLogged: false },
-        { weight: 0, reps: 12, rir: 2, isLogged: false },
         { weight: 0, reps: 12, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -938,8 +768,6 @@ export const LEGS_DAY: Workout = {
     {
       name: 'SEATED LEG CURL',
       sets: [
-        { weight: 0, reps: 12, rir: 2, isLogged: false },
-        { weight: 0, reps: 12, rir: 2, isLogged: false },
         { weight: 0, reps: 12, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -948,8 +776,6 @@ export const LEGS_DAY: Workout = {
     {
       name: 'BULGARIAN SPLIT SQUAT',
       sets: [
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
-        { weight: 0, reps: 10, rir: 2, isLogged: false },
         { weight: 0, reps: 10, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -958,8 +784,6 @@ export const LEGS_DAY: Workout = {
     {
       name: 'LEG EXTENSION',
       sets: [
-        { weight: 0, reps: 15, rir: 1, isLogged: false },
-        { weight: 0, reps: 15, rir: 1, isLogged: false },
         { weight: 0, reps: 15, rir: 1, isLogged: false }
       ],
       rir: 1,
@@ -968,8 +792,6 @@ export const LEGS_DAY: Workout = {
     {
       name: 'STANDING CALF RAISE',
       sets: [
-        { weight: 0, reps: 12, rir: 2, isLogged: false },
-        { weight: 0, reps: 12, rir: 2, isLogged: false },
         { weight: 0, reps: 12, rir: 2, isLogged: false }
       ],
       rir: 2,
@@ -978,8 +800,6 @@ export const LEGS_DAY: Workout = {
     {
       name: 'SEATED CALF RAISE',
       sets: [
-        { weight: 0, reps: 15, rir: 1, isLogged: false },
-        { weight: 0, reps: 15, rir: 1, isLogged: false },
         { weight: 0, reps: 15, rir: 1, isLogged: false }
       ],
       rir: 1,
@@ -988,8 +808,6 @@ export const LEGS_DAY: Workout = {
     {
       name: 'ABS CRUNCH MACHINE',
       sets: [
-        { weight: 0, reps: 15, rir: 1, isLogged: false },
-        { weight: 0, reps: 15, rir: 1, isLogged: false },
         { weight: 0, reps: 15, rir: 1, isLogged: false }
       ],
       rir: 1,
