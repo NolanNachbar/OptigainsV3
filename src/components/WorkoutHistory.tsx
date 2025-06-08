@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { useUser } from "@clerk/clerk-react";import { Workout } from "../utils/types";
+import { useUser } from "@clerk/clerk-react";
+import { Workout } from "../utils/types";
 import { loadWorkouts } from "../utils/localStorageDB";
 
 interface WorkoutCardProps {
@@ -8,36 +9,22 @@ interface WorkoutCardProps {
 }
 
 const WorkoutCard: React.FC<WorkoutCardProps> = ({ workout, onEdit }) => {
+  const totalExercises = workout.exercises.length;
+  const totalSets = workout.exercises.reduce((sum, ex) => sum + ex.sets.length, 0);
+  
   return (
-    <div className="workout-card">
-      <div className="workout-header">
+    <div className="workout-history-card" onClick={onEdit}>
+      <div className="workout-card-content">
         <h3>{workout.workout_name}</h3>
-        <button onClick={onEdit} className="edit-button">
-          Edit
-        </button>
-      </div>
-      <div className="workout-details">
-        <p>Assigned Days: {workout.assigned_days.join(", ")}</p>
-        <div className="exercises-list">
+        <div className="workout-stats">
+          <span>{totalExercises} exercises</span>
+          <span>{totalSets} sets</span>
+        </div>
+        <div className="exercise-list-preview">
           {workout.exercises.map((exercise, index) => (
-            <div key={index} className="exercise-item">
-              <h4>{exercise.name}</h4>
-              <div className="sets-list">
-                {exercise.logs && exercise.logs.length > 0 && (
-                  <div className="last-performed">
-                    Last performed:{" "}
-                    {new Date(
-                      exercise.logs[exercise.logs.length - 1].date
-                    ).toLocaleDateString()}
-                  </div>
-                )}
-                {exercise.sets.map((set, setIndex) => (
-                  <div key={setIndex} className="set-details">
-                    Set {setIndex + 1}: {set.weight}lbs × {set.reps} @RIR
-                    {set.rir}
-                  </div>
-                ))}
-              </div>
+            <div key={index} className="exercise-preview-item">
+              <span className="exercise-name">{exercise.name}</span>
+              <span className="sets-count">{exercise.sets.length} sets</span>
             </div>
           ))}
         </div>
@@ -94,18 +81,125 @@ const WorkoutHistory: React.FC<WorkoutHistoryProps> = ({
   return (
     <div className="workout-history">
       {filteredWorkouts.length > 0 ? (
-        filteredWorkouts.map((workout) => (
-          <WorkoutCard
-            key={workout.workout_name}
-            workout={workout}
-            onEdit={() => onEditWorkout(workout)}
-          />
-        ))
+        <div className="workout-cards-grid">
+          {filteredWorkouts.map((workout) => (
+            <WorkoutCard
+              key={workout.workout_name}
+              workout={workout}
+              onEdit={() => onEditWorkout(workout)}
+            />
+          ))}
+        </div>
       ) : (
         <div className="no-workouts">
-          <p>No workouts found matching your criteria.</p>
+          <div className="empty-state">
+            <h3>No workouts found</h3>
+            <p>Try adjusting your search criteria or create a new workout.</p>
+          </div>
         </div>
       )}
+      
+      <style>{`
+        .workout-history {
+          padding: 1rem 0;
+        }
+        
+        .workout-cards-grid {
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+        }
+        
+        .workout-history-card {
+          background: #1e1e1e;
+          border: 1px solid #333;
+          border-radius: 8px;
+          padding: 1.5rem;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        
+        .workout-history-card:hover {
+          border-color: #2196F3;
+        }
+        
+        .workout-card-content h3 {
+          color: #ffffff;
+          margin: 0 0 0.75rem 0;
+          font-size: 1.25rem;
+          font-weight: 600;
+        }
+        
+        .workout-stats {
+          display: flex;
+          gap: 1.5rem;
+          margin-bottom: 1.5rem;
+          padding-bottom: 1rem;
+          border-bottom: 1px solid #333;
+        }
+        
+        .workout-stats span {
+          color: #888;
+          font-size: 0.9rem;
+        }
+        
+        .exercise-list-preview {
+          display: flex;
+          flex-direction: column;
+          gap: 0.75rem;
+        }
+        
+        .exercise-preview-item {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 0.75rem;
+          background: #121212;
+          border-radius: 6px;
+        }
+        
+        .exercise-name {
+          color: #ffffff;
+          font-weight: 500;
+        }
+        
+        .sets-count {
+          color: #888;
+          font-size: 0.875rem;
+        }
+        
+        .no-workouts {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          min-height: 400px;
+        }
+        
+        .empty-state {
+          text-align: center;
+        }
+        
+        .empty-state h3 {
+          color: #ffffff;
+          margin-bottom: 0.5rem;
+          font-size: 1.25rem;
+        }
+        
+        .empty-state p {
+          color: #888;
+        }
+        
+        @media (max-width: 768px) {
+          .workout-history-card {
+            padding: 1rem;
+          }
+          
+          .exercise-preview-item {
+            padding: 0.5rem;
+            font-size: 0.875rem;
+          }
+        }
+      `}</style>
     </div>
   );
 };

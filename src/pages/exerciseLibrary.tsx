@@ -18,7 +18,6 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import ActionBar from "../components/Actionbar";
 import { useUser } from "@clerk/clerk-react";
 
 // Register Chart.js components
@@ -192,22 +191,30 @@ const ExerciseLibrary: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
   };
 
   return (
-    <div>
-      <ActionBar />
-      <div style={{ marginTop: "60px" }}>
-        <h1>Exercise Library</h1>
-        <ul>
+    <div className="exercise-library-page">
+      <div className="exercise-grid">
           {exercises
             .filter((exercise) =>
               exercise.name.toLowerCase().includes(searchTerm.toLowerCase())
             )
             .map((exercise, exerciseIndex) => (
-              <li
+              <div
                 key={exerciseIndex}
+                className={`exercise-card ${selectedExercise?.name === exercise.name ? 'expanded' : ''}`}
                 onClick={() => handleSelectExercise(exercise)}
               >
-                <div className="exercise-header">
+                <div className="exercise-card-header">
                   <h3>{exercise.name}</h3>
+                  <div className="exercise-stats">
+                    <span className="stat-item">
+                      {exercise.logs?.length || 0} logs
+                    </span>
+                    {exercise.logs && exercise.logs.length > 0 && (
+                      <span className="stat-item">
+                        Max: {Math.max(...exercise.logs.map(l => l.weight))} lbs
+                      </span>
+                    )}
+                  </div>
                 </div>
                 {selectedExercise?.name === exercise.name && (
                   <div className="exercise-details">
@@ -278,12 +285,12 @@ const ExerciseLibrary: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
                     )}
                   </div>
                 )}
-              </li>
+              </div>
             ))}
-        </ul>
+      </div>
 
-        {/* Edit Modal */}
-        {isEditModalOpen && editingLog && (
+      {/* Edit Modal */}
+      {isEditModalOpen && editingLog && (
           <div className="modal-overlay">
             <div className="modal-content">
               <h2>Edit Log</h2>
@@ -372,7 +379,230 @@ const ExerciseLibrary: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
             </div>
           </div>
         )}
-      </div>
+      
+      <style>{`
+        .exercise-library-page {
+          padding: 1rem;
+        }
+        
+        .exercise-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+          gap: 1.5rem;
+        }
+        
+        .exercise-card {
+          background: var(--card-background);
+          border: 1px solid var(--border);
+          border-radius: 12px;
+          padding: 1.5rem;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+        
+        .exercise-card:hover {
+          border-color: var(--primary);
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .exercise-card.expanded {
+          grid-column: 1 / -1;
+          max-width: 800px;
+          margin: 0 auto;
+        }
+        
+        .exercise-card-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 1rem;
+        }
+        
+        .exercise-card-header h3 {
+          color: var(--text);
+          margin: 0;
+          font-size: 1.25rem;
+        }
+        
+        .exercise-stats {
+          display: flex;
+          gap: 1rem;
+        }
+        
+        .stat-item {
+          font-size: 0.875rem;
+          color: var(--text-secondary);
+          background: var(--background);
+          padding: 0.25rem 0.75rem;
+          border-radius: 20px;
+        }
+        
+        .exercise-details {
+          margin-top: 1.5rem;
+        }
+        
+        .chart-container {
+          background: var(--background);
+          padding: 1.5rem;
+          border-radius: 8px;
+          margin-bottom: 2rem;
+          height: 300px;
+        }
+        
+        .data-table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 1rem;
+        }
+        
+        .data-table th {
+          background: var(--background);
+          padding: 0.75rem;
+          text-align: left;
+          font-weight: 600;
+          color: var(--text-secondary);
+          font-size: 0.875rem;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+        }
+        
+        .data-table td {
+          padding: 0.75rem;
+          border-top: 1px solid var(--border);
+          color: var(--text);
+        }
+        
+        .data-table tr:hover {
+          background: var(--background);
+        }
+        
+        .button-group {
+          display: flex;
+          gap: 0.5rem;
+        }
+        
+        .button-primary {
+          padding: 0.5rem 1rem;
+          background: var(--primary);
+          border: none;
+          border-radius: 6px;
+          color: white;
+          cursor: pointer;
+          transition: opacity 0.2s ease;
+        }
+        
+        .button-primary:hover {
+          opacity: 0.8;
+        }
+        
+        .modal-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0, 0, 0, 0.8);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 1000;
+        }
+        
+        .modal-content {
+          background: var(--card-background);
+          padding: 2rem;
+          border-radius: 12px;
+          max-width: 500px;
+          width: 90%;
+          max-height: 90vh;
+          overflow-y: auto;
+        }
+        
+        .modal-content h2 {
+          margin-bottom: 1.5rem;
+          color: var(--text);
+        }
+        
+        .edit-form {
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+        }
+        
+        .input-group {
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+        }
+        
+        .input-group label {
+          color: var(--text-secondary);
+          font-size: 0.875rem;
+        }
+        
+        .input-field {
+          padding: 0.75rem;
+          background: var(--background);
+          border: 1px solid var(--border);
+          border-radius: 6px;
+          color: var(--text);
+          font-size: 1rem;
+        }
+        
+        .input-field:focus {
+          outline: none;
+          border-color: var(--primary);
+        }
+        
+        .modal-actions {
+          display: flex;
+          gap: 1rem;
+          margin-top: 1.5rem;
+        }
+        
+        .save-button {
+          flex: 1;
+          padding: 0.75rem;
+          background: var(--primary);
+          border: none;
+          border-radius: 6px;
+          color: white;
+          font-weight: 500;
+          cursor: pointer;
+        }
+        
+        .cancel-button {
+          flex: 1;
+          padding: 0.75rem;
+          background: transparent;
+          border: 1px solid var(--border);
+          border-radius: 6px;
+          color: var(--text);
+          font-weight: 500;
+          cursor: pointer;
+        }
+        
+        @media (max-width: 768px) {
+          .exercise-grid {
+            grid-template-columns: 1fr;
+          }
+          
+          .exercise-stats {
+            flex-direction: column;
+            gap: 0.5rem;
+          }
+          
+          .data-table {
+            font-size: 0.875rem;
+          }
+          
+          .data-table th,
+          .data-table td {
+            padding: 0.5rem;
+          }
+        }
+      `}</style>
     </div>
   );
 };
