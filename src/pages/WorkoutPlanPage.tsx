@@ -229,8 +229,14 @@ const styles = `
 }
 
 .tab-button.active {
-  background: #2196F3;
-  color: white;
+  background: #1976D2 !important;
+  color: #ffffff !important;
+  font-weight: 600;
+  border: 1px solid #1565C0;
+}
+
+.tab-navigation .tab-button.active {
+  color: #ffffff !important;
 }
 
 .workout-plan-content {

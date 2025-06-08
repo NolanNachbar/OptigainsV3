@@ -102,7 +102,7 @@ const TrainingBlockPlanner: React.FC<TrainingBlockPlannerProps> = ({
     }
   };
 
-  const handleAssignmentComplete = (assignments: any[]) => {
+  const handleAssignmentComplete = () => {
     setShowAssignmentForm(false);
     // Additional logic to save assignments can be added here
   };
