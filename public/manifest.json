@@ -1,0 +1,20 @@
+{
+  "name": "OptiGains - Workout Tracker",
+  "short_name": "OptiGains",
+  "description": "Track your workouts and optimize your gains",
+  "theme_color": "#4A90E2",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "orientation": "portrait",
+  "scope": "/",
+  "start_url": "/",
+  "icons": [
+    {
+      "src": "/vite.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["health", "fitness", "sports"]
+}
