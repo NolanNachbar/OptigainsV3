@@ -370,11 +370,11 @@ const TrainingBlockPlanner: React.FC<TrainingBlockPlannerProps> = ({
                 <div className="rotation-assignments">
                   <h5>Assigned Workouts:</h5>
                   <div className="assignment-list">
-                    {workoutRotation.map(slot => {
+                    {workoutRotation.map((slot, index) => {
                       const templateId = currentBlock.rotationAssignments?.[slot];
                       const workout = availableWorkouts.find(w => w.id === templateId);
                       return (
-                        <div key={slot} className="assignment-item">
+                        <div key={`${slot}-${index}`} className="assignment-item">
                           <span className="slot-name">{slot}:</span>
                           <span className="workout-name">
                             {workout ? workout.workout_name : 'Not assigned'}

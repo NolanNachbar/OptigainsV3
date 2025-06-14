@@ -345,7 +345,7 @@ const TrainingBlockEditor: React.FC<TrainingBlockEditorProps> = ({
               <div className="calendar-days">
                 {getCalendarPreview().map((day, index) => (
                   <div 
-                    key={index} 
+                    key={`calendar-day-${index}-${day.date}-${day.workout}`} 
                     className={`calendar-day ${day.isRest ? 'rest-day' : ''} ${index % 7 === 0 ? 'week-start' : ''}`}
                   >
                     <div className="day-date">{new Date(day.date).getDate()}</div>
@@ -367,7 +367,7 @@ const TrainingBlockEditor: React.FC<TrainingBlockEditorProps> = ({
               <button 
                 onClick={handleApplyToCalendar} 
                 className="button primary"
-                disabled={!blockName || workoutRotation.length === 0}
+                disabled={!blockName || workoutRotation.filter(w => w && w.toLowerCase() !== 'rest').length === 0}
               >
                 Apply to Calendar
               </button>

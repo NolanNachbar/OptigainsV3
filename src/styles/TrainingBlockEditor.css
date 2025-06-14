@@ -585,6 +585,20 @@
   font-size: 0.85rem;
 }
 
+.button:disabled,
+.button[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: #404040;
+  color: #666666;
+}
+
+.button.primary:disabled,
+.button.primary[disabled] {
+  background-color: #404040;
+  color: #666666;
+}
+
 @media (max-width: 768px) {
   .editor-main {
     flex-direction: column;

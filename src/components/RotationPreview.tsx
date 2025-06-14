@@ -156,7 +156,7 @@ const RotationPreview: React.FC<RotationPreviewProps> = ({
         <h4>Rotation Pattern</h4>
         <div className="rotation-items">
           {rotation.map((workout, index) => (
-            <div key={index} className="rotation-item-wrapper">
+            <div key={`rotation-${index}-${workout}`} className="rotation-item-wrapper">
               <div
                 className={`rotation-item ${dragOverIndex === index ? 'drag-over' : ''} ${
                   draggedIndex === index ? 'dragging' : ''
@@ -185,7 +185,7 @@ const RotationPreview: React.FC<RotationPreviewProps> = ({
                       {/* Available Workouts */}
                       {availableWorkouts.length > 0 ? (
                         availableWorkouts.map((w, i) => (
-                          <option key={i} value={w.workout_name}>
+                          <option key={`workout-${i}-${w.id || w.workout_name}`} value={w.workout_name}>
                             {w.workout_name}
                           </option>
                         ))
@@ -243,12 +243,12 @@ const RotationPreview: React.FC<RotationPreviewProps> = ({
         <h4>Weekly Schedule Preview</h4>
         <div className="weeks-container">
           {getWeeklySchedule().map((week) => (
-            <div key={week.weekNumber} className="week-preview">
+            <div key={`week-${week.weekNumber}`} className="week-preview">
               <h5>Week {week.weekNumber}</h5>
               <div className="week-grid">
                 {week.schedule.map((day, dayIndex) => (
                   <div
-                    key={dayIndex}
+                    key={`week-${week.weekNumber}-day-${dayIndex}-${day.workout}`}
                     className={`day-cell ${day.workout === 'Rest' ? 'rest-day' : ''} ${
                       day.hasWarning ? 'has-warning' : ''
                     }`}

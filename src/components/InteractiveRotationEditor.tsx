@@ -366,12 +366,12 @@ const InteractiveRotationEditor: React.FC<InteractiveRotationEditorProps> = ({
       <div className="rotation-calendar">
         <div className="week-header">
           {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => (
-            <div key={day} className="day-header">{day}</div>
+            <div key={`header-${day}`} className="day-header">{day}</div>
           ))}
         </div>
         
         {Array.from({ length: Math.ceil(rotationLength / 7) }, (_, weekIndex) => (
-          <div key={weekIndex} className="week-row">
+          <div key={`week-row-${weekIndex}`} className="week-row">
             {Array.from({ length: 7 }, (_, dayIndex) => {
               const actualIndex = weekIndex * 7 + dayIndex;
               const item = rotationPattern[actualIndex];
@@ -420,7 +420,7 @@ const InteractiveRotationEditor: React.FC<InteractiveRotationEditorProps> = ({
               
               {availableWorkouts.map((workout, index) => (
                 <div 
-                  key={index}
+                  key={`workout-option-${index}-${workout.id || workout.workout_name}`}
                   className="workout-option"
                   onClick={() => handleWorkoutSelection(showWorkoutSelector.dayIndex, workout)}
                   style={{ cursor: 'pointer' }}
@@ -507,7 +507,7 @@ const InteractiveRotationEditor: React.FC<InteractiveRotationEditorProps> = ({
               </div>
 
               {customWorkout.exercises.map((exercise, index) => (
-                <div key={index} className="exercise-item">
+                <div key={`custom-exercise-${index}-${exercise.name}`} className="exercise-item">
                   <input
                     type="text"
                     value={exercise.name}
@@ -584,7 +584,7 @@ const InteractiveRotationEditor: React.FC<InteractiveRotationEditorProps> = ({
               <div className="exercise-details">
                 <h4>Exercises</h4>
                 {viewingWorkout.exercises.map((exercise, index) => (
-                  <div key={index} className="exercise-detail-item">
+                  <div key={`viewing-exercise-${index}-${exercise.name}`} className="exercise-detail-item">
                     <div className="exercise-detail-header">
                       <span className="exercise-number">{index + 1}</span>
                       <span className="exercise-detail-name">{exercise.name}</span>
@@ -592,7 +592,7 @@ const InteractiveRotationEditor: React.FC<InteractiveRotationEditorProps> = ({
                     </div>
                     <div className="sets-breakdown">
                       {exercise.sets.map((set, setIndex) => (
-                        <div key={setIndex} className="set-info">
+                        <div key={`set-${setIndex}-${set.weight}-${set.reps}`} className="set-info">
                           <span>Set {setIndex + 1}:</span>
                           <span>{set.weight}lbs × {set.reps} reps</span>
                           <span className="rir">RIR: {set.rir}</span>

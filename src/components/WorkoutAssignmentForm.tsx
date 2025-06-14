@@ -153,7 +153,7 @@ const WorkoutAssignmentForm: React.FC<WorkoutAssignmentFormProps> = ({
         <div className="assignment-tabs">
           {assignments.map((assignment, index) => (
             <button
-              key={index}
+              key={`tab-${index}-${assignment.workoutName}`}
               className={`tab-button ${activeTab === index ? 'active' : ''}`}
               onClick={() => setActiveTab(index)}
               style={{ 
@@ -168,7 +168,7 @@ const WorkoutAssignmentForm: React.FC<WorkoutAssignmentFormProps> = ({
         <div className="assignment-content">
           {assignments.map((assignment, slotIndex) => (
             <div 
-              key={slotIndex} 
+              key={`panel-${slotIndex}-${assignment.workoutName}`} 
               className={`assignment-panel ${activeTab === slotIndex ? 'active' : ''}`}
             >
               <div className="workout-header">
@@ -198,7 +198,7 @@ const WorkoutAssignmentForm: React.FC<WorkoutAssignmentFormProps> = ({
                   ) : (
                     availableWorkouts.map((workout, workoutIndex) => (
                     <div 
-                      key={workoutIndex}
+                      key={`available-workout-${workoutIndex}-${workout.id || workout.workout_name}`}
                       className={`workout-option ${assignment.assignedWorkout?.workout_name === workout.workout_name ? 'selected' : ''}`}
                     >
                       <div 
@@ -256,7 +256,7 @@ const WorkoutAssignmentForm: React.FC<WorkoutAssignmentFormProps> = ({
                   </div>
 
                   {assignment.customExercises.map((exercise, exerciseIndex) => (
-                    <div key={exerciseIndex} className="custom-exercise">
+                    <div key={`custom-${slotIndex}-${exerciseIndex}-${exercise.name}`} className="custom-exercise">
                       <div className="exercise-header">
                         <input
                           type="text"
@@ -324,7 +324,7 @@ const WorkoutAssignmentForm: React.FC<WorkoutAssignmentFormProps> = ({
                     <h5>{assignment.assignedWorkout.workout_name}</h5>
                     <div className="exercise-list">
                       {assignment.assignedWorkout.exercises.map((exercise, index) => (
-                        <div key={index} className="exercise-item">
+                        <div key={`assigned-exercise-${index}-${exercise.name}`} className="exercise-item">
                           <span className="exercise-name">{exercise.name}</span>
                           <span className="exercise-sets">{exercise.sets.length} sets</span>
                         </div>
@@ -380,7 +380,7 @@ const WorkoutAssignmentForm: React.FC<WorkoutAssignmentFormProps> = ({
               <div className="exercises-detail">
                 <h4>Exercises</h4>
                 {viewingWorkout.exercises.map((exercise, index) => (
-                  <div key={index} className="exercise-detail">
+                  <div key={`view-exercise-${index}-${exercise.name}`} className="exercise-detail">
                     <div className="exercise-detail-header">
                       <span className="exercise-number">{index + 1}</span>
                       <span className="exercise-detail-name">{exercise.name}</span>
@@ -388,7 +388,7 @@ const WorkoutAssignmentForm: React.FC<WorkoutAssignmentFormProps> = ({
                     </div>
                     <div className="sets-detail">
                       {exercise.sets.map((set, setIndex) => (
-                        <div key={setIndex} className="set-detail">
+                        <div key={`view-set-${setIndex}-${set.weight}-${set.reps}`} className="set-detail">
                           <span>Set {setIndex + 1}:</span>
                           <span>{set.weight}lbs × {set.reps} reps</span>
                           <span>RIR: {set.rir}</span>
