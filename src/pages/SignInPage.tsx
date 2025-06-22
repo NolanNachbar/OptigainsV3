@@ -6,7 +6,11 @@ const SignInPage = () => {
     <div
       style={{ display: "flex", justifyContent: "center", marginTop: "2rem" }}
     >
-      <SignIn />
+      <SignIn 
+        forceRedirectUrl="/"
+        routing="path"
+        path="/sign-in"
+      />
     </div>
   );
 };
