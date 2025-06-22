@@ -5,6 +5,7 @@ import OptigainDumbell from "../assets/react3.svg";
 import { useUser } from "@clerk/clerk-react"; // Import Clerk's useUser hook
 import ActionBar from "../components/Actionbar";
 import WeekViewWidget from "../components/WeekViewWidget";
+import DevDatePicker from "../components/DevDatePicker";
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
@@ -116,18 +117,25 @@ const HomePage: React.FC = () => {
             onClick={handleReset}
             className="reset-button"
             style={{
-              marginTop: "2rem",
+              position: "fixed",
+              bottom: "100px", // Positioned above the feedback bar
+              right: "20px",
               padding: "0.5rem 1rem",
               backgroundColor: "#dc3545",
               color: "white",
               border: "none",
               borderRadius: "4px",
               cursor: "pointer",
+              zIndex: 1000,
+              boxShadow: "0 2px 8px rgba(0, 0, 0, 0.3)",
             }}
           >
             Reset to Default Workouts
           </button>
         )}
+        
+        {/* Development-only date picker */}
+        <DevDatePicker />
       </div>
     </div>
   );

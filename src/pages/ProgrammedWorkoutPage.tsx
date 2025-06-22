@@ -18,12 +18,14 @@ import {
 import { useUser } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
 import { v5 as uuidv5 } from "uuid";
+import { useDate } from "../contexts/DateContext";
 const NAMESPACE = "6ba7b810-9dad-11d1-80b4-00c04fd430c8";
 
 const normalizeExerciseName = (name: string) => name.toUpperCase();
 
 const StartProgrammedLiftPage: React.FC = () => {
   const { user } = useUser();
+  const { currentDate } = useDate();
   const [workoutToday, setWorkoutToday] = useState<Workout | null>(null);
   const [exerciseName, setExerciseName] = useState<string>("");
   const [suggestions, setSuggestions] = useState<string[]>([]);
@@ -50,6 +52,9 @@ const StartProgrammedLiftPage: React.FC = () => {
   const [customReps, setCustomReps] = useState(6);
   const [customRir, setCustomRir] = useState(0);
   const [customPercentIncrease, setCustomPercentIncrease] = useState(1.5);
+  const [showSwapModal, setShowSwapModal] = useState(false);
+  const [swappingExercise, setSwappingExercise] = useState<string | null>(null);
+  const [swapExerciseName, setSwapExerciseName] = useState<string>("");
 
   // Calculate total sets and completed sets whenever workout changes
   useEffect(() => {
@@ -79,62 +84,42 @@ const StartProgrammedLiftPage: React.FC = () => {
 
       try {
         // Get today's actual date
-        const todayDate = new Date().toISOString().split("T")[0];
+        const todayDate = currentDate.toISOString().split("T")[0];
 
         // First try to get today's workout
         const workout = await getWorkoutForToday(null, todayDate, user);
 
         if (workout) {
-          // Check if any sets are logged
-          const hasLoggedSets = workout.exercises.some((exercise) =>
-            exercise.sets.some((set) => set.isLogged)
-          );
-
-          if (hasLoggedSets) {
-            // If there are logged sets, this is an in-progress workout
-            setWorkoutToday(workout);
-            const initialState: Record<
-              string,
-              { weight: string; reps: string; rir: string }[]
-            > = {};
-
-            workout.exercises.forEach((exercise) => {
-              initialState[exercise.name] = exercise.sets.map(() => ({
-                weight: "",
-                reps: "",
-                rir: "",
-              }));
-            });
-
-            setInputState(initialState);
-          } else {
-            // If no sets are logged, create a fresh instance
-            const freshWorkout: Workout = {
-              ...workout,
-              exercises: workout.exercises.map((exercise: Exercise) => ({
-                ...exercise,
-                sets: exercise.sets.map((set: Set) => ({
-                  ...set,
-                  isLogged: false,
-                })),
+          // Always create a fresh instance for each new day
+          // The workout template should not carry over logged sets from previous days
+          const freshWorkout: Workout = {
+            ...workout,
+            exercises: workout.exercises.map((exercise: Exercise) => ({
+              ...exercise,
+              sets: exercise.sets.map(() => ({
+                weight: 0,
+                reps: 0,
+                rir: 0,
+                isLogged: false,
               })),
-            };
-            setWorkoutToday(freshWorkout);
-            const initialState: Record<
-              string,
-              { weight: string; reps: string; rir: string }[]
-            > = {};
+              // Keep the logs for history display but don't use them as current sets
+            })),
+          };
+          setWorkoutToday(freshWorkout);
+          const initialState: Record<
+            string,
+            { weight: string; reps: string; rir: string }[]
+          > = {};
 
-            freshWorkout.exercises.forEach((exercise) => {
-              initialState[exercise.name] = exercise.sets.map(() => ({
-                weight: "",
-                reps: "",
-                rir: "",
-              }));
-            });
+          freshWorkout.exercises.forEach((exercise) => {
+            initialState[exercise.name] = exercise.sets.map(() => ({
+              weight: "",
+              reps: "",
+              rir: "",
+            }));
+          });
 
-            setInputState(initialState);
-          }
+          setInputState(initialState);
         }
       } catch (error) {
         console.error("Error fetching workout:", error);
@@ -142,7 +127,7 @@ const StartProgrammedLiftPage: React.FC = () => {
     };
 
     fetchWorkout();
-  }, [user]);
+  }, [user, currentDate]);
 
   useEffect(() => {
     if (user) {
@@ -179,7 +164,7 @@ const StartProgrammedLiftPage: React.FC = () => {
     if (!workoutToday || !user) return;
 
     const newLog = {
-      date: new Date().toISOString(),
+      date: currentDate.toISOString(),
       weight: Number(input.weight),
       reps: Number(input.reps),
       rir: Number(input.rir),
@@ -214,7 +199,7 @@ const StartProgrammedLiftPage: React.FC = () => {
         user_id: generateUserIdAsUuid(user.id),
         clerk_user_id: user.id,
         assigned_days: updatedWorkout.assigned_days || [
-          new Date().toISOString().split("T")[0],
+          currentDate.toISOString().split("T")[0],
         ],
         exercises: updatedWorkout.exercises.map((exercise) => ({
           ...exercise,
@@ -325,7 +310,7 @@ const StartProgrammedLiftPage: React.FC = () => {
         user_id: generateUserIdAsUuid(user.id),
         clerk_user_id: user.id,
         assigned_days: workoutToday.assigned_days || [
-          new Date().toISOString().split("T")[0],
+          currentDate.toISOString().split("T")[0],
         ],
         exercises: workoutToday.exercises.map((exercise) => ({
           ...exercise,
@@ -349,7 +334,7 @@ const StartProgrammedLiftPage: React.FC = () => {
       const newWorkout = {
         ...workoutToday,
         workout_name: exerciseName.trim(),
-        assigned_days: [new Date().toISOString().split("T")[0]],
+        assigned_days: [currentDate.toISOString().split("T")[0]],
       };
 
       await saveWorkouts(null, newWorkout, user);
@@ -375,7 +360,7 @@ const StartProgrammedLiftPage: React.FC = () => {
         })),
         rir: sets[0].rir,
         logs: sets.map((set) => ({
-          date: new Date().toISOString(),
+          date: currentDate.toISOString(),
           weight: set.weight,
           reps: set.reps,
           rir: set.rir,
@@ -450,6 +435,81 @@ const StartProgrammedLiftPage: React.FC = () => {
     }
   };
 
+  const handleSwapExercise = async (oldExerciseName: string, newExerciseName: string) => {
+    if (!workoutToday || !user || !newExerciseName.trim()) return;
+
+    // Find the exercise to swap
+    const exerciseToSwap = workoutToday.exercises.find(
+      (ex) => normalizeExerciseName(ex.name) === normalizeExerciseName(oldExerciseName)
+    );
+
+    if (!exerciseToSwap) return;
+
+    // Create new exercise with same number of sets but reset values
+    const newExercise: Exercise = {
+      name: newExerciseName.trim(),
+      sets: exerciseToSwap.sets.map(() => ({
+        weight: 0,
+        reps: 0,
+        rir: 0,
+        isLogged: false,
+      })),
+      rir: 0,
+      logs: [],
+    };
+
+    // Update the workout
+    const updatedWorkout = {
+      ...workoutToday,
+      exercises: workoutToday.exercises.map((exercise) =>
+        normalizeExerciseName(exercise.name) === normalizeExerciseName(oldExerciseName)
+          ? newExercise
+          : exercise
+      ),
+    };
+
+    setWorkoutToday(updatedWorkout);
+
+    // Update input state for the new exercise
+    setInputState((prev) => {
+      const newState = { ...prev };
+      delete newState[oldExerciseName];
+      newState[newExerciseName] = exerciseToSwap.sets.map(() => ({
+        weight: "",
+        reps: "",
+        rir: "",
+      }));
+      return newState;
+    });
+
+    // Save the updated workout
+    try {
+      const workoutToSave: Workout = {
+        ...updatedWorkout,
+        id:
+          updatedWorkout.id ||
+          uuidv5(`${user.id}-${updatedWorkout.workout_name}`, NAMESPACE),
+        user_id: generateUserIdAsUuid(user.id),
+        clerk_user_id: user.id,
+        assigned_days: updatedWorkout.assigned_days || [
+          currentDate.toISOString().split("T")[0],
+        ],
+        exercises: updatedWorkout.exercises.map((exercise) => ({
+          ...exercise,
+          logs: exercise.logs || [],
+        })),
+      };
+
+      await saveWorkouts(null, workoutToSave, user);
+    } catch (error) {
+      console.error("Error saving workout after swapping exercise:", error);
+    }
+
+    setShowSwapModal(false);
+    setSwappingExercise(null);
+    setSwapExerciseName("");
+  };
+
   const handleAddSet = (exerciseName: string) => {
     if (workoutToday) {
       const updatedExercises = workoutToday.exercises.map((exercise) => {
@@ -459,7 +519,7 @@ const StartProgrammedLiftPage: React.FC = () => {
         ) {
           return {
             ...exercise,
-            sets: [...exercise.sets, { weight: 1, reps: 10, rir: 0 }],
+            sets: [...exercise.sets, { weight: 0, reps: 0, rir: 0, isLogged: false }],
           };
         }
         return exercise;
@@ -615,6 +675,16 @@ const StartProgrammedLiftPage: React.FC = () => {
                                 Add Set
                               </button>
                               <button
+                                onClick={() => {
+                                  setSwappingExercise(exercise.name);
+                                  setShowSwapModal(true);
+                                  setSwapExerciseName("");
+                                }}
+                                className="button secondary"
+                              >
+                                Swap
+                              </button>
+                              <button
                                 onClick={() =>
                                   handleRemoveExercise(exercise.name)
                                 }
@@ -628,23 +698,7 @@ const StartProgrammedLiftPage: React.FC = () => {
                             <div className="last-set-info">
                               <div className="set-history">
                                 <div className="performance-header">
-                                  <strong>Last Performance:</strong>
-                                  <span className={`performance-trend ${
-                                    exercise.logs.length > 1 && 
-                                    exercise.logs[exercise.logs.length - 1].weight > 
-                                    exercise.logs[exercise.logs.length - 2].weight ? "trend-up" : 
-                                    exercise.logs.length > 1 && 
-                                    exercise.logs[exercise.logs.length - 1].weight < 
-                                    exercise.logs[exercise.logs.length - 2].weight ? "trend-down" : "trend-same"
-                                  }`}>
-                                    {exercise.logs.length > 1 && 
-                                      exercise.logs[exercise.logs.length - 1].weight > 
-                                      exercise.logs[exercise.logs.length - 2].weight ? "IMPROVING" : 
-                                      exercise.logs.length > 1 && 
-                                      exercise.logs[exercise.logs.length - 1].weight < 
-                                      exercise.logs[exercise.logs.length - 2].weight ? "DECLINING" : "MAINTAINED"
-                                    }
-                                  </span>
+                                  <strong>Last Set:</strong>
                                 </div>
                                 <div className="performance-details">
                                   <span className="weight-highlight">{exercise.logs[exercise.logs.length - 1].weight}lbs</span>
@@ -901,6 +955,7 @@ const StartProgrammedLiftPage: React.FC = () => {
                                             )
                                           }
                                           className="input-field"
+                                          autoComplete="off"
                                         />
                                       </div>
                                       <div className="floating-label-container">
@@ -923,6 +978,7 @@ const StartProgrammedLiftPage: React.FC = () => {
                                             )
                                           }
                                           className="input-field"
+                                          autoComplete="off"
                                         />
                                       </div>
                                       <div className="floating-label-container">
@@ -945,6 +1001,7 @@ const StartProgrammedLiftPage: React.FC = () => {
                                             )
                                           }
                                           className="input-field"
+                                          autoComplete="off"
                                         />
                                       </div>
                                     </div>
@@ -1202,6 +1259,56 @@ const StartProgrammedLiftPage: React.FC = () => {
                 </button>
                 <button
                   onClick={() => setEditingSet(null)}
+                  className="button secondary"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {showSwapModal && swappingExercise && (
+          <div className="modal-overlay">
+            <div className="modal-content">
+              <h2>Swap Exercise</h2>
+              <p className="modal-description">
+                Replace "{swappingExercise}" with a different exercise. The new exercise will have the same number of sets.
+              </p>
+              <div className="modal-input-group">
+                <label>New Exercise Name</label>
+                <input
+                  type="text"
+                  value={swapExerciseName}
+                  onChange={(e) => setSwapExerciseName(e.target.value)}
+                  className="input-field"
+                  list="swap-exercise-suggestions"
+                  autoFocus
+                />
+                <datalist id="swap-exercise-suggestions">
+                  {suggestions
+                    .filter((s) => normalizeExerciseName(s) !== normalizeExerciseName(swappingExercise))
+                    .map((suggestion, idx) => (
+                      <option key={idx} value={suggestion} />
+                    ))}
+                </datalist>
+              </div>
+              <div className="modal-actions">
+                <button
+                  onClick={() => {
+                    handleSwapExercise(swappingExercise, swapExerciseName);
+                  }}
+                  className="button primary"
+                  disabled={!swapExerciseName.trim()}
+                >
+                  Swap Exercise
+                </button>
+                <button
+                  onClick={() => {
+                    setShowSwapModal(false);
+                    setSwappingExercise(null);
+                    setSwapExerciseName("");
+                  }}
                   className="button secondary"
                 >
                   Cancel

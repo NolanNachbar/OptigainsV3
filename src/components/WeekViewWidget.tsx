@@ -4,10 +4,12 @@ import { Workout, TrainingBlock } from "../utils/types";
 import { getWorkoutsForDate } from "../utils/localStorageDB";
 import { getCurrentTrainingBlock } from "../utils/trainingBlocks";
 import { useUser } from "@clerk/clerk-react";
+import { useDate } from "../contexts/DateContext";
 
 const WeekViewWidget: React.FC = () => {
   const { user } = useUser();
   const navigate = useNavigate();
+  const { currentDate } = useDate();
   const [weekWorkouts, setWeekWorkouts] = useState<Record<string, Workout[]>>({});
   const [currentTrainingBlock, setCurrentTrainingBlock] = useState<TrainingBlock | null>(null);
   const [loading, setLoading] = useState(true);
@@ -23,7 +25,7 @@ const WeekViewWidget: React.FC = () => {
       setCurrentTrainingBlock(block);
       
       // Get start of current week (Sunday)
-      const today = new Date();
+      const today = currentDate;
       const startOfWeek = new Date(today);
       startOfWeek.setDate(today.getDate() - today.getDay());
       
@@ -50,7 +52,7 @@ const WeekViewWidget: React.FC = () => {
     };
     
     fetchWeekData();
-  }, [user]);
+  }, [user, currentDate]);
 
   const getWorkoutTypeColor = (workoutName: string): string => {
     const name = workoutName.toLowerCase();
@@ -74,18 +76,18 @@ const WeekViewWidget: React.FC = () => {
   };
 
   const isToday = (dateStr: string): boolean => {
-    const today = new Date().toISOString().split("T")[0];
+    const today = currentDate.toISOString().split("T")[0];
     return dateStr === today;
   };
 
   const isPastDay = (dateStr: string): boolean => {
-    const today = new Date().toISOString().split("T")[0];
+    const today = currentDate.toISOString().split("T")[0];
     return dateStr < today;
   };
 
   // Generate array of dates for the current week
   const getWeekDates = (): string[] => {
-    const today = new Date();
+    const today = currentDate;
     const startOfWeek = new Date(today);
     startOfWeek.setDate(today.getDate() - today.getDay());
     
@@ -101,7 +103,7 @@ const WeekViewWidget: React.FC = () => {
 
   const weekDates = getWeekDates();
   const completedWorkouts = Object.keys(weekWorkouts).filter(date => isPastDay(date)).length;
-  const todayWorkouts = weekWorkouts[new Date().toISOString().split("T")[0]] || [];
+  const todayWorkouts = weekWorkouts[currentDate.toISOString().split("T")[0]] || [];
 
   if (loading) {
     return (

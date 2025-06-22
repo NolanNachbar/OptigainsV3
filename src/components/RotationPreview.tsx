@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Workout, TrainingBlock } from '../utils/types';
+import { useDate } from '../contexts/DateContext';
 
 interface RotationPreviewProps {
   trainingBlock: TrainingBlock;
@@ -16,6 +17,7 @@ const RotationPreview: React.FC<RotationPreviewProps> = ({
   onRotationChange,
   readOnly = false
 }) => {
+  const { currentDate } = useDate();
   const [rotation, setRotation] = useState<string[]>(() => 
     Array.isArray(workoutRotation) ? workoutRotation : []
   );
@@ -124,17 +126,31 @@ const RotationPreview: React.FC<RotationPreviewProps> = ({
 
   const getWeeklySchedule = () => {
     const weeks = [];
-    const daysOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    
+    // Get start date - next Sunday
+    const startDate = new Date(currentDate);
+    const currentDay = startDate.getDay();
+    if (currentDay !== 0) {
+      // If not Sunday, go to next Sunday
+      startDate.setDate(startDate.getDate() + (7 - currentDay));
+    }
     
     for (let week = 0; week < trainingBlock.duration; week++) {
       const weekSchedule = [];
       for (let day = 0; day < 7; day++) {
+        const scheduleDate = new Date(startDate);
+        scheduleDate.setDate(startDate.getDate() + (week * 7) + day);
+        
         const rotationIndex = (week * 7 + day) % rotation.length;
         weekSchedule.push({
           day: daysOfWeek[day],
+          date: scheduleDate.getDate(),
+          month: scheduleDate.toLocaleDateString('en-US', { month: 'short' }),
           workout: rotation[rotationIndex],
           index: rotationIndex,
-          hasWarning: conflictWarnings.has(rotationIndex)
+          hasWarning: conflictWarnings.has(rotationIndex),
+          isToday: scheduleDate.toDateString() === currentDate.toDateString()
         });
       }
       weeks.push({
@@ -251,13 +267,16 @@ const RotationPreview: React.FC<RotationPreviewProps> = ({
                     key={`week-${week.weekNumber}-day-${dayIndex}-${day.workout}`}
                     className={`day-cell ${day.workout === 'Rest' ? 'rest-day' : ''} ${
                       day.hasWarning ? 'has-warning' : ''
-                    }`}
+                    } ${day.isToday ? 'is-today' : ''}`}
                     style={{
                       borderColor: day.workout ? getWorkoutColor(day.workout) : '#757575',
                       backgroundColor: day.workout === 'Rest' ? '#1a1a1a' : 'transparent'
                     }}
                   >
-                    <div className="day-label">{day.day}</div>
+                    <div className="day-header">
+                      <div className="day-label">{day.day}</div>
+                      <div className="day-date">{day.date}</div>
+                    </div>
                     <div className="day-workout">{day.workout}</div>
                   </div>
                 ))}
@@ -567,11 +586,28 @@ const RotationPreview: React.FC<RotationPreviewProps> = ({
           font-weight: bold;
         }
 
+        .day-cell.is-today {
+          background: rgba(33, 150, 243, 0.1) !important;
+          border-color: #2196F3 !important;
+        }
+
+        .day-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 0.5rem;
+        }
+
         .day-label {
           font-size: 0.75rem;
           color: #b0b0b0;
-          margin-bottom: 0.25rem;
           font-weight: 600;
+        }
+
+        .day-date {
+          font-size: 0.875rem;
+          color: #ffffff;
+          font-weight: 500;
         }
 
         .day-workout {

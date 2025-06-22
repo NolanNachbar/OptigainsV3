@@ -24,6 +24,7 @@ body {
 
 .container {
   padding: 1rem;
+  padding-bottom: 80px; /* Space for feedback bar */
   max-width: 100%;
   box-sizing: border-box;
 }
@@ -348,6 +349,7 @@ h2 {
 /* Action buttons */
 .action-buttons {
   margin-top: 2rem;
+  margin-bottom: 2rem; /* Extra space above feedback bar */
   display: flex;
   gap: 1rem;
   justify-content: center;
@@ -901,6 +903,7 @@ h2 {
   margin: 0 auto;
   width: 100%;
   padding-top: 80px; /* Increased to prevent overlap with action bar */
+  padding-bottom: 80px; /* Added padding to account for feedback bar */
 }
 
 .logo-section {
@@ -1378,7 +1381,6 @@ h2 {
 
 .last-set-info .date {
   color: var(--text);
-  opacity: 0.7;
   font-size: 0.8rem;
 }
 
@@ -1824,26 +1826,28 @@ h2 {
 
 /* Progressive Overload Styles */
 .progressive-overload-section {
-  background: linear-gradient(135deg, var(--secondary), var(--primary));
-  border-radius: 8px;
-  padding: 1rem;
-  margin-top: 1rem;
-  border: 1px solid var(--primary);
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  padding: 0.75rem;
+  margin-top: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .progressive-overload-section .recommended-weight {
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .progressive-overload-section .overload-values {
-  font-size: 1.1rem;
-  font-weight: bold;
-  color: #fff;
+  font-size: 0.9rem;
+  font-weight: normal;
+  color: rgba(255, 255, 255, 0.9);
   background: rgba(0, 0, 0, 0.2);
-  padding: 0.5rem;
+  padding: 0.3rem 0.5rem;
   border-radius: 4px;
   display: inline-block;
-  margin-top: 0.5rem;
+  margin-top: 0.3rem;
 }
 
 .overload-controls {
@@ -1854,8 +1858,10 @@ h2 {
 }
 
 .overload-controls .button {
-  min-width: 140px;
-  font-weight: bold;
+  min-width: 120px;
+  font-weight: normal;
+  font-size: 0.85rem;
+  padding: 0.4rem 0.8rem;
 }
 
 .progressive-overload-preview {
@@ -1910,11 +1916,11 @@ h2 {
 }
 
 .set-history {
-  background: var(--input-background);
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 6px;
-  padding: 0.75rem;
-  margin-bottom: 1rem;
-  border-left: 4px solid var(--primary);
+  padding: 0.5rem;
+  margin-bottom: 0.75rem;
+  border-left: 2px solid rgba(255, 255, 255, 0.3);
 }
 
 .set-history .date {
@@ -1932,12 +1938,12 @@ h2 {
 }
 
 .performance-trend {
-  font-size: 0.8rem;
-  padding: 0.2rem 0.5rem;
-  border-radius: 12px;
-  background: var(--input-background);
-  color: var(--text);
-  font-weight: bold;
+  font-size: 0.75rem;
+  padding: 0.15rem 0.4rem;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: normal;
 }
 
 .performance-details {
@@ -1948,30 +1954,30 @@ h2 {
 }
 
 .weight-highlight {
-  background: linear-gradient(135deg, #ff6b6b, #ee5a24);
-  color: white;
-  padding: 0.3rem 0.6rem;
-  border-radius: 6px;
-  font-weight: bold;
-  font-size: 0.9rem;
+  background: rgba(255, 107, 107, 0.25);
+  color: rgba(255, 255, 255, 0.95);
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  font-weight: normal;
+  font-size: 0.85rem;
 }
 
 .reps-highlight {
-  background: linear-gradient(135deg, #74b9ff, #0984e3);
-  color: white;
-  padding: 0.3rem 0.6rem;
-  border-radius: 6px;
-  font-weight: bold;
-  font-size: 0.9rem;
+  background: rgba(116, 185, 255, 0.25);
+  color: rgba(255, 255, 255, 0.95);
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  font-weight: normal;
+  font-size: 0.85rem;
 }
 
 .rir-highlight {
-  background: linear-gradient(135deg, #55a3ff, #2d3436);
-  color: white;
-  padding: 0.3rem 0.6rem;
-  border-radius: 6px;
-  font-weight: bold;
-  font-size: 0.9rem;
+  background: rgba(85, 163, 255, 0.25);
+  color: rgba(255, 255, 255, 0.95);
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  font-weight: normal;
+  font-size: 0.85rem;
 }
 
 /* Mobile responsiveness for progressive overload */
@@ -1994,4 +2000,21 @@ h2 {
     width: 100%;
   }
 }
+}
+
+/* Page-specific padding to account for feedback bar */
+.programmed-workout-page,
+.freestyle-workout-page,
+.workout-plan-page,
+.library-page,
+.calculator-page,
+.weight-log-page,
+.start-lift-page {
+  padding-bottom: 80px;
+  min-height: 100vh;
+}
+
+.workout-content,
+.page-content {
+  padding-bottom: 80px;
 }

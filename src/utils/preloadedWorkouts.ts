@@ -8,105 +8,105 @@ export const FULL_BODY_DAY_1: Workout = {
     {
       name: 'CONVERGING MACHINE PRESS',
       sets: [
-        { weight: 0, reps: 10, rir: 2, isLogged: false }
+        { weight: 220, reps: 8, rir: 0, isLogged: false }
       ],
-      rir: 2,
+      rir: 0,
       logs: []
     },
     {
-      name: 'BEHIND THE BACK CUFF LAT RAISES',
+      name: 'BEHIND-THE-BACK CUFF LATERAL RAISES',
       sets: [
-        { weight: 0, reps: 12, rir: 2, isLogged: false }
+        { weight: 25, reps: 12, rir: 0, isLogged: false }
       ],
-      rir: 2,
+      rir: 0,
       logs: []
     },
     {
       name: 'CHEST-SUPPORTED ROW',
       sets: [
-        { weight: 0, reps: 10, rir: 2, isLogged: false }
+        { weight: 230, reps: 10, rir: 0, isLogged: false }
       ],
-      rir: 2,
+      rir: 0,
       logs: []
     },
     {
       name: 'SEATED LEG CURL',
       sets: [
-        { weight: 0, reps: 12, rir: 2, isLogged: false }
+        { weight: 210, reps: 15, rir: 0, isLogged: false }
       ],
-      rir: 2,
+      rir: 0,
       logs: []
     },
     {
       name: 'MACHINE SHOULDER PRESS',
       sets: [
-        { weight: 0, reps: 10, rir: 2, isLogged: false }
+        { weight: 180, reps: 8, rir: 0, isLogged: false }
       ],
-      rir: 2,
+      rir: 0,
       logs: []
     },
     {
       name: 'LEG PRESS',
       sets: [
-        { weight: 0, reps: 12, rir: 2, isLogged: false }
+        { weight: 440, reps: 12, rir: 0, isLogged: false }
       ],
-      rir: 2,
+      rir: 0,
       logs: []
     },
     {
       name: 'CABLE TRICEP PUSHDOWN',
       sets: [
-        { weight: 0, reps: 12, rir: 2, isLogged: false }
+        { weight: 50, reps: 15, rir: 1, isLogged: false }
       ],
-      rir: 2,
+      rir: 1,
       logs: []
     },
     {
-      name: 'WIDE GRIP LAT PULLDOWN',
+      name: 'WIDE-GRIP LAT PULLDOWN',
       sets: [
-        { weight: 0, reps: 10, rir: 2, isLogged: false }
+        { weight: 190, reps: 10, rir: 0, isLogged: false }
       ],
-      rir: 2,
+      rir: 0,
       logs: []
     },
     {
       name: 'LEG EXTENSION',
       sets: [
-        { weight: 0, reps: 15, rir: 1, isLogged: false }
+        { weight: 310, reps: 17, rir: 0, isLogged: false }
       ],
-      rir: 1,
+      rir: 0,
       logs: []
     },
     {
-      name: 'INCLINE DUMBBELL CURL',
+      name: 'INCLINE CURL',
       sets: [
-        { weight: 0, reps: 12, rir: 2, isLogged: false }
+        { weight: 50, reps: 10, rir: 0, isLogged: false }
       ],
-      rir: 2,
+      rir: 0,
       logs: []
     },
     {
       name: 'CALF PRESS',
       sets: [
-        { weight: 0, reps: 15, rir: 1, isLogged: false }
+        { weight: 440, reps: 15, rir: 0, isLogged: false }
       ],
-      rir: 1,
+      rir: 0,
       logs: []
     },
     {
-      name: 'HANGING LEG RAISE',
+      name: 'AB LEG RAISE',
       sets: [
-        { weight: 0, reps: 12, rir: 2, isLogged: false }
+        { weight: 0, reps: 12, rir: 0, isLogged: false }
       ],
-      rir: 2,
+      rir: 0,
       logs: []
     },
     {
-      name: 'SKULL CRUSHER',
+      name: 'SKULLCRUSHER',
       sets: [
-        { weight: 0, reps: 12, rir: 2, isLogged: false }
+        { weight: 90, reps: 12, rir: 0, isLogged: false }
       ],
-      rir: 2,
+      rir: 0,
       logs: []
     }
   ],
@@ -119,202 +119,105 @@ export const FULL_BODY_DAY_2: Workout = {
   assigned_days: [],
   exercises: [
     {
-      name: 'INCLINE DUMBBELL PRESS',
+      name: 'WIDE-GRIP LAT PULLDOWN',
       sets: [
-        { weight: 0, reps: 10, rir: 2, isLogged: false }
+        { weight: 315, reps: 8, rir: 0, isLogged: false }
       ],
-      rir: 2,
+      rir: 0,
       logs: []
     },
     {
-      name: 'CABLE LATERAL RAISE',
+      name: 'LEG EXTENSION',
       sets: [
-        { weight: 0, reps: 12, rir: 2, isLogged: false }
+        { weight: 310, reps: 20, rir: 0, isLogged: false }
       ],
-      rir: 2,
+      rir: 0,
       logs: []
     },
     {
-      name: 'CABLE ROW',
+      name: 'WIDE-GRIP BENCH PRESS',
       sets: [
-        { weight: 0, reps: 10, rir: 2, isLogged: false }
-      ],
-      rir: 2,
-      logs: []
-    },
-    {
-      name: 'SEATED LEG CURL',
-      sets: [
-        { weight: 0, reps: 12, rir: 2, isLogged: false }
-      ],
-      rir: 2,
-      logs: []
-    },
-    {
-      name: 'DUMBBELL SHOULDER PRESS',
-      sets: [
-        { weight: 0, reps: 10, rir: 2, isLogged: false }
-      ],
-      rir: 2,
-      logs: []
-    },
-    {
-      name: 'HACK SQUAT',
-      sets: [
-        { weight: 0, reps: 12, rir: 2, isLogged: false }
-      ],
-      rir: 2,
-      logs: []
-    },
-    {
-      name: 'ROPE FACE PULL',
-      sets: [
-        { weight: 0, reps: 15, rir: 1, isLogged: false }
+        { weight: 215, reps: 8, rir: 1, isLogged: false }
       ],
       rir: 1,
       logs: []
     },
     {
-      name: 'STRAIGHT ARM PULLDOWN',
+      name: 'SQUAT',
       sets: [
-        { weight: 0, reps: 12, rir: 2, isLogged: false }
+        { weight: 320, reps: 5, rir: 0, isLogged: false }
       ],
-      rir: 2,
+      rir: 0,
       logs: []
     },
     {
-      name: 'BULGARIAN SPLIT SQUAT',
+      name: 'MACHINE PREACHER CURL',
       sets: [
-        { weight: 0, reps: 10, rir: 2, isLogged: false }
+        { weight: 40, reps: 10, rir: 0, isLogged: false }
       ],
-      rir: 2,
+      rir: 0,
       logs: []
     },
     {
-      name: 'PREACHER CURL',
+      name: 'CHEST-SUPPORTED ROW',
       sets: [
-        { weight: 0, reps: 12, rir: 2, isLogged: false }
+        { weight: 250, reps: 10, rir: 0, isLogged: false }
       ],
-      rir: 2,
+      rir: 0,
       logs: []
     },
     {
-      name: 'STANDING CALF RAISE',
+      name: 'RDL',
       sets: [
-        { weight: 0, reps: 15, rir: 1, isLogged: false }
+        { weight: 295, reps: 10, rir: 0, isLogged: false }
       ],
-      rir: 1,
+      rir: 0,
       logs: []
     },
     {
-      name: 'LYING LEG RAISE',
+      name: 'BEHIND-THE-BACK CUFF LATERAL RAISES',
       sets: [
-        { weight: 0, reps: 15, rir: 1, isLogged: false }
+        { weight: 30, reps: 10, rir: 0, isLogged: false }
       ],
-      rir: 1,
-      logs: []
-    },
-    {
-      name: 'CROSS BODY TRICEP EXTENSION',
-      sets: [
-        { weight: 0, reps: 12, rir: 2, isLogged: false }
-      ],
-      rir: 2,
-      logs: []
-    }
-  ],
-  clerk_user_id: ''
-};
-
-// Full Body Day 3
-export const FULL_BODY_DAY_3: Workout = {
-  workout_name: 'Full Body Day 3',
-  assigned_days: [],
-  exercises: [
-    {
-      name: 'BARBELL BENCH PRESS',
-      sets: [
-        { weight: 0, reps: 8, rir: 2, isLogged: false }
-      ],
-      rir: 2,
-      logs: []
-    },
-    {
-      name: 'T-BAR ROW',
-      sets: [
-        { weight: 0, reps: 10, rir: 2, isLogged: false }
-      ],
-      rir: 2,
-      logs: []
-    },
-    {
-      name: 'DUMBBELL SHOULDER PRESS',
-      sets: [
-        { weight: 0, reps: 10, rir: 2, isLogged: false }
-      ],
-      rir: 2,
-      logs: []
-    },
-    {
-      name: 'INCLINE DUMBBELL FLY',
-      sets: [
-        { weight: 0, reps: 12, rir: 2, isLogged: false }
-      ],
-      rir: 2,
-      logs: []
-    },
-    {
-      name: 'STRAIGHT ARM PULLDOWN',
-      sets: [
-        { weight: 0, reps: 12, rir: 2, isLogged: false }
-      ],
-      rir: 2,
-      logs: []
-    },
-    {
-      name: 'CABLE LATERAL RAISE',
-      sets: [
-        { weight: 0, reps: 15, rir: 1, isLogged: false }
-      ],
-      rir: 1,
-      logs: []
-    },
-    {
-      name: 'EZ BAR CURL',
-      sets: [
-        { weight: 0, reps: 10, rir: 2, isLogged: false }
-      ],
-      rir: 2,
+      rir: 0,
       logs: []
     },
     {
       name: 'JM PRESS',
       sets: [
-        { weight: 0, reps: 10, rir: 2, isLogged: false }
+        { weight: 105, reps: 12, rir: 0, isLogged: false }
       ],
-      rir: 2,
+      rir: 0,
       logs: []
     },
     {
-      name: 'CABLE HAMMER CURL',
+      name: 'CALF PRESS',
       sets: [
-        { weight: 0, reps: 12, rir: 2, isLogged: false }
+        { weight: 440, reps: 15, rir: 0, isLogged: false }
       ],
-      rir: 2,
+      rir: 0,
       logs: []
     },
     {
-      name: 'OVERHEAD CABLE TRICEP EXTENSION',
+      name: 'SHOULDER PRESS MACHINE',
       sets: [
-        { weight: 0, reps: 12, rir: 2, isLogged: false }
+        { weight: 55, reps: 12, rir: 0, isLogged: false }
       ],
-      rir: 2,
+      rir: 0,
       logs: []
     },
     {
-      name: 'ROPE FACE PULL',
+      name: 'ABS CRUNCH MACHINE',
       sets: [
-        { weight: 0, reps: 20, rir: 0, isLogged: false }
+        { weight: 110, reps: 15, rir: 1, isLogged: false }
+      ],
+      rir: 1,
+      logs: []
+    },
+    {
+      name: 'CLOSE-GRIP BENCH',
+      sets: [
+        { weight: 185, reps: 10, rir: 0, isLogged: false }
       ],
       rir: 0,
       logs: []
@@ -323,7 +226,112 @@ export const FULL_BODY_DAY_3: Workout = {
   clerk_user_id: ''
 };
 
-// Full Body Day 4
+// Full Body Day 3 (Upper Day)
+export const FULL_BODY_DAY_3: Workout = {
+  workout_name: 'Full Body Day 3',
+  assigned_days: [],
+  exercises: [
+    {
+      name: 'MACHINE SHOULDER PRESS',
+      sets: [
+        { weight: 210, reps: 8, rir: 0, isLogged: false }
+      ],
+      rir: 0,
+      logs: []
+    },
+    {
+      name: 'SEATED LEG CURL',
+      sets: [
+        { weight: 230, reps: 15, rir: 0, isLogged: false }
+      ],
+      rir: 0,
+      logs: []
+    },
+    {
+      name: 'PEC DECK',
+      sets: [
+        { weight: 195, reps: 10, rir: 0, isLogged: false }
+      ],
+      rir: 0,
+      logs: []
+    },
+    {
+      name: 'CABLE CURL',
+      sets: [
+        { weight: 50, reps: 12, rir: 0, isLogged: false }
+      ],
+      rir: 0,
+      logs: []
+    },
+    {
+      name: 'CABLE TRICEP PUSHDOWN',
+      sets: [
+        { weight: 55, reps: 10, rir: 0, isLogged: false }
+      ],
+      rir: 0,
+      logs: []
+    },
+    {
+      name: 'CHEST-SUPPORTED ROW',
+      sets: [
+        { weight: 250, reps: 10, rir: 0, isLogged: false }
+      ],
+      rir: 0,
+      logs: []
+    },
+    {
+      name: 'BEHIND-THE-BACK CUFF LATERAL RAISES',
+      sets: [
+        { weight: 30, reps: 12, rir: 0, isLogged: false }
+      ],
+      rir: 0,
+      logs: []
+    },
+    {
+      name: 'SQUAT',
+      sets: [
+        { weight: 280, reps: 6, rir: 0, isLogged: false }
+      ],
+      rir: 0,
+      logs: []
+    },
+    {
+      name: 'CLOSE-GRIP BENCH',
+      sets: [
+        { weight: 345, reps: 10, rir: 0, isLogged: false }
+      ],
+      rir: 0,
+      logs: []
+    },
+    {
+      name: 'NORMAL-GRIP LAT PULLDOWN',
+      sets: [
+        { weight: 200, reps: 10, rir: 0, isLogged: false }
+      ],
+      rir: 0,
+      logs: []
+    },
+    {
+      name: 'CALF PRESS',
+      sets: [
+        { weight: 440, reps: 15, rir: 0, isLogged: false }
+      ],
+      rir: 0,
+      logs: []
+    },
+    {
+      name: 'AB LEG RAISE',
+      sets: [
+        { weight: 0, reps: 15, rir: 0, isLogged: false }
+      ],
+      rir: 0,
+      logs: []
+    }
+  ],
+  clerk_user_id: ''
+};
+
+// Full Body Day 4 (Legs Day)
 export const FULL_BODY_DAY_4: Workout = {
   workout_name: 'Full Body Day 4',
   assigned_days: [],
@@ -331,81 +339,97 @@ export const FULL_BODY_DAY_4: Workout = {
     {
       name: 'SQUAT',
       sets: [
-        { weight: 0, reps: 8, rir: 2, isLogged: false }
+        { weight: 305, reps: 8, rir: 0, isLogged: false }
       ],
-      rir: 2,
+      rir: 0,
       logs: []
     },
     {
-      name: 'RDL',
+      name: 'CONVERGING MACHINE PRESS',
       sets: [
-        { weight: 0, reps: 10, rir: 2, isLogged: false }
+        { weight: 215, reps: 10, rir: 0, isLogged: false }
       ],
-      rir: 2,
+      rir: 0,
       logs: []
     },
     {
-      name: 'LEG PRESS',
+      name: '45° HYPEREXTENSIONS',
       sets: [
-        { weight: 0, reps: 12, rir: 2, isLogged: false }
+        { weight: 40, reps: 12, rir: 0, isLogged: false }
       ],
-      rir: 2,
+      rir: 0,
       logs: []
     },
     {
-      name: 'SEATED LEG CURL',
+      name: 'INCLINE CURL',
       sets: [
-        { weight: 0, reps: 12, rir: 2, isLogged: false }
+        { weight: 40, reps: 10, rir: 0, isLogged: false }
       ],
-      rir: 2,
+      rir: 0,
       logs: []
     },
     {
-      name: 'BULGARIAN SPLIT SQUAT',
+      name: 'CLOSE-GRIP BENCH',
       sets: [
-        { weight: 0, reps: 10, rir: 2, isLogged: false }
+        { weight: 225, reps: 10, rir: 0, isLogged: false }
       ],
-      rir: 2,
+      rir: 0,
+      logs: []
+    },
+    {
+      name: 'MACHINE LATERAL RAISES',
+      sets: [
+        { weight: 140, reps: 15, rir: 0, isLogged: false }
+      ],
+      rir: 0,
       logs: []
     },
     {
       name: 'LEG EXTENSION',
       sets: [
-        { weight: 0, reps: 15, rir: 1, isLogged: false }
+        { weight: 310, reps: 15, rir: 0, isLogged: false }
+      ],
+      rir: 0,
+      logs: []
+    },
+    {
+      name: 'CHEST-SUPPORTED ROW',
+      sets: [
+        { weight: 250, reps: 10, rir: 1, isLogged: false }
       ],
       rir: 1,
       logs: []
     },
     {
-      name: 'WALKING LUNGES',
+      name: 'CABLE TRICEP PUSHDOWN',
       sets: [
-        { weight: 0, reps: 20, rir: 1, isLogged: false }
+        { weight: 55, reps: 12, rir: 0, isLogged: false }
       ],
-      rir: 1,
+      rir: 0,
       logs: []
     },
     {
-      name: 'STANDING CALF RAISE',
+      name: 'CALF PRESS',
       sets: [
-        { weight: 0, reps: 12, rir: 2, isLogged: false }
+        { weight: 395, reps: 12, rir: 0, isLogged: false }
       ],
-      rir: 2,
+      rir: 0,
       logs: []
     },
     {
-      name: 'SEATED CALF RAISE',
+      name: 'MACHINE SHOULDER PRESS',
       sets: [
-        { weight: 0, reps: 15, rir: 1, isLogged: false }
+        { weight: 20, reps: 12, rir: 0, isLogged: false }
       ],
-      rir: 1,
+      rir: 0,
       logs: []
     },
     {
-      name: 'ABS CRUNCH MACHINE',
+      name: 'AB MACHINE CRUNCH',
       sets: [
-        { weight: 0, reps: 15, rir: 1, isLogged: false }
+        { weight: 110, reps: 15, rir: 0, isLogged: false }
       ],
-      rir: 1,
+      rir: 0,
       logs: []
     }
   ],

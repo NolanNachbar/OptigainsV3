@@ -15,6 +15,7 @@ import SignInPage from "./pages/SignInPage";
 import SettingsPage from "./pages/SettingsPage";
 import { initializeDatabase } from "./utils/database";
 import Footer from "./components/Footer";
+import { DateProvider } from "./contexts/DateContext";
 
 
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
@@ -39,10 +40,11 @@ const App: React.FC = () => {
 
   return (
     <ClerkProvider publishableKey={clerkPubKey}>
-      <DatabaseInitializer>
-        <Suspense fallback={<div>Loading...</div>}>
-          <Router>
-          <Routes>
+      <DateProvider>
+        <DatabaseInitializer>
+          <Suspense fallback={<div>Loading...</div>}>
+            <Router>
+            <Routes>
             {/* Public routes */}
             <Route path="/" element={<HomePage />} />
             <Route path="/sign-in" element={<SignInPage />} />
@@ -132,6 +134,7 @@ const App: React.FC = () => {
         </Router>
       </Suspense>
       </DatabaseInitializer>
+      </DateProvider>
     </ClerkProvider>
   );
 };
