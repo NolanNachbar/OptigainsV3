@@ -1,5 +1,44 @@
 {
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
-  "framework": "vite"
+  "framework": "vite",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/sw.js",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/javascript"
+        },
+        {
+          "key": "Service-Worker-Allowed",
+          "value": "/"
+        }
+      ]
+    },
+    {
+      "source": "/(.*).js",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/javascript"
+        }
+      ]
+    },
+    {
+      "source": "/(.*).mjs",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/javascript"
+        }
+      ]
+    }
+  ]
 }
