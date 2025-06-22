@@ -374,6 +374,7 @@ export const db = new SupabaseDB(
 console.log('Using Supabase database');
 console.log('Supabase URL:', import.meta.env.VITE_SUPABASE_URL);
 console.log('Supabase Key:', import.meta.env.VITE_SUPABASE_KEY ? 'Set' : 'Not set');
+console.log('Build timestamp:', new Date().toISOString());
 
 // Initialize Clerk token for Supabase
 export const initializeDatabase = (getToken: () => Promise<string | null>) => {
