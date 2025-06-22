@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useUser } from "@clerk/clerk-react";
 import { Workout } from "../utils/types";
-import { loadWorkouts } from "../utils/localStorageDB";
+import { loadWorkouts } from "../utils/SupaBase";
 
 interface WorkoutCardProps {
   workout: Workout;

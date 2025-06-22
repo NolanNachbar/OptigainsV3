@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getWorkoutsForDate } from "../utils/localStorageDB";
+import { getWorkoutsForDate } from "../utils/SupaBase";
 import { Workout, WorkoutInstance } from "../utils/types";
 import ActionBar from "../components/Actionbar";
 import { useUser } from "@clerk/clerk-react";

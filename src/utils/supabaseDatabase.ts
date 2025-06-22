@@ -32,11 +32,25 @@ export class SupabaseDB implements IDatabase {
   // Get authenticated Supabase client
   private async getAuthClient(): Promise<SupabaseClient> {
     if (!this.getClerkToken) {
+      console.warn('[SupabaseDB] No Clerk token getter set, using anonymous client');
       return this.supabase;
     }
 
     try {
       const token = await this.getClerkToken();
+      console.log('[SupabaseDB] Got Clerk token:', token ? 'Yes' : 'No');
+      
+      // Decode and log the token payload for debugging
+      if (token) {
+        try {
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          console.log('[SupabaseDB] Token payload sub:', payload.sub);
+          console.log('[SupabaseDB] Token payload user_id:', payload.user_id);
+        } catch (e) {
+          console.error('[SupabaseDB] Failed to decode token:', e);
+        }
+      }
+      
       if (token) {
         return createClient(
           this.supabaseUrl,
@@ -57,6 +71,7 @@ export class SupabaseDB implements IDatabase {
       console.error('Error getting Clerk token:', error);
     }
 
+    console.warn('[SupabaseDB] Falling back to anonymous client');
     return this.supabase;
   }
 
@@ -363,6 +378,8 @@ export class SupabaseDB implements IDatabase {
 
   // Calendar
   async getCalendarAssignments(userId: string, dateRange?: { start: string; end: string }): Promise<CalendarAssignment[]> {
+    console.log('[SupabaseDB.getCalendarAssignments] Getting assignments for:', { userId, dateRange });
+    
     const client = await this.getAuthClient();
     let query = client
       .from('calendar_assignments')
@@ -377,11 +394,19 @@ export class SupabaseDB implements IDatabase {
 
     const { data, error } = await query.order('assigned_date', { ascending: true });
 
-    if (error) throw error;
-    return data;
+    if (error) {
+      console.error('[SupabaseDB.getCalendarAssignments] Error:', error);
+      throw error;
+    }
+    
+    console.log('[SupabaseDB.getCalendarAssignments] Found assignments:', data?.length || 0);
+    console.log('[SupabaseDB.getCalendarAssignments] Assignment details:', data);
+    return data || [];
   }
 
   async saveCalendarAssignment(assignment: CalendarAssignment, user: UserResource): Promise<CalendarAssignment> {
+    console.log('[SupabaseDB.saveCalendarAssignment] Saving assignment:', assignment);
+    
     const client = await this.getAuthClient();
     // First delete any existing assignment for the same template and date
     await client
@@ -403,7 +428,12 @@ export class SupabaseDB implements IDatabase {
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error('[SupabaseDB.saveCalendarAssignment] Error:', error);
+      throw error;
+    }
+    
+    console.log('[SupabaseDB.saveCalendarAssignment] Saved successfully:', data);
     return data;
   }
 

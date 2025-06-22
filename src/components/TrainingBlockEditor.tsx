@@ -5,7 +5,7 @@ import {
   addTrainingBlock,
 } from '../utils/trainingBlocks';
 import { useUser } from '@clerk/clerk-react';
-import { assignWorkoutToDate, getWorkoutsForDate } from '../utils/localStorageDB';
+import { assignWorkoutToDate, getWorkoutsForDate } from '../utils/SupaBase';
 import { saveCustomTemplate, getCustomTemplates, CustomTemplate } from '../utils/localStorage';
 import RotationPreview from './RotationPreview';
 import ActionBar from './Actionbar';

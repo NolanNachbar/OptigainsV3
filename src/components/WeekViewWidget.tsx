@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Workout, TrainingBlock } from "../utils/types";
-import { getWorkoutsForDate } from "../utils/localStorageDB";
+import { getWorkoutsForDate } from "../utils/SupaBase";
 import { getCurrentTrainingBlock } from "../utils/trainingBlocks";
 import { useUser } from "@clerk/clerk-react";
 import { useDate } from "../contexts/DateContext";

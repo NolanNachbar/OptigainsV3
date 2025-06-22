@@ -7,7 +7,7 @@ import {
   loadWorkouts,
   removeWorkoutFromList,
   preloadWorkouts,
-} from "../utils/localStorageDB";
+} from "../utils/SupaBase";
 import { Workout, TrainingBlock } from "../utils/types";
 import ActionBar from "../components/Actionbar";
 import { useUser, useAuth } from "@clerk/clerk-react";

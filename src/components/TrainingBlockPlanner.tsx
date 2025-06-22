@@ -15,7 +15,7 @@ import { db } from '../utils/database';
 import RotationPreview from './RotationPreview';
 import WorkoutAssignmentForm from './WorkoutAssignmentForm';
 import TrainingBlockEditor from './TrainingBlockEditor';
-import { getWorkoutsForDate, assignWorkoutToDate } from '../utils/localStorageDB';
+import { getWorkoutsForDate, assignWorkoutToDate } from '../utils/SupaBase';
 import { useUser } from '@clerk/clerk-react';
 import { PUSH_DAY, PULL_DAY, LEGS_DAY, UPPER_BODY_DAY, LOWER_BODY_DAY, FULL_BODY_DAY_1, FULL_BODY_DAY_2 } from '../utils/preloadedWorkouts';
 

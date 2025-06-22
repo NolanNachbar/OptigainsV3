@@ -5,7 +5,7 @@ import {
   saveWorkouts,
   loadWorkouts,
   normalizeExerciseName,
-} from "../utils/localStorageDB";
+} from "../utils/SupaBase";
 import { Exercise } from "../utils/types";
 import { Line } from "react-chartjs-2";
 import {

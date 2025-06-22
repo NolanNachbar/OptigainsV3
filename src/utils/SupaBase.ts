@@ -140,15 +140,26 @@ export const removeExerciseFromWorkout = async (_supabase: any, workoutName: str
 
 // Calendar functions
 export const getWorkoutsForDate = async (_supabase: any, date: string, user: UserResource): Promise<Workout[]> => {
+  console.log('[getWorkoutsForDate] Called with:', { 
+    date, 
+    userId: user.id,
+    dateObject: new Date(date),
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+  });
+  
   const assignments = await db.getCalendarAssignments(user.id, {
     start: date,
     end: date
   });
   
+  console.log('[getWorkoutsForDate] Found assignments:', assignments.length);
+  
   const workouts: Workout[] = [];
   
   for (const assignment of assignments) {
+    console.log('[getWorkoutsForDate] Processing assignment:', assignment);
     const template = await db.getWorkoutTemplate(assignment.template_id, user.id);
+    console.log('[getWorkoutsForDate] Found template:', template ? template.workout_name : 'Not found');
     if (template) {
       workouts.push({
         id: template.id,
@@ -215,19 +226,30 @@ export const getWorkoutForToday = async (_supabase: any, date: string, user: Use
 };
 
 export const assignWorkoutToDate = async (_supabase: any, workoutNameOrTemplateId: string, date: string, user: UserResource): Promise<void> => {
+  console.log('[assignWorkoutToDate] Called with:', { workoutNameOrTemplateId, date, userId: user.id });
+  
   // First try to find by workout name (backward compatibility)
   const templates = await db.getWorkoutTemplates(user.id);
+  console.log('[assignWorkoutToDate] Found templates:', templates.length);
+  
   const template = templates.find(t => t.workout_name === workoutNameOrTemplateId || t.id === workoutNameOrTemplateId);
+  console.log('[assignWorkoutToDate] Found template:', template ? template.workout_name : 'Not found');
   
   if (template && template.id) {
-    await db.saveCalendarAssignment({
+    const assignment = {
       id: '',
       clerk_user_id: user.id,
       template_id: template.id,
       assigned_date: date,
       completed: false,
       created_at: new Date().toISOString()
-    }, user);
+    };
+    console.log('[assignWorkoutToDate] Saving assignment:', assignment);
+    
+    await db.saveCalendarAssignment(assignment, user);
+    console.log('[assignWorkoutToDate] Assignment saved successfully');
+  } else {
+    console.warn('[assignWorkoutToDate] Template not found for:', workoutNameOrTemplateId);
   }
 };
 
@@ -387,4 +409,38 @@ export const saveWorkoutInstance = async (instance: WorkoutInstance, user: UserR
 
 export const updateWorkoutInstance = async (instanceId: string, updates: Partial<WorkoutInstance>, user: UserResource): Promise<WorkoutInstance> => {
   return await db.updateWorkoutInstance(instanceId, updates, user);
+};
+
+// Debug function to check calendar assignments
+export const debugCalendarAssignments = async (user: UserResource): Promise<void> => {
+  console.log('=== DEBUG: Calendar Assignments ===');
+  console.log('User ID:', user.id);
+  console.log('User email:', user.primaryEmailAddress?.emailAddress);
+  
+  try {
+    // Get all assignments for this user
+    const assignments = await db.getCalendarAssignments(user.id);
+    console.log('Total assignments found:', assignments.length);
+    
+    // Get today's date
+    const today = new Date().toISOString().split('T')[0];
+    console.log('Today\'s date:', today);
+    
+    // Get assignments for today
+    const todayAssignments = await db.getCalendarAssignments(user.id, {
+      start: today,
+      end: today
+    });
+    console.log('Today\'s assignments:', todayAssignments.length);
+    console.log('Today\'s assignment details:', todayAssignments);
+    
+    // Get all workout templates
+    const templates = await db.getWorkoutTemplates(user.id);
+    console.log('Total workout templates:', templates.length);
+    console.log('Template names:', templates.map(t => ({ id: t.id, name: t.workout_name })));
+    
+    console.log('=== END DEBUG ===');
+  } catch (error) {
+    console.error('Debug error:', error);
+  }
 };

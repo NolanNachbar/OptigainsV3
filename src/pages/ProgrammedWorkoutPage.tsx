@@ -6,7 +6,7 @@ import {
   getConsolidatedExercises,
   generateUserIdAsUuid,
   removeExerciseFromWorkout,
-} from "../utils/localStorageDB";
+} from "../utils/SupaBase";
 import { Workout, Exercise, Set } from "../utils/types";
 import ActionBar from "../components/Actionbar";
 import {

@@ -4,7 +4,7 @@ import {
   calculateNextWeight,
   loadWorkouts,
   removeWorkoutFromList,
-} from "../utils/localStorageDB";
+} from "../utils/SupaBase";
 import "../styles/styles.css";
 import { Workout, Exercise, Set as ExerciseSet } from "../utils/types";
 import {

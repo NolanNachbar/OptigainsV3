@@ -6,7 +6,7 @@ import {
   assignWorkoutToDate,
   getWorkoutsForDate,
   removeWorkoutFromDate,
-} from "../utils/localStorageDB";
+} from "../utils/SupaBase";
 import { getCurrentTrainingBlock } from "../utils/trainingBlocks";
 import EditWorkoutComponent from "./EditWorkout";
 import { useUser } from "@clerk/clerk-react";

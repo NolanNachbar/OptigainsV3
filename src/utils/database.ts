@@ -11,16 +11,6 @@ export const generateUserIdAsUuid = (clerkUserId: string): string => {
   return uuidv5(clerkUserId, NAMESPACE);
 };
 
-// Storage keys
-const STORAGE_KEYS = {
-  WORKOUT_TEMPLATES: "optigains_workout_templates",
-  WORKOUT_INSTANCES: "optigains_workout_instances",
-  TRAINING_BLOCKS: "optigains_training_blocks",
-  CALENDAR_ASSIGNMENTS: "optigains_calendar_assignments",
-  EXERCISE_LIBRARY: "optigains_exercise_library",
-  USER: "optigains_user"
-};
-
 export interface CalendarAssignment {
   id: string;
   clerk_user_id: string;
@@ -76,7 +66,8 @@ export interface IDatabase {
   updateExerciseUsage(exerciseName: string, user: UserResource): Promise<void>;
 }
 
-// LocalStorage implementation
+// LocalStorage implementation (removed - using Supabase only)
+/*
 export class LocalStorageDB implements IDatabase {
   private generateUserId(clerkUserId: string): string {
     return uuidv5(clerkUserId, NAMESPACE);
@@ -356,29 +347,37 @@ export class LocalStorageDB implements IDatabase {
     this.saveToStorage(STORAGE_KEYS.EXERCISE_LIBRARY, userId, library);
   }
 }
+*/
 
 // Import Supabase implementation
 import { SupabaseDB } from './supabaseDatabase';
 
-// Switch between localStorage and Supabase based on environment
-const USE_SUPABASE = import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY;
+// Log environment variables for debugging
+console.log('Environment variables check:');
+console.log('VITE_SUPABASE_URL:', import.meta.env.VITE_SUPABASE_URL);
+console.log('VITE_SUPABASE_KEY:', import.meta.env.VITE_SUPABASE_KEY ? 'Present' : 'Missing');
 
-// Export a singleton instance
-export const db = USE_SUPABASE 
-  ? new SupabaseDB(
-      import.meta.env.VITE_SUPABASE_URL!,
-      import.meta.env.VITE_SUPABASE_ANON_KEY!
-    )
-  : new LocalStorageDB();
+// Check for required Supabase environment variables
+if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_KEY) {
+  throw new Error(
+    'Missing required Supabase environment variables. Please set VITE_SUPABASE_URL and VITE_SUPABASE_KEY'
+  );
+}
+
+// Always use Supabase - no localStorage fallback
+export const db = new SupabaseDB(
+  import.meta.env.VITE_SUPABASE_URL,
+  import.meta.env.VITE_SUPABASE_KEY
+);
 
 // Log which database is being used
-console.log(`Using ${USE_SUPABASE ? 'Supabase' : 'LocalStorage'} database`);
+console.log('Using Supabase database');
+console.log('Supabase URL:', import.meta.env.VITE_SUPABASE_URL);
+console.log('Supabase Key:', import.meta.env.VITE_SUPABASE_ANON_KEY ? 'Set' : 'Not set');
 
-// Initialize Clerk token for Supabase if needed
+// Initialize Clerk token for Supabase
 export const initializeDatabase = (getToken: () => Promise<string | null>) => {
-  if (USE_SUPABASE && db instanceof SupabaseDB) {
-    db.setClerkTokenGetter(getToken);
-  }
+  db.setClerkTokenGetter(getToken);
 };
 
 // Utility functions that don't depend on database

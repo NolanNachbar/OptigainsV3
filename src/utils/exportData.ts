@@ -1,5 +1,5 @@
 import { Exercise, Workout, bodyWeight } from './types';
-import { loadWorkouts, getConsolidatedExercises } from './localStorageDB';
+import { loadWorkouts, getConsolidatedExercises } from './SupaBase';
 import { UserResource } from '@clerk/types';
 
 interface ExportData {
@@ -41,9 +41,9 @@ export const exportExerciseLogsCSV = async (user: UserResource) => {
   
   // Flatten exercise logs for CSV
   const flattenedLogs: any[] = [];
-  exercises.forEach(exercise => {
+  exercises.forEach((exercise: Exercise) => {
     if (exercise.logs) {
-      exercise.logs.forEach(log => {
+      exercise.logs.forEach((log: any) => {
         flattenedLogs.push({
           exerciseName: exercise.name,
           date: new Date(log.date).toLocaleDateString(),
@@ -67,9 +67,9 @@ export const exportWorkoutsCSV = async (user: UserResource) => {
   
   // Flatten workouts for CSV
   const flattenedWorkouts: any[] = [];
-  workouts.forEach(workout => {
-    workout.exercises.forEach(exercise => {
-      exercise.sets.forEach((set, index) => {
+  workouts.forEach((workout: Workout) => {
+    workout.exercises.forEach((exercise: Exercise) => {
+      exercise.sets.forEach((set: any, index: number) => {
         flattenedWorkouts.push({
           workoutName: workout.workout_name,
           exerciseName: exercise.name,

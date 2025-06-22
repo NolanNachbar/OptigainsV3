@@ -4,7 +4,7 @@ import {
   saveWorkouts,
   loadWorkouts,
   getConsolidatedExercises,
-} from "../utils/localStorageDB";
+} from "../utils/SupaBase";
 import { Workout, Exercise } from "../utils/types";
 import { useUser } from "@clerk/clerk-react"; // Import Clerk's useUser hook
 

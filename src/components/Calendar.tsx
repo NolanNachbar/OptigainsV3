@@ -10,7 +10,7 @@ import {
   removeWorkoutFromList,
   copyWorkoutTemplate,
   getWorkoutTemplate,
-} from "../utils/localStorageDB";
+} from "../utils/SupaBase";
 import "../styles/CalendarComponent.css";
 import EditWorkoutComponent from "./EditWorkout";
 import { useUser } from "@clerk/clerk-react";

@@ -4,7 +4,7 @@ import { useAuth, useSession } from '@clerk/clerk-react';
 import { useEffect, useState } from 'react';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_KEY;
 
 // Create a Supabase client without auth for initial setup
 export const supabase = createClient(supabaseUrl!, supabaseAnonKey!);

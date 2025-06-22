@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { preloadWorkouts, resetWorkouts } from "../utils/localStorageDB";
+import { preloadWorkouts, resetWorkouts, debugCalendarAssignments } from "../utils/SupaBase";
 import OptigainDumbell from "../assets/react3.svg";
 import { useUser } from "@clerk/clerk-react"; // Import Clerk's useUser hook
 import ActionBar from "../components/Actionbar";
@@ -111,27 +111,48 @@ const HomePage: React.FC = () => {
           </button>
         </div>
 
-        {/* Development-only reset button */}
+        {/* Development-only buttons */}
         {process.env.NODE_ENV === "development" && (
-          <button
-            onClick={handleReset}
-            className="reset-button"
-            style={{
-              position: "fixed",
-              bottom: "100px", // Positioned above the feedback bar
-              right: "20px",
-              padding: "0.5rem 1rem",
-              backgroundColor: "#dc3545",
-              color: "white",
-              border: "none",
-              borderRadius: "4px",
-              cursor: "pointer",
-              zIndex: 1000,
-              boxShadow: "0 2px 8px rgba(0, 0, 0, 0.3)",
-            }}
-          >
-            Reset to Default Workouts
-          </button>
+          <>
+            <button
+              onClick={handleReset}
+              className="reset-button"
+              style={{
+                position: "fixed",
+                bottom: "100px", // Positioned above the feedback bar
+                right: "20px",
+                padding: "0.5rem 1rem",
+                backgroundColor: "#dc3545",
+                color: "white",
+                border: "none",
+                borderRadius: "4px",
+                cursor: "pointer",
+                zIndex: 1000,
+                boxShadow: "0 2px 8px rgba(0, 0, 0, 0.3)",
+              }}
+            >
+              Reset to Default Workouts
+            </button>
+            <button
+              onClick={() => user && debugCalendarAssignments(user)}
+              className="debug-button"
+              style={{
+                position: "fixed",
+                bottom: "150px", // Above reset button
+                right: "20px",
+                padding: "0.5rem 1rem",
+                backgroundColor: "#007bff",
+                color: "white",
+                border: "none",
+                borderRadius: "4px",
+                cursor: "pointer",
+                zIndex: 1000,
+                boxShadow: "0 2px 8px rgba(0, 0, 0, 0.3)",
+              }}
+            >
+              Debug Calendar
+            </button>
+          </>
         )}
         
         {/* Development-only date picker */}
