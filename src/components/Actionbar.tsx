@@ -1,95 +1,75 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import OptigainDumbell from "../assets/react3.svg";
 import {
   UserButton,
   SignedIn,
   SignedOut,
   SignInButton,
-} from "@clerk/clerk-react"; // Import Clerk components
+} from "@clerk/clerk-react";
+import "../styles/ActionBar.css";
 
 const ActionBar: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Navigation items
+  const navItems = [
+    { path: "/", label: "Home" },
+    { path: "/workout-plan", label: "Plans" },
+    { path: "/library-page", label: "Library" },
+    { path: "/freestyle-lift", label: "Quick Lift" },
+  ];
 
   return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        padding: "0.5rem 1.5rem", // Adjust padding for a smaller bar
-        backgroundColor: "#333",
-        color: "#fff",
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 1000, // Keeps it on top
-      }}
-    >
-      {/* SVG Icon with onClick to navigate to home */}
-      <img
-        src={OptigainDumbell}
-        alt="Optigain Dumbell Logo"
-        style={{
-          width: "30px", // Scale down the icon
-          height: "30px", // Scale down the icon
-          marginRight: "1rem", // Space between icon and app name
-          cursor: "pointer", // Make it look clickable
-        }}
-        onClick={() => navigate("/")} // Navigate to home on click
-      />
+    <div className="action-bar">
+      <div className="action-bar-container">
+        {/* Logo and Brand */}
+        <div className="brand-section" onClick={() => navigate("/")}>
+          <img
+            src={OptigainDumbell}
+            alt="Optigains Logo"
+            className="brand-logo"
+          />
+          <h1 className="brand-name">Optigains</h1>
+        </div>
 
-      {/* App Name */}
-      <h1
-        style={{
-          margin: 0,
-          fontSize: "1.25rem", // Reduce font size of app name
-          fontWeight: "normal", // Optional: makes it less bold if needed
-        }}
-      >
-        Optigains
-      </h1>
+        {/* Navigation */}
+        <nav className="nav-section">
+          {navItems.map((item) => (
+            <button
+              key={item.path}
+              onClick={() => navigate(item.path)}
+              className={`nav-item ${location.pathname === item.path ? 'active' : ''}`}
+            >
+              <span className="nav-label">{item.label}</span>
+            </button>
+          ))}
+        </nav>
 
-      {/* Clerk Authentication and Settings */}
-      <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-        {/* Settings Button */}
-        <button
-          onClick={() => navigate("/settings")}
-          style={{
-            background: "transparent",
-            border: "1px solid #666",
-            borderRadius: "6px",
-            padding: "0.4rem 0.8rem",
-            color: "#fff",
-            cursor: "pointer",
-            fontSize: "0.9rem",
-            display: "flex",
-            alignItems: "center",
-            gap: "0.5rem",
-            transition: "all 0.2s ease",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = "#444";
-            e.currentTarget.style.borderColor = "#888";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = "transparent";
-            e.currentTarget.style.borderColor = "#666";
-          }}
-        >
-          Settings
-        </button>
-        
-        {/* Show UserButton if signed in */}
-        <SignedIn>
-          <UserButton afterSignOutUrl="/" />
-        </SignedIn>
+        {/* User Section */}
+        <div className="user-section">
+          <button
+            onClick={() => navigate("/settings")}
+            className="settings-button"
+            title="Settings"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path d="M12 1v6m0 6v6m3.22-10.22l4.24-4.24m-4.24 13.68l4.24 4.24M1 12h6m6 0h6m-10.22 3.22l-4.24 4.24m13.68-4.24l4.24 4.24"></path>
+            </svg>
+          </button>
+          
+          <SignedIn>
+            <UserButton />
+          </SignedIn>
 
-        {/* Show SignInButton if signed out */}
-        <SignedOut>
-          <SignInButton mode="modal" />
-        </SignedOut>
+          <SignedOut>
+            <SignInButton mode="modal">
+              <button className="sign-in-button">Sign In</button>
+            </SignInButton>
+          </SignedOut>
+        </div>
       </div>
     </div>
   );
