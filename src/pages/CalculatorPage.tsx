@@ -13,8 +13,13 @@ const CalcPage: React.FC = () => {
   const [barWeight, setBarWeight] = useState<number | "">(45);
   const [selectedPercentages] = useState<number[]>([50, 60, 70, 80, 85, 90, 95]);
 
+  // Update bar weight when unit changes
+  React.useEffect(() => {
+    setBarWeight(unit === "lbs" ? 45 : 20);
+  }, [unit]);
+
   // Conversion helpers
-  const lbsToKg = (lbs: number) => lbs / 2.20462;
+  // const lbsToKg = (lbs: number) => lbs / 2.20462; // Unused for now
   
   // Available plates in lbs
   const availablePlatesLbs = [45, 35, 25, 10, 5, 2.5];
@@ -23,9 +28,9 @@ const CalcPage: React.FC = () => {
   // Calculate plates needed
   const calculatePlates = (targetWeight: number) => {
     const plates = unit === "lbs" ? availablePlatesLbs : availablePlatesKg;
-    const actualBarWeight = barWeight === "" ? 45 : barWeight;
-    const currentBarWeight = unit === "lbs" ? actualBarWeight : lbsToKg(actualBarWeight);
-    const weightPerSide = (targetWeight - currentBarWeight) / 2;
+    const actualBarWeight = barWeight === "" ? (unit === "lbs" ? 45 : 20) : barWeight;
+    // Bar weight is already in the correct unit, no conversion needed
+    const weightPerSide = (targetWeight - actualBarWeight) / 2;
     
     if (weightPerSide <= 0) return [];
     
@@ -33,7 +38,7 @@ const CalcPage: React.FC = () => {
     let remainingWeight = weightPerSide;
     
     for (const plate of plates) {
-      while (remainingWeight >= plate) {
+      while (remainingWeight >= plate - 0.01) { // Small tolerance for floating point
         platesNeeded.push(plate);
         remainingWeight -= plate;
       }
@@ -270,7 +275,12 @@ const CalcPage: React.FC = () => {
                 )}
               </div>
               <div className="total-weight">
-                Total: {plateWeight} {unit}
+                Total: {(() => {
+                  const actualBarWeight = barWeight === "" ? (unit === "lbs" ? 45 : 20) : barWeight;
+                  const platesPerSide = calculatePlates(Number(plateWeight));
+                  const totalPlateWeight = platesPerSide.reduce((sum, plate) => sum + plate, 0) * 2;
+                  return actualBarWeight + totalPlateWeight;
+                })()} {unit}
               </div>
             </div>
           )}
