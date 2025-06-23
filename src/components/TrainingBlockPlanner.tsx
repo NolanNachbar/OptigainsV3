@@ -42,6 +42,8 @@ const TrainingBlockPlanner: React.FC<TrainingBlockPlannerProps> = ({
   const [templateWorkouts, setTemplateWorkouts] = useState<Workout[]>([]);
   const [showBlockEditor, setShowBlockEditor] = useState(false);
   const [pastBlocks, setPastBlocks] = useState<TrainingBlock[]>([]);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [selectedStartDate, setSelectedStartDate] = useState(new Date().toISOString().split('T')[0]);
 
   useEffect(() => {
     const loadBlocks = async () => {
@@ -218,17 +220,18 @@ const TrainingBlockPlanner: React.FC<TrainingBlockPlannerProps> = ({
       return;
     }
     
-    const confirmApply = window.confirm(
-      'This will apply your workout rotation to the calendar for the next 4 weeks. ' +
-      'Any existing calendar assignments will be preserved. Continue?'
-    );
+    setShowDatePicker(true);
+  };
+
+  const confirmApplyRotation = async () => {
+    if (!currentBlock || !currentBlock.rotationAssignments || !user) return;
     
-    if (!confirmApply) return;
+    setShowDatePicker(false);
     
     try {
-      // Calculate dates for the next 4 weeks
-      const startDate = new Date();
-      const endDate = new Date();
+      // Calculate dates for the next 4 weeks from selected start date
+      const startDate = new Date(selectedStartDate);
+      const endDate = new Date(selectedStartDate);
       endDate.setDate(endDate.getDate() + 28); // 4 weeks
       
       let currentDate = new Date(startDate);
@@ -615,6 +618,44 @@ const TrainingBlockPlanner: React.FC<TrainingBlockPlannerProps> = ({
                 className="button secondary"
               >
                 Back to Templates
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showDatePicker && (
+        <div className="date-picker-modal-overlay">
+          <div className="date-picker-modal">
+            <h3>Choose Start Date</h3>
+            <p>When would you like to start this training program?</p>
+            
+            <div className="date-picker-content">
+              <label>
+                Start Date:
+                <input
+                  type="date"
+                  value={selectedStartDate}
+                  onChange={(e) => setSelectedStartDate(e.target.value)}
+                  min={new Date().toISOString().split('T')[0]}
+                />
+              </label>
+              
+              <div className="date-preview">
+                <p>Your program will run from:</p>
+                <strong>
+                  {new Date(selectedStartDate).toLocaleDateString()} to{' '}
+                  {new Date(new Date(selectedStartDate).getTime() + 28 * 24 * 60 * 60 * 1000).toLocaleDateString()}
+                </strong>
+              </div>
+            </div>
+            
+            <div className="modal-actions">
+              <button onClick={confirmApplyRotation} className="button primary">
+                Apply to Calendar
+              </button>
+              <button onClick={() => setShowDatePicker(false)} className="button secondary">
+                Cancel
               </button>
             </div>
           </div>
@@ -1120,6 +1161,80 @@ const TrainingBlockPlanner: React.FC<TrainingBlockPlannerProps> = ({
           color: #888888;
         }
 
+        .date-picker-modal-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0, 0, 0, 0.8);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 1000;
+        }
+
+        .date-picker-modal {
+          background: #1e1e1e;
+          border-radius: 12px;
+          padding: 2rem;
+          max-width: 500px;
+          width: 90%;
+          border: 1px solid #404040;
+        }
+
+        .date-picker-modal h3 {
+          color: #ffffff;
+          margin: 0 0 0.5rem 0;
+        }
+
+        .date-picker-modal p {
+          color: #b0b0b0;
+          margin: 0 0 2rem 0;
+        }
+
+        .date-picker-content {
+          margin-bottom: 2rem;
+        }
+
+        .date-picker-content label {
+          display: block;
+          color: #ffffff;
+          font-weight: 600;
+          margin-bottom: 1rem;
+        }
+
+        .date-picker-content input[type="date"] {
+          display: block;
+          width: 100%;
+          padding: 0.75rem;
+          margin-top: 0.5rem;
+          background: #2a2a2a;
+          border: 1px solid #404040;
+          border-radius: 6px;
+          color: #ffffff;
+          font-size: 1rem;
+        }
+
+        .date-preview {
+          background: #2a2a2a;
+          border: 1px solid #404040;
+          border-radius: 8px;
+          padding: 1rem;
+          margin-top: 1rem;
+        }
+
+        .date-preview p {
+          margin: 0 0 0.5rem 0;
+          color: #b0b0b0;
+          font-size: 0.875rem;
+        }
+
+        .date-preview strong {
+          color: #2196F3;
+          font-size: 1.1rem;
+        }
+
         @media (max-width: 768px) {
           .block-details {
             grid-template-columns: 1fr;
@@ -1135,6 +1250,11 @@ const TrainingBlockPlanner: React.FC<TrainingBlockPlannerProps> = ({
           }
 
           .modal-content {
+            margin: 1rem;
+            padding: 1.5rem;
+          }
+
+          .date-picker-modal {
             margin: 1rem;
             padding: 1.5rem;
           }
