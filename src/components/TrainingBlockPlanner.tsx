@@ -224,7 +224,7 @@ const TrainingBlockPlanner: React.FC<TrainingBlockPlannerProps> = ({
   };
 
   const confirmApplyRotation = async () => {
-    if (!currentBlock || !currentBlock.rotationAssignments || !user) return;
+    if (!currentBlock || !currentBlock.rotationAssignments || !currentBlock.workoutRotation || !user) return;
     
     setShowDatePicker(false);
     
