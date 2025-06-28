@@ -6,6 +6,7 @@ import {
   getConsolidatedExercises,
   generateUserIdAsUuid,
   removeExerciseFromWorkout,
+  getLastExercisePerformance,
 } from "../utils/SupaBase";
 import { Workout, Exercise, Set } from "../utils/types";
 import ActionBar from "../components/Actionbar";
@@ -55,6 +56,7 @@ const StartProgrammedLiftPage: React.FC = () => {
   const [showSwapModal, setShowSwapModal] = useState(false);
   const [swappingExercise, setSwappingExercise] = useState<string | null>(null);
   const [swapExerciseName, setSwapExerciseName] = useState<string>("");
+  const [exerciseHistory, setExerciseHistory] = useState<Record<string, any>>({});
 
   // Calculate total sets and completed sets whenever workout changes
   useEffect(() => {
@@ -139,6 +141,26 @@ const StartProgrammedLiftPage: React.FC = () => {
       loadExercises();
     }
   }, [user]);
+
+  // Fetch exercise history when workout loads
+  useEffect(() => {
+    if (workoutToday && user) {
+      const fetchExerciseHistory = async () => {
+        const historyData: Record<string, any> = {};
+        
+        for (const exercise of workoutToday.exercises) {
+          const lastPerformance = await getLastExercisePerformance(exercise.name, user);
+          if (lastPerformance) {
+            historyData[exercise.name] = lastPerformance;
+          }
+        }
+        
+        setExerciseHistory(historyData);
+      };
+      
+      fetchExerciseHistory();
+    }
+  }, [workoutToday, user]);
 
   const handleInputChange = (
     exerciseName: string,
@@ -694,20 +716,18 @@ const StartProgrammedLiftPage: React.FC = () => {
                               </button>
                             </div>
                           </div>
-                          {exercise.logs && exercise.logs.length > 0 && (
+                          {exerciseHistory[exercise.name] && (
                             <div className="last-set-info">
                               <div className="set-history">
                                 <div className="performance-header">
-                                  <strong>Last Set:</strong>
+                                  <strong>Last Performance:</strong>
                                 </div>
                                 <div className="performance-details">
-                                  <span className="weight-highlight">{exercise.logs[exercise.logs.length - 1].weight}lbs</span>
-                                  <span className="reps-highlight">× {exercise.logs[exercise.logs.length - 1].reps}</span>
-                                  <span className="rir-highlight">@RIR{exercise.logs[exercise.logs.length - 1].rir}</span>
+                                  <span className="weight-highlight">{exerciseHistory[exercise.name].weight}lbs</span>
+                                  <span className="reps-highlight">× {exerciseHistory[exercise.name].reps}</span>
+                                  <span className="rir-highlight">@RIR{exerciseHistory[exercise.name].rir}</span>
                                   <span className="date">
-                                    ({new Date(
-                                      exercise.logs[exercise.logs.length - 1].date
-                                    ).toLocaleDateString()})
+                                    ({new Date(exerciseHistory[exercise.name].date).toLocaleDateString()} - {exerciseHistory[exercise.name].workoutName})
                                   </span>
                                 </div>
                               </div>
@@ -715,12 +735,22 @@ const StartProgrammedLiftPage: React.FC = () => {
                                 <div className="recommended-weight">
                                   <strong>Recommended Progressive Overload:</strong><br/>
                                   <span className="overload-values">
-                                    {calculateNextWeight(
-                                      exercise,
-                                      customReps,
-                                      customRir,
-                                      customPercentIncrease
-                                    )}
+                                    {exerciseHistory[exercise.name] ? 
+                                      calculateNextWeight(
+                                        {
+                                          ...exercise,
+                                          logs: [{
+                                            weight: exerciseHistory[exercise.name].weight,
+                                            reps: exerciseHistory[exercise.name].reps,
+                                            rir: exerciseHistory[exercise.name].rir,
+                                            date: exerciseHistory[exercise.name].date
+                                          }]
+                                        },
+                                        customReps,
+                                        customRir,
+                                        customPercentIncrease
+                                      ) : 45
+                                    }
                                     lbs × {customReps} reps, RIR {customRir} (+{customPercentIncrease}%)
                                   </span>
                                 </div>
@@ -734,12 +764,21 @@ const StartProgrammedLiftPage: React.FC = () => {
                                   </button>
                                   <button
                                     onClick={() => {
-                                      const newWeight = calculateNextWeight(
-                                        exercise,
-                                        customReps,
-                                        customRir,
-                                        customPercentIncrease
-                                      );
+                                      const newWeight = exerciseHistory[exercise.name] ? 
+                                        calculateNextWeight(
+                                          {
+                                            ...exercise,
+                                            logs: [{
+                                              weight: exerciseHistory[exercise.name].weight,
+                                              reps: exerciseHistory[exercise.name].reps,
+                                              rir: exerciseHistory[exercise.name].rir,
+                                              date: exerciseHistory[exercise.name].date
+                                            }]
+                                          },
+                                          customReps,
+                                          customRir,
+                                          customPercentIncrease
+                                        ) : 45;
                                       // Auto-fill first set with recommended values
                                       setInputState((prev) => ({
                                         ...prev,

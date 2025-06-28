@@ -140,26 +140,17 @@ export const removeExerciseFromWorkout = async (_supabase: any, workoutName: str
 
 // Calendar functions
 export const getWorkoutsForDate = async (_supabase: any, date: string, user: UserResource): Promise<Workout[]> => {
-  console.log('[getWorkoutsForDate] Called with:', { 
-    date, 
-    userId: user.id,
-    dateObject: new Date(date),
-    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
-  });
   
   const assignments = await db.getCalendarAssignments(user.id, {
     start: date,
     end: date
   });
   
-  console.log('[getWorkoutsForDate] Found assignments:', assignments.length);
   
   const workouts: Workout[] = [];
   
   for (const assignment of assignments) {
-    console.log('[getWorkoutsForDate] Processing assignment:', assignment);
     const template = await db.getWorkoutTemplate(assignment.template_id, user.id);
-    console.log('[getWorkoutsForDate] Found template:', template ? template.workout_name : 'Not found');
     if (template) {
       workouts.push({
         id: template.id,
@@ -226,30 +217,31 @@ export const getWorkoutForToday = async (_supabase: any, date: string, user: Use
 };
 
 export const assignWorkoutToDate = async (_supabase: any, workoutNameOrTemplateId: string, date: string, user: UserResource): Promise<void> => {
-  console.log('[assignWorkoutToDate] Called with:', { workoutNameOrTemplateId, date, userId: user.id });
   
-  // First try to find by workout name (backward compatibility)
-  const templates = await db.getWorkoutTemplates(user.id);
-  console.log('[assignWorkoutToDate] Found templates:', templates.length);
-  
-  const template = templates.find(t => t.workout_name === workoutNameOrTemplateId || t.id === workoutNameOrTemplateId);
-  console.log('[assignWorkoutToDate] Found template:', template ? template.workout_name : 'Not found');
-  
-  if (template && template.id) {
-    const assignment = {
-      id: '',
-      clerk_user_id: user.id,
-      template_id: template.id,
-      assigned_date: date,
-      completed: false,
-      created_at: new Date().toISOString()
-    };
-    console.log('[assignWorkoutToDate] Saving assignment:', assignment);
+  try {
+    // First try to find by workout name (backward compatibility)
+    const templates = await db.getWorkoutTemplates(user.id);
     
-    await db.saveCalendarAssignment(assignment, user);
-    console.log('[assignWorkoutToDate] Assignment saved successfully');
-  } else {
-    console.warn('[assignWorkoutToDate] Template not found for:', workoutNameOrTemplateId);
+    const template = templates.find(t => t.workout_name === workoutNameOrTemplateId || t.id === workoutNameOrTemplateId);
+    
+    if (template && template.id) {
+      const assignment = {
+        id: '',
+        clerk_user_id: user.id,
+        template_id: template.id,
+        assigned_date: date,
+        completed: false,
+        created_at: new Date().toISOString()
+      };
+      
+      await db.saveCalendarAssignment(assignment, user);
+    } else {
+      // Template not found - this might be an old ID from a previous session
+      console.error(`[assignWorkoutToDate] Template ID not found: ${workoutNameOrTemplateId}`);
+    }
+  } catch (error) {
+    console.error('[assignWorkoutToDate] Error:', error);
+    throw error;
   }
 };
 
@@ -331,6 +323,26 @@ export const getExerciseHistory = async (user: UserResource): Promise<string[]> 
 
 export const updateExerciseUsage = async (exerciseName: string, user: UserResource): Promise<void> => {
   await db.updateExerciseUsage(exerciseName, user);
+};
+
+export const getLastExercisePerformance = async (exerciseName: string, user: UserResource): Promise<{
+  weight: number;
+  reps: number;
+  rir: number;
+  date: string;
+  workoutName: string;
+} | null> => {
+  const lastPerformance = await db.getLastExercisePerformance(exerciseName, user.id);
+  
+  if (!lastPerformance) return null;
+  
+  return {
+    weight: Number(lastPerformance.weight),
+    reps: lastPerformance.reps,
+    rir: lastPerformance.rir || 0,
+    date: lastPerformance.created_at,
+    workoutName: 'Previous Workout' // We'll need to get this from workout_instance_id later
+  };
 };
 
 // Utility functions

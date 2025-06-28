@@ -14,6 +14,8 @@ import {
 
 export class SupabaseDB implements IDatabase {
   private supabase: SupabaseClient;
+  private authClient: SupabaseClient | null = null;
+  private currentToken: string | null = null;
   private supabaseUrl: string;
   private supabaseKey: string;
   private getClerkToken: (() => Promise<string | null>) | null = null;
@@ -38,21 +40,31 @@ export class SupabaseDB implements IDatabase {
 
     try {
       const token = await this.getClerkToken();
-      console.log('[SupabaseDB] Got Clerk token:', token ? 'Yes' : 'No');
       
-      // Decode and log the token payload for debugging
-      if (token) {
-        try {
-          const payload = JSON.parse(atob(token.split('.')[1]));
-          console.log('[SupabaseDB] Token payload sub:', payload.sub);
-          console.log('[SupabaseDB] Token payload user_id:', payload.user_id);
-        } catch (e) {
-          console.error('[SupabaseDB] Failed to decode token:', e);
+      // If token hasn't changed and we have a cached client, return it
+      if (token === this.currentToken && this.authClient) {
+        return this.authClient;
+      }
+      
+      // Only log token info on first creation or token change
+      if (token !== this.currentToken) {
+        console.log('[SupabaseDB] New Clerk token received');
+        
+        // Decode and log the token payload for debugging
+        if (token) {
+          try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            console.log('[SupabaseDB] Token user_id:', payload.user_id);
+          } catch (e) {
+            console.error('[SupabaseDB] Failed to decode token:', e);
+          }
         }
       }
       
       if (token) {
-        return createClient(
+        // Update the cached token and client
+        this.currentToken = token;
+        this.authClient = createClient(
           this.supabaseUrl,
           this.supabaseKey,
           {
@@ -66,6 +78,7 @@ export class SupabaseDB implements IDatabase {
             },
           }
         );
+        return this.authClient;
       }
     } catch (error) {
       console.error('Error getting Clerk token:', error);
@@ -378,7 +391,6 @@ export class SupabaseDB implements IDatabase {
 
   // Calendar
   async getCalendarAssignments(userId: string, dateRange?: { start: string; end: string }): Promise<CalendarAssignment[]> {
-    console.log('[SupabaseDB.getCalendarAssignments] Getting assignments for:', { userId, dateRange });
     
     const client = await this.getAuthClient();
     let query = client
@@ -399,22 +411,23 @@ export class SupabaseDB implements IDatabase {
       throw error;
     }
     
-    console.log('[SupabaseDB.getCalendarAssignments] Found assignments:', data?.length || 0);
-    console.log('[SupabaseDB.getCalendarAssignments] Assignment details:', data);
     return data || [];
   }
 
   async saveCalendarAssignment(assignment: CalendarAssignment, user: UserResource): Promise<CalendarAssignment> {
-    console.log('[SupabaseDB.saveCalendarAssignment] Saving assignment:', assignment);
     
     const client = await this.getAuthClient();
+    
     // First delete any existing assignment for the same template and date
-    await client
+    const { error: deleteError } = await client
       .from('calendar_assignments')
       .delete()
       .eq('clerk_user_id', user.id)
       .eq('template_id', assignment.template_id)
       .eq('assigned_date', assignment.assigned_date);
+      
+    if (deleteError) {
+    }
 
     const { data, error } = await client
       .from('calendar_assignments')
@@ -429,11 +442,11 @@ export class SupabaseDB implements IDatabase {
       .single();
 
     if (error) {
-      console.error('[SupabaseDB.saveCalendarAssignment] Error:', error);
+      console.error('[SupabaseDB.saveCalendarAssignment] Insert error:', error);
       throw error;
     }
     
-    console.log('[SupabaseDB.saveCalendarAssignment] Saved successfully:', data);
+    
     return data;
   }
 
@@ -470,6 +483,51 @@ export class SupabaseDB implements IDatabase {
 
     if (error) throw error;
     return data;
+  }
+  
+  // Get last exercise performance
+  async getLastExercisePerformance(exerciseName: string, userId: string): Promise<any | null> {
+    const client = await this.getAuthClient();
+    
+    try {
+      // Get the most recent exercise log for this exercise
+      const { data, error } = await client
+        .from('exercise_logs')
+        .select('*')
+        .eq('clerk_user_id', userId)
+        .eq('exercise_name', exerciseName)
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      if (error) {
+        console.warn(`[getLastExercisePerformance] Error for ${exerciseName}:`, error);
+        return null;
+      }
+
+      return data && data.length > 0 ? data[0] : null;
+    } catch (err) {
+      console.warn(`[getLastExercisePerformance] Exception for ${exerciseName}:`, err);
+      return null;
+    }
+  }
+
+  // Save exercise log
+  async saveExerciseLog(log: {
+    clerk_user_id: string;
+    workout_instance_id: string;
+    exercise_name: string;
+    set_number: number;
+    weight: number;
+    reps: number;
+    rir: number;
+    notes?: string;
+  }): Promise<void> {
+    const client = await this.getAuthClient();
+    const { error } = await client
+      .from('exercise_logs')
+      .insert(log);
+      
+    if (error) throw error;
   }
 
   async updateExerciseUsage(exerciseName: string, user: UserResource): Promise<void> {

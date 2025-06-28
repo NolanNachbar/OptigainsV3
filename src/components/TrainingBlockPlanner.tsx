@@ -67,7 +67,12 @@ const TrainingBlockPlanner: React.FC<TrainingBlockPlannerProps> = ({
       }
     };
     
-    loadBlocks();
+    // Add a small delay to prevent rapid requests during component initialization
+    const timeoutId = setTimeout(() => {
+      loadBlocks();
+    }, 100);
+    
+    return () => clearTimeout(timeoutId);
   }, [onBlockChange, user]);
 
   const handleViewTemplateWorkouts = async () => {
@@ -216,17 +221,48 @@ const TrainingBlockPlanner: React.FC<TrainingBlockPlannerProps> = ({
   };
   
   const handleApplyRotationToCalendar = async () => {
-    if (!currentBlock || !currentBlock.rotationAssignments || !currentBlock.workoutRotation || !user) {
+    if (!currentBlock || !currentBlock.workoutRotation || !user) {
       return;
     }
+    
+    // Always rebuild rotationAssignments to ensure we have current IDs
+    const assignments: Record<string, string> = {};
+    let missingWorkouts: string[] = [];
+    
+    for (const workoutName of currentBlock.workoutRotation) {
+      if (workoutName.toLowerCase() !== 'rest') {
+        const workout = availableWorkouts.find(w => w.workout_name === workoutName);
+        if (workout && workout.id) {
+          assignments[workoutName] = workout.id;
+        } else {
+          missingWorkouts.push(workoutName);
+        }
+      }
+    }
+    
+    if (missingWorkouts.length > 0) {
+      alert(`Cannot find the following workouts: ${missingWorkouts.join(', ')}. Please create them first.`);
+      return;
+    }
+    
+    // Update the block with fresh assignments
+    const updatedBlock = { ...currentBlock, rotationAssignments: assignments };
+    updateTrainingBlock(updatedBlock);
+    setCurrentBlock(updatedBlock);
     
     setShowDatePicker(true);
   };
 
   const confirmApplyRotation = async () => {
-    if (!currentBlock || !currentBlock.rotationAssignments || !currentBlock.workoutRotation || !user) return;
+    if (!currentBlock || !currentBlock.workoutRotation || !user) return;
     
     setShowDatePicker(false);
+    
+    // rotationAssignments should already be populated by handleApplyRotationToCalendar
+    if (!currentBlock.rotationAssignments || Object.keys(currentBlock.rotationAssignments).length === 0) {
+      alert('Please try applying the rotation again.');
+      return;
+    }
     
     try {
       // Calculate dates for the next 4 weeks from selected start date
@@ -242,7 +278,9 @@ const TrainingBlockPlanner: React.FC<TrainingBlockPlannerProps> = ({
         
         // Get the workout for this rotation index
         const rotationSlot = currentBlock.workoutRotation[rotationIndex % currentBlock.workoutRotation.length];
-        const templateId = currentBlock.rotationAssignments[rotationSlot];
+        const templateId = currentBlock.rotationAssignments ? currentBlock.rotationAssignments[rotationSlot] : null;
+        
+        
         
         if (templateId && rotationSlot.toLowerCase() !== 'rest') {
           // Only assign if no existing assignment for this date
