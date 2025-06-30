@@ -16,10 +16,13 @@ export const DateProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (isDevelopment) {
       const storedDate = localStorage.getItem('devCurrentDate');
       if (storedDate) {
+        console.log('[DateContext] Found stored dev date:', storedDate);
         return new Date(storedDate);
       }
     }
-    return new Date();
+    const now = new Date();
+    console.log('[DateContext] Using current date:', now, 'Day:', now.getDate());
+    return now;
   };
 
   const [currentDate, setCurrentDateState] = useState<Date>(getInitialDate());

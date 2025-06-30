@@ -9,6 +9,7 @@ import CalcPage from "./pages/CalculatorPage";
 // import ExerciseLibrary from "./pages/exerciseLibrary";
 import LibraryPage from "./pages/LibraryPage";
 import BodyWeightLog from "./pages/weightLogging";
+import CustomWorkoutPage from "./pages/CustomWorkoutPage";
 import { ClerkProvider, useAuth } from "@clerk/clerk-react";
 import { SignedIn, SignedOut, RedirectToSignIn } from "@clerk/clerk-react";
 import SignInPage from "./pages/SignInPage";
@@ -83,6 +84,19 @@ const App: React.FC = () => {
                 <>
                   <SignedIn>
                     <FreestyleLiftPage />
+                  </SignedIn>
+                  <SignedOut>
+                    <RedirectToSignIn />
+                  </SignedOut>
+                </>
+              }
+            />
+            <Route
+              path="/custom-workout"
+              element={
+                <>
+                  <SignedIn>
+                    <CustomWorkoutPage />
                   </SignedIn>
                   <SignedOut>
                     <RedirectToSignIn />

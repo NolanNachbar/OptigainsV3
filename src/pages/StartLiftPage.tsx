@@ -6,15 +6,16 @@ import ActionBar from "../components/Actionbar";
 import { useUser } from "@clerk/clerk-react";
 import { getCurrentTrainingBlock } from "../utils/trainingBlocks";
 import { db } from "../utils/database";
+import { useDate } from "../contexts/DateContext";
 
 const StartLiftPage: React.FC = () => {
   const { user } = useUser();
+  const { currentDate } = useDate();
   const [workoutToday, setWorkoutToday] = useState<Workout | null>(null);
   const [loading, setLoading] = useState(true);
   const [_error, setError] = useState<string | null>(null);
   const [recentWorkouts, setRecentWorkouts] = useState<WorkoutInstance[]>([]);
   const [currentBlock, setCurrentBlock] = useState<any>(null);
-  const [todayDate] = useState(new Date());
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -26,8 +27,8 @@ const StartLiftPage: React.FC = () => {
       }
 
       try {
-        // Get today's workout
-        const todayStr = todayDate.toISOString().split("T")[0];
+        // Get today's workout using the current date from context
+        const todayStr = currentDate.toISOString().split("T")[0];
         const workouts = await getWorkoutsForDate(null, todayStr, user);
         
         if (workouts && workouts.length > 0) {
@@ -57,7 +58,7 @@ const StartLiftPage: React.FC = () => {
     };
 
     fetchWorkoutData();
-  }, [user, todayDate]);
+  }, [user, currentDate]);
 
   const formatDate = (date: Date) => {
     const options: Intl.DateTimeFormatOptions = { 
@@ -70,7 +71,7 @@ const StartLiftPage: React.FC = () => {
   };
 
   const getGreeting = () => {
-    const hour = todayDate.getHours();
+    const hour = currentDate.getHours();
     if (hour < 12) return "Good morning";
     if (hour < 17) return "Good afternoon";
     return "Good evening";
@@ -123,7 +124,7 @@ const StartLiftPage: React.FC = () => {
       <div className="page-content">
         <div className="date-header">
           <h1>{getGreeting()}, {user?.firstName || 'Athlete'}</h1>
-          <p className="current-date">{formatDate(todayDate)}</p>
+          <p className="current-date">{formatDate(currentDate)}</p>
         </div>
 
         {currentBlock && (
@@ -161,6 +162,13 @@ const StartLiftPage: React.FC = () => {
               className="quick-action-btn freestyle"
             >
               <span className="label">Freestyle Workout</span>
+            </button>
+
+            <button
+              onClick={() => navigate("/custom-workout")}
+              className="quick-action-btn custom"
+            >
+              <span className="label">Create Workout</span>
             </button>
 
             <button
@@ -207,6 +215,8 @@ const StartLiftPage: React.FC = () => {
           max-width: 800px;
           margin: 0 auto;
           padding: 2rem;
+          padding-top: calc(60px + 2rem); /* Account for ActionBar height */
+          padding-bottom: 2rem;
         }
 
         .loading-container {
@@ -421,6 +431,14 @@ const StartLiftPage: React.FC = () => {
           background: #2e1f1a;
         }
 
+        .quick-action-btn.custom {
+          border-color: #2196F3;
+        }
+
+        .quick-action-btn.custom:hover {
+          background: #1a2433;
+        }
+
         .quick-action-btn.plan {
           border-color: #9C27B0;
         }
@@ -480,6 +498,7 @@ const StartLiftPage: React.FC = () => {
         @media (max-width: 768px) {
           .page-content {
             padding: 1rem;
+            padding-top: calc(60px + 1rem); /* Account for ActionBar height */
           }
 
           .date-header h1 {

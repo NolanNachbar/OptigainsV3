@@ -10,9 +10,18 @@ const WeekViewWidget: React.FC = () => {
   const { user } = useUser();
   const navigate = useNavigate();
   const { currentDate } = useDate();
+  console.log('[WeekViewWidget] Current date from context:', currentDate, 'Day:', currentDate.getDate());
   const [weekWorkouts, setWeekWorkouts] = useState<Record<string, Workout[]>>({});
   const [currentTrainingBlock, setCurrentTrainingBlock] = useState<TrainingBlock | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Helper to format date consistently
+  const formatDateString = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
 
   useEffect(() => {
     if (!user) return;
@@ -25,9 +34,10 @@ const WeekViewWidget: React.FC = () => {
       setCurrentTrainingBlock(block);
       
       // Get start of current week (Sunday)
-      const today = currentDate;
+      const today = new Date(currentDate);
       const startOfWeek = new Date(today);
       startOfWeek.setDate(today.getDate() - today.getDay());
+      startOfWeek.setHours(0, 0, 0, 0);
       
       // Fetch workouts for each day of the week
       const weekData: Record<string, Workout[]> = {};
@@ -35,7 +45,8 @@ const WeekViewWidget: React.FC = () => {
       for (let i = 0; i < 7; i++) {
         const currentDay = new Date(startOfWeek);
         currentDay.setDate(startOfWeek.getDate() + i);
-        const dateStr = currentDay.toISOString().split("T")[0];
+        currentDay.setHours(0, 0, 0, 0);
+        const dateStr = formatDateString(currentDay);
         
         try {
           const workouts = await getWorkoutsForDate(null, dateStr, user);
@@ -66,36 +77,41 @@ const WeekViewWidget: React.FC = () => {
   };
 
   const getDayName = (dateStr: string): string => {
-    const date = new Date(dateStr);
+    // Parse YYYY-MM-DD format
+    const [year, month, day] = dateStr.split('-').map(Number);
+    const date = new Date(year, month - 1, day);
     return date.toLocaleDateString('en-US', { weekday: 'short' });
   };
 
   const getDayNumber = (dateStr: string): string => {
-    const date = new Date(dateStr);
-    return date.getDate().toString();
+    // Extract day directly from the date string to avoid timezone issues
+    const day = dateStr.split('-')[2];
+    return parseInt(day, 10).toString();
   };
 
   const isToday = (dateStr: string): boolean => {
-    const today = currentDate.toISOString().split("T")[0];
+    const today = formatDateString(currentDate);
     return dateStr === today;
   };
 
   const isPastDay = (dateStr: string): boolean => {
-    const today = currentDate.toISOString().split("T")[0];
+    const today = formatDateString(currentDate);
     return dateStr < today;
   };
 
   // Generate array of dates for the current week
   const getWeekDates = (): string[] => {
-    const today = currentDate;
+    const today = new Date(currentDate);
     const startOfWeek = new Date(today);
     startOfWeek.setDate(today.getDate() - today.getDay());
+    startOfWeek.setHours(0, 0, 0, 0);
     
     const dates = [];
     for (let i = 0; i < 7; i++) {
       const currentDay = new Date(startOfWeek);
       currentDay.setDate(startOfWeek.getDate() + i);
-      dates.push(currentDay.toISOString().split("T")[0]);
+      currentDay.setHours(0, 0, 0, 0);
+      dates.push(formatDateString(currentDay));
     }
     
     return dates;
@@ -103,13 +119,21 @@ const WeekViewWidget: React.FC = () => {
 
   const weekDates = getWeekDates();
   const completedWorkouts = Object.keys(weekWorkouts).filter(date => isPastDay(date)).length;
-  const todayWorkouts = weekWorkouts[currentDate.toISOString().split("T")[0]] || [];
+  const todayWorkouts = weekWorkouts[formatDateString(currentDate)] || [];
+
+  // Get week range for display
+  const weekStart = new Date(currentDate);
+  weekStart.setDate(currentDate.getDate() - currentDate.getDay());
+  const weekEnd = new Date(weekStart);
+  weekEnd.setDate(weekStart.getDate() + 6);
+  
+  const weekRangeText = `${weekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${weekEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
 
   if (loading) {
     return (
       <div className="week-view-widget loading">
         <div className="widget-header">
-          <h3>This Week's Schedule</h3>
+          <h3>Week of {weekRangeText}</h3>
         </div>
         <div className="loading-message">Loading workouts...</div>
       </div>
@@ -120,7 +144,7 @@ const WeekViewWidget: React.FC = () => {
     <div className="week-view-widget">
       <div className="widget-header">
         <div className="header-content">
-          <h3>This Week's Schedule</h3>
+          <h3>Week of {weekRangeText}</h3>
           {currentTrainingBlock && (
             <div className="training-block-badge">
               {currentTrainingBlock.name} - Week {currentTrainingBlock.currentWeek}

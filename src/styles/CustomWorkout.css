@@ -1,0 +1,441 @@
+.custom-workout-page {
+  min-height: 100vh;
+  background-color: var(--background-color);
+}
+
+.custom-workout-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  background-color: var(--card-bg-color);
+  border-bottom: 1px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.custom-workout-header h1 {
+  font-size: 1.5rem;
+  margin: 0;
+  color: var(--text-color);
+}
+
+.back-button,
+.save-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.back-button {
+  background-color: transparent;
+  color: var(--text-secondary);
+}
+
+.back-button:hover {
+  background-color: var(--hover-color);
+}
+
+.save-button {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.save-button:hover:not(:disabled) {
+  background-color: var(--primary-hover);
+}
+
+.save-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.custom-workout-content {
+  padding: 1rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Workout Details Section */
+.workout-details-section {
+  background-color: var(--card-bg-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group:last-child {
+  margin-bottom: 0;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.workout-name-input,
+.workout-notes-input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 1rem;
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+.workout-name-input:focus,
+.workout-notes-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+.workout-type-selector {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.type-button {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.type-button:hover {
+  background-color: var(--hover-color);
+}
+
+.type-button.active {
+  background-color: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}
+
+/* Quick Add Section */
+.quick-add-section {
+  background-color: var(--card-bg-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.quick-add-section h3 {
+  margin: 0 0 1rem 0;
+  color: var(--text-color);
+}
+
+.quick-exercise-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 0.5rem;
+}
+
+.quick-add-button {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px dashed var(--border-color);
+  border-radius: 8px;
+  background-color: transparent;
+  color: var(--primary-color);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.quick-add-button:hover {
+  background-color: var(--primary-color);
+  color: white;
+  border-style: solid;
+}
+
+/* Exercises Section */
+.exercises-section {
+  background-color: var(--card-bg-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.section-header h3 {
+  margin: 0;
+  color: var(--text-color);
+}
+
+.add-exercise-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 8px;
+  background-color: var(--primary-color);
+  color: white;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.add-exercise-button:hover {
+  background-color: var(--primary-hover);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--text-secondary);
+}
+
+.empty-state-hint {
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}
+
+.exercise-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.exercise-card {
+  background-color: var(--background-color);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.exercise-header {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.exercise-name-input {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 1rem;
+  background-color: var(--card-bg-color);
+  color: var(--text-color);
+}
+
+.exercise-name-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+.remove-exercise-button {
+  padding: 0.5rem;
+  border: none;
+  border-radius: 6px;
+  background-color: transparent;
+  color: var(--danger-color);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.remove-exercise-button:hover {
+  background-color: var(--danger-light);
+}
+
+/* Sets Section */
+.sets-section {
+  margin-top: 1rem;
+}
+
+.sets-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.sets-header span {
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.add-set-button {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background-color: transparent;
+  color: var(--primary-color);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.add-set-button:hover {
+  background-color: var(--primary-light);
+}
+
+.set-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.set-number {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  min-width: 50px;
+}
+
+.set-input {
+  width: 70px;
+  padding: 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 0.875rem;
+  text-align: center;
+  background-color: var(--card-bg-color);
+  color: var(--text-color);
+}
+
+.set-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+.rir-input {
+  width: 50px;
+}
+
+.set-label {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.remove-set-button {
+  padding: 0.25rem 0.5rem;
+  border: none;
+  border-radius: 4px;
+  background-color: transparent;
+  color: var(--danger-color);
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+.remove-set-button:hover {
+  background-color: var(--danger-light);
+}
+
+.copy-sets-button {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  border: 1px dashed var(--border-color);
+  border-radius: 6px;
+  background-color: transparent;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.copy-sets-button:hover {
+  background-color: var(--hover-color);
+  color: var(--text-color);
+}
+
+/* Workout Summary */
+.workout-summary {
+  background-color: var(--card-bg-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 2px solid var(--primary-light);
+}
+
+.workout-summary h3 {
+  margin: 0 0 0.5rem 0;
+  color: var(--text-color);
+}
+
+.workout-summary p {
+  margin: 0.25rem 0;
+  color: var(--text-secondary);
+}
+
+.summary-details {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  word-break: break-word;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .custom-workout-header {
+    padding: 0.75rem;
+  }
+
+  .custom-workout-header h1 {
+    font-size: 1.25rem;
+  }
+
+  .back-button,
+  .save-button {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+  }
+
+  .custom-workout-content {
+    padding: 0.75rem;
+  }
+
+  .workout-details-section,
+  .quick-add-section,
+  .exercises-section,
+  .workout-summary {
+    padding: 1rem;
+  }
+
+  .quick-exercise-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+
+  .set-row {
+    flex-wrap: wrap;
+  }
+
+  .set-input {
+    width: 60px;
+  }
+
+  .rir-input {
+    width: 45px;
+  }
+}

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import WorkoutForm from "../components/WorkoutForm";
 import ImprovedCalendar from "../components/ImprovedCalendar";
 import TrainingBlockPlanner from "../components/TrainingBlockPlanner";
@@ -11,8 +12,10 @@ import {
 import { Workout, TrainingBlock } from "../utils/types";
 import ActionBar from "../components/Actionbar";
 import { useUser, useAuth } from "@clerk/clerk-react";
+import { FiPlus } from "react-icons/fi";
 
 const WorkoutPlanPage: React.FC = () => {
+  const navigate = useNavigate();
   const [savedWorkouts, setSavedWorkouts] = useState<Workout[]>([]);
   const [currentTrainingBlock, setCurrentTrainingBlock] = useState<TrainingBlock | null>(null);
   const [activeTab, setActiveTab] = useState<'overview' | 'schedule' | 'create'>('overview');
@@ -124,6 +127,18 @@ const WorkoutPlanPage: React.FC = () => {
       <div className="workout-plan-content">
         {activeTab === 'overview' && (
           <div className="overview-tab">
+            <div className="custom-workout-cta">
+              <button 
+                className="custom-workout-button"
+                onClick={() => navigate('/custom-workout')}
+              >
+                <FiPlus /> Create Custom Workout
+              </button>
+              <p className="cta-description">
+                Build a new workout from scratch to add to your training program
+              </p>
+            </div>
+            
             <div className="training-block-section">
               <TrainingBlockPlanner 
                 onBlockChange={handleTrainingBlockChange} 

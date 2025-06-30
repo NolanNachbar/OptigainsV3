@@ -7,6 +7,10 @@ import {
   generateUserIdAsUuid,
   removeExerciseFromWorkout,
   getLastExercisePerformance,
+  getWorkoutInstanceForDate,
+  saveWorkoutInstance,
+  updateWorkoutInstance,
+  saveExerciseLog,
 } from "../utils/SupaBase";
 import { Workout, Exercise, Set } from "../utils/types";
 import ActionBar from "../components/Actionbar";
@@ -57,6 +61,7 @@ const StartProgrammedLiftPage: React.FC = () => {
   const [swappingExercise, setSwappingExercise] = useState<string | null>(null);
   const [swapExerciseName, setSwapExerciseName] = useState<string>("");
   const [exerciseHistory, setExerciseHistory] = useState<Record<string, any>>({});
+  const [workoutInstanceId, setWorkoutInstanceId] = useState<string | null>(null);
 
   // Calculate total sets and completed sets whenever workout changes
   useEffect(() => {
@@ -185,12 +190,65 @@ const StartProgrammedLiftPage: React.FC = () => {
 
     if (!workoutToday || !user) return;
 
+    // Create or get workout instance
+    let instanceId = workoutInstanceId;
+    if (!instanceId) {
+      const todayStr = currentDate.toISOString().split("T")[0];
+      let instance = await getWorkoutInstanceForDate(workoutToday.workout_name, todayStr, user);
+      
+      if (!instance) {
+        // Create new workout instance
+        instance = await saveWorkoutInstance({
+          id: '',
+          clerk_user_id: user.id,
+          user_id: generateUserIdAsUuid(user.id),
+          workout_name: workoutToday.workout_name,
+          template_id: workoutToday.id || '',
+          scheduled_date: todayStr,
+          completed_at: undefined,
+          notes: '',
+          exercises: workoutToday.exercises,
+          created_at: new Date().toISOString()
+        }, user);
+      }
+      
+      instanceId = instance.id!;
+      setWorkoutInstanceId(instanceId);
+    }
+
     const newLog = {
       date: currentDate.toISOString(),
       weight: Number(input.weight),
       reps: Number(input.reps),
       rir: Number(input.rir),
     };
+
+    // Save to exercise_logs table
+    try {
+      await saveExerciseLog({
+        clerk_user_id: user.id,
+        workout_instance_id: instanceId,
+        exercise_name: exerciseName,
+        set_number: setIndex + 1,
+        weight: Number(input.weight),
+        reps: Number(input.reps),
+        rir: Number(input.rir),
+      });
+      
+      // Update exercise history for immediate display
+      setExerciseHistory(prev => ({
+        ...prev,
+        [exerciseName]: {
+          weight: Number(input.weight),
+          reps: Number(input.reps),
+          rir: Number(input.rir),
+          date: new Date().toISOString(),
+          workoutName: workoutToday.workout_name
+        }
+      }));
+    } catch (error) {
+      console.error("Error saving exercise log:", error);
+    }
 
     // Update local state
     const updatedWorkout = {
@@ -341,6 +399,14 @@ const StartProgrammedLiftPage: React.FC = () => {
       };
 
       await saveWorkouts(null, workoutToSave, user);
+      
+      // Mark workout instance as completed if it exists
+      if (workoutInstanceId) {
+        await updateWorkoutInstance(workoutInstanceId, {
+          completed_at: new Date().toISOString()
+        }, user);
+      }
+      
       alert("Workout saved successfully!");
       navigate("/");
     } catch (error) {
@@ -1351,6 +1417,71 @@ const StartProgrammedLiftPage: React.FC = () => {
                   className="button secondary"
                 >
                   Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {showCustomizeModal && (
+          <div className="modal-overlay">
+            <div className="modal-content">
+              <h2>Customize Progressive Overload</h2>
+              <p className="modal-description">
+                Adjust how the app calculates your recommended weight for progressive overload.
+              </p>
+              <div className="modal-input-group">
+                <label>Target Reps</label>
+                <input
+                  type="number"
+                  value={customReps}
+                  onChange={(e) => setCustomReps(Number(e.target.value))}
+                  className="input-field"
+                  min="1"
+                  max="30"
+                />
+              </div>
+              <div className="modal-input-group">
+                <label>Target RIR (Reps in Reserve)</label>
+                <input
+                  type="number"
+                  value={customRir}
+                  onChange={(e) => setCustomRir(Number(e.target.value))}
+                  className="input-field"
+                  min="0"
+                  max="10"
+                />
+              </div>
+              <div className="modal-input-group">
+                <label>Progression Increase (%)</label>
+                <input
+                  type="number"
+                  value={customPercentIncrease}
+                  onChange={(e) => setCustomPercentIncrease(Number(e.target.value))}
+                  className="input-field"
+                  min="0"
+                  max="10"
+                  step="0.5"
+                />
+              </div>
+              <div className="modal-actions">
+                <button
+                  onClick={() => setShowCustomizeModal(false)}
+                  className="button primary"
+                >
+                  Apply Settings
+                </button>
+                <button
+                  onClick={() => {
+                    setShowCustomizeModal(false);
+                    // Reset to defaults
+                    setCustomReps(6);
+                    setCustomRir(0);
+                    setCustomPercentIncrease(1.5);
+                  }}
+                  className="button secondary"
+                >
+                  Reset Defaults
                 </button>
               </div>
             </div>

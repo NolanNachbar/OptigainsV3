@@ -9,6 +9,27 @@ import { ALL_PRELOADED_PROGRAMS } from './preloadedWorkouts';
 // Re-export utility functions
 export { generateUserIdAsUuid };
 
+// Helper function to calculate 1RM using Epley formula with RIR adjustment
+const calculate1RM = (weight: number, reps: number, rir: number): number => {
+  // Adjust reps for RIR (could have done more reps)
+  const totalReps = reps + rir;
+  
+  // Epley formula: 1RM = weight × (1 + reps/30)
+  // Modified to account for RIR
+  if (totalReps === 1) return weight;
+  return weight * (1 + totalReps / 30);
+};
+
+// Helper function to calculate weight for target reps from 1RM
+const calculateWeightFromRM = (oneRM: number, targetReps: number, targetRIR: number): number => {
+  // Total reps capability needed
+  const totalReps = targetReps + targetRIR;
+  
+  // Inverse Epley formula: weight = 1RM / (1 + reps/30)
+  if (totalReps === 1) return oneRM;
+  return oneRM / (1 + totalReps / 30);
+};
+
 // Calculate next weight based on exercise history
 export const calculateNextWeight = (
   exercise: Exercise,
@@ -24,29 +45,16 @@ export const calculateNextWeight = (
   const lastLog = exercise.logs[exercise.logs.length - 1];
   const lastWeight = lastLog.weight;
   const lastReps = lastLog.reps;
-  const lastRIR = lastLog.rir;
+  const lastRIR = lastLog.rir || 0;
 
-  // Base calculation on the difference between last performance and target
-  let newWeight = lastWeight;
-
-  // If we did more reps than target or had more RIR, increase weight
-  if (lastReps > targetReps || lastRIR > targetRIR) {
-    const repDifference = lastReps - targetReps;
-    const rirDifference = lastRIR - targetRIR;
-    
-    // Each extra rep or RIR point suggests we can increase weight
-    const totalIncreaseFactor = (repDifference * 0.025) + (rirDifference * 0.025);
-    newWeight = lastWeight * (1 + totalIncreaseFactor + (percentIncrease / 100));
-  } 
-  // If we did fewer reps or less RIR, maintain or slightly increase
-  else if (lastReps < targetReps || lastRIR < targetRIR) {
-    // Only apply the small percentage increase
-    newWeight = lastWeight * (1 + (percentIncrease / 100));
-  } 
-  // If performance matched target, apply standard increase
-  else {
-    newWeight = lastWeight * (1 + (percentIncrease / 100));
-  }
+  // Calculate 1RM from last performance
+  const estimated1RM = calculate1RM(lastWeight, lastReps, lastRIR);
+  
+  // Calculate what weight would be needed for target reps/RIR at current strength
+  const currentTargetWeight = calculateWeightFromRM(estimated1RM, targetReps, targetRIR);
+  
+  // Apply progressive overload percentage
+  const newWeight = currentTargetWeight * (1 + (percentIncrease / 100));
 
   // Round to nearest 2.5 lbs
   return Math.round(newWeight / 2.5) * 2.5;
@@ -178,16 +186,29 @@ export const getWorkoutForToday = async (_supabase: any, date: string, user: Use
     const activeBlock = await db.getActiveTrainingBlock(user.id);
     
     if (activeBlock && activeBlock.workoutRotation && activeBlock.workoutRotation.length > 0 && activeBlock.rotationAssignments) {
-      // Calculate days since last rotation was applied
+      // Calculate days since the rotation started
       const targetDate = new Date(date || new Date().toISOString().split('T')[0]);
-      const lastRotationDate = activeBlock.lastRotationDate ? new Date(activeBlock.lastRotationDate) : new Date(activeBlock.startDate);
+      const rotationStartDate = activeBlock.lastRotationDate ? new Date(activeBlock.lastRotationDate) : new Date(activeBlock.startDate);
       
-      // Calculate which day we're on
-      const daysDiff = Math.floor((targetDate.getTime() - lastRotationDate.getTime()) / (1000 * 60 * 60 * 24));
+      // Calculate the day index within the current week
+      const daysDiff = Math.floor((targetDate.getTime() - rotationStartDate.getTime()) / (1000 * 60 * 60 * 24));
       
-      // Get current rotation index
-      const currentIndex = ((activeBlock.currentRotationIndex || 0) + daysDiff) % activeBlock.workoutRotation.length;
+      // For a full body rotation, we need to track which workout in the sequence this is
+      // We'll use a simple counter that increments for each day
+      // The key fix: just use daysDiff directly, don't add currentRotationIndex
+      const currentIndex = daysDiff % activeBlock.workoutRotation.length;
       const rotationSlot = activeBlock.workoutRotation[currentIndex];
+      
+      console.log('[getWorkoutForToday] Rotation debug:', {
+        date,
+        rotationStartDate: rotationStartDate.toISOString(),
+        daysDiff,
+        currentRotationIndex: activeBlock.currentRotationIndex,
+        calculatedIndex: currentIndex,
+        rotationLength: activeBlock.workoutRotation.length,
+        rotationSlot,
+        workoutRotation: activeBlock.workoutRotation
+      });
       
       // Get the template ID for this rotation slot
       const templateId = activeBlock.rotationAssignments[rotationSlot];
@@ -455,4 +476,18 @@ export const debugCalendarAssignments = async (user: UserResource): Promise<void
   } catch (error) {
     console.error('Debug error:', error);
   }
+};
+
+// Exercise log management
+export const saveExerciseLog = async (log: {
+  clerk_user_id: string;
+  workout_instance_id: string;
+  exercise_name: string;
+  set_number: number;
+  weight: number;
+  reps: number;
+  rir: number;
+  notes?: string;
+}): Promise<void> => {
+  await db.saveExerciseLog(log);
 };
