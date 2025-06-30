@@ -1,0 +1,220 @@
+/* Mobile Fixes for Existing ActionBar */
+
+/* Show labels on mobile for better clarity */
+@media (max-width: 768px) {
+  /* Ensure nav labels are visible */
+  .nav-label {
+    display: inline !important;
+    font-size: 0.75rem;
+  }
+
+  /* Adjust container for mobile */
+  .action-bar-container {
+    padding: 0 0.75rem;
+    height: 60px; /* Slightly taller for better touch targets */
+  }
+
+  /* Make brand section more compact */
+  .brand-section {
+    min-width: auto;
+  }
+
+  .brand-logo {
+    width: 32px;
+    height: 32px;
+  }
+
+  /* Optimize navigation section */
+  .nav-section {
+    display: flex;
+    gap: 0.125rem;
+    margin: 0 0.5rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .nav-section::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Improve nav items for mobile */
+  .nav-item {
+    flex-shrink: 0;
+    padding: 0.5rem 0.875rem;
+    font-size: 0.75rem;
+    border-radius: 8px;
+    white-space: nowrap;
+    min-height: 44px; /* Touch-friendly size */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Better active state */
+  .nav-item.active {
+    background: rgba(0, 102, 255, 0.2);
+    font-weight: 600;
+  }
+
+  .nav-item.active::after {
+    width: 80%;
+    bottom: 2px;
+  }
+
+  /* Optimize user section */
+  .user-section {
+    gap: 0.5rem;
+  }
+
+  .settings-button {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+  }
+
+  .settings-button svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  /* Hide sign-in button text on very small screens */
+  @media (max-width: 380px) {
+    .sign-in-button {
+      padding: 0.5rem;
+      font-size: 0;
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      position: relative;
+    }
+
+    .sign-in-button::after {
+      content: '👤';
+      font-size: 1.25rem;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+  }
+}
+
+/* Alternative: Bottom navigation for mobile */
+@media (max-width: 768px) {
+  /* Add option for bottom nav */
+  .action-bar.bottom-nav {
+    top: auto;
+    bottom: 0;
+    border-bottom: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .action-bar.bottom-nav .action-bar-container {
+    height: 56px;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* Adjust layout for bottom nav */
+  .action-bar.bottom-nav .brand-section {
+    display: none;
+  }
+
+  .action-bar.bottom-nav .nav-section {
+    flex: 1;
+    justify-content: space-around;
+    margin: 0;
+    max-width: none;
+  }
+
+  .action-bar.bottom-nav .nav-item {
+    flex: 1;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.5rem;
+  }
+
+  .action-bar.bottom-nav .nav-label {
+    font-size: 0.625rem;
+  }
+
+  .action-bar.bottom-nav .user-section {
+    display: none;
+  }
+}
+
+/* Ultra-compact mode for very small screens */
+@media (max-width: 360px) {
+  .nav-item {
+    padding: 0.375rem 0.625rem;
+    font-size: 0.7rem;
+  }
+
+  .nav-label {
+    font-size: 0.7rem;
+  }
+
+}
+
+/* Improve contrast and visibility */
+@media (max-width: 768px) {
+  .nav-item {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .nav-item:active {
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(0.98);
+  }
+
+  .nav-item.active {
+    border-color: var(--primary);
+  }
+}
+
+/* Add visual scroll indicators */
+@media (max-width: 768px) {
+  .nav-section {
+    position: relative;
+  }
+
+  /* Fade edges to indicate scrollable content */
+  .nav-section::before,
+  .nav-section::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 20px;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .nav-section::before {
+    left: 0;
+    background: linear-gradient(to right, rgba(10, 10, 10, 0.9), transparent);
+  }
+
+  .nav-section::after {
+    right: 0;
+    background: linear-gradient(to left, rgba(10, 10, 10, 0.9), transparent);
+  }
+}
+
+/* Safe area support */
+.action-bar {
+  padding-top: env(safe-area-inset-top);
+}
+
+/* Adjust body padding for fixed header */
+body {
+  padding-top: 60px; /* Match mobile action bar height */
+}
+
+@media (min-width: 769px) {
+  body {
+    padding-top: 64px; /* Desktop action bar height */
+  }
+}

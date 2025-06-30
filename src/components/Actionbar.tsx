@@ -31,7 +31,6 @@ const ActionBar: React.FC = () => {
             alt="Optigains Logo"
             className="brand-logo"
           />
-          <h1 className="brand-name">Optigains</h1>
         </div>
 
         {/* Navigation */}

@@ -1,0 +1,368 @@
+/* Mobile-Optimized WorkoutForm Styles */
+
+/* Workout Form Container */
+.workout-form {
+  max-width: 100%;
+  padding: var(--spacing-md);
+}
+
+/* Form Fields */
+.form-group {
+  margin-bottom: var(--spacing-lg);
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: var(--spacing-sm);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.form-group input[type="text"],
+.form-group textarea {
+  width: 100%;
+  padding: var(--spacing-md);
+  font-size: 16px; /* Prevents zoom on iOS */
+  border: 2px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--input-background);
+  color: var(--text);
+  transition: border-color 0.2s ease;
+}
+
+.form-group input[type="text"]:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: var(--background);
+}
+
+/* Exercise Input Section */
+.exercise-input-section {
+  background: var(--card-background);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+  border: 1px solid var(--border);
+}
+
+.exercise-input-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-md);
+}
+
+.exercise-input-header h3 {
+  font-size: var(--text-lg);
+  margin: 0;
+}
+
+/* Exercise Search */
+.exercise-search-container {
+  position: relative;
+  margin-bottom: var(--spacing-md);
+}
+
+.exercise-search-input {
+  width: 100%;
+  padding: var(--spacing-md);
+  padding-right: 40px;
+  font-size: 16px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--input-background);
+  color: var(--text);
+}
+
+.exercise-search-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: var(--background);
+}
+
+.search-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-secondary);
+  pointer-events: none;
+}
+
+/* Exercise Suggestions Dropdown */
+.exercise-suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--card-background);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  margin-top: var(--spacing-xs);
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: var(--z-dropdown);
+  box-shadow: var(--shadow-md);
+}
+
+.exercise-suggestion {
+  padding: var(--spacing-md);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border-bottom: 1px solid var(--border);
+}
+
+.exercise-suggestion:last-child {
+  border-bottom: none;
+}
+
+.exercise-suggestion:hover,
+.exercise-suggestion:active {
+  background: var(--primary);
+  color: white;
+}
+
+/* Sets Configuration */
+.sets-config {
+  display: grid;
+  gap: var(--spacing-md);
+}
+
+.set-config-item {
+  background: var(--input-background);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: var(--spacing-sm);
+  align-items: center;
+}
+
+.set-config-label {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-2xs);
+}
+
+.set-config-input {
+  width: 100%;
+  padding: var(--spacing-sm);
+  font-size: 16px;
+  text-align: center;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--card-background);
+  color: var(--text);
+}
+
+.set-config-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: var(--background);
+}
+
+/* Add Exercise Button */
+.add-exercise-btn {
+  width: 100%;
+  padding: var(--spacing-md);
+  font-size: var(--text-base);
+  font-weight: 600;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: var(--touch-target-optimal);
+}
+
+.add-exercise-btn:active {
+  transform: scale(0.98);
+  background: var(--primary-hover);
+}
+
+/* Exercise List */
+.exercise-list-form {
+  margin-bottom: var(--spacing-xl);
+}
+
+.exercise-item-form {
+  background: var(--card-background);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+  position: relative;
+}
+
+.exercise-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-sm);
+}
+
+.exercise-item-name {
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--text);
+}
+
+.remove-exercise-btn {
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--danger);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-lg);
+  transition: all 0.2s ease;
+}
+
+.remove-exercise-btn:active {
+  background: var(--danger);
+  color: white;
+  transform: scale(0.95);
+}
+
+.exercise-sets-summary {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+/* Save Workout Button */
+.save-workout-section {
+  position: sticky;
+  bottom: 0;
+  background: var(--background);
+  padding: var(--spacing-md);
+  border-top: 1px solid var(--border);
+  margin: 0 calc(-1 * var(--spacing-md));
+}
+
+.save-workout-btn {
+  width: 100%;
+  padding: var(--spacing-lg);
+  font-size: var(--text-lg);
+  font-weight: 600;
+  background: var(--success);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: var(--touch-target-optimal);
+}
+
+.save-workout-btn:active {
+  transform: scale(0.98);
+  background: var(--success-hover);
+}
+
+.save-workout-btn:disabled {
+  background: var(--border);
+  color: var(--text-secondary);
+  cursor: not-allowed;
+}
+
+/* Mobile-specific optimizations */
+@media (max-width: 768px) {
+  .workout-form {
+    padding-bottom: 100px; /* Space for save button */
+  }
+  
+  .exercise-input-section {
+    padding: var(--spacing-md);
+  }
+  
+  .sets-config {
+    gap: var(--spacing-sm);
+  }
+  
+  .set-config-item {
+    padding: var(--spacing-sm);
+  }
+  
+  /* Stack set config on very small screens */
+  @media (max-width: 374px) {
+    .set-config-item {
+      grid-template-columns: 1fr;
+      gap: var(--spacing-md);
+    }
+    
+    .set-config-input {
+      height: var(--touch-target-optimal);
+    }
+  }
+}
+
+/* Quick Add Mode */
+.quick-add-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-md);
+  background: var(--card-background);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.quick-add-toggle input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+.quick-add-toggle label {
+  cursor: pointer;
+  font-size: var(--text-sm);
+  color: var(--text);
+}
+
+/* Template Selection */
+.template-selection {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-lg);
+}
+
+.template-card {
+  padding: var(--spacing-md);
+  background: var(--card-background);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.template-card:hover,
+.template-card:active {
+  border-color: var(--primary);
+  background: var(--card-hover);
+}
+
+.template-card.selected {
+  border-color: var(--primary);
+  background: rgba(0, 102, 255, 0.1);
+}
+
+.template-name {
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: var(--spacing-xs);
+}
+
+.template-description {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}

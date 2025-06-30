@@ -1,4 +1,8 @@
 /* Professional ActionBar Styles */
+
+/* Import mobile fixes */
+@import './ActionBar-mobile-fixes.css';
+
 .action-bar {
   position: fixed;
   top: 0;
@@ -26,7 +30,6 @@
 .brand-section {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
   cursor: pointer;
   transition: opacity 0.2s ease;
 }

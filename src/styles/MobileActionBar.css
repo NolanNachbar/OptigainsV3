@@ -1,0 +1,378 @@
+/* Mobile ActionBar Styles */
+
+/* ===== Top Bar ===== */
+.mobile-action-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 56px;
+  background: rgba(10, 10, 10, 0.98);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+.mobile-action-bar-container {
+  height: 100%;
+  padding: 0 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Brand */
+.mobile-brand {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.mobile-brand-logo {
+  width: 32px;
+  height: 32px;
+  filter: brightness(0) invert(1);
+}
+
+/* Current Page Display */
+.mobile-current-page {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text);
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.mobile-page-icon {
+  font-size: 1.25rem;
+}
+
+/* Menu Button */
+.mobile-menu-button {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.hamburger-line {
+  width: 20px;
+  height: 2px;
+  background: var(--text);
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+.mobile-menu-button:active .hamburger-line {
+  background: var(--primary);
+}
+
+/* ===== Mobile Menu Overlay ===== */
+.mobile-menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 1100;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.mobile-menu-content {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 280px;
+  max-width: 85vw;
+  background: var(--card-background);
+  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.5);
+  animation: slideInRight 0.3s ease;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.mobile-menu-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.mobile-menu-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: var(--text);
+}
+
+.mobile-menu-close {
+  width: 40px;
+  height: 40px;
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.mobile-menu-close:active {
+  background: var(--input-background);
+  color: var(--text);
+}
+
+/* Navigation Items */
+.mobile-menu-nav {
+  padding: 0.5rem;
+  flex: 1;
+}
+
+.mobile-menu-item {
+  width: 100%;
+  padding: 1rem 1.25rem;
+  background: transparent;
+  border: none;
+  border-radius: 12px;
+  color: var(--text);
+  font-size: 1rem;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: all 0.2s ease;
+  margin-bottom: 0.25rem;
+  text-align: left;
+}
+
+.mobile-menu-item:active {
+  background: var(--input-background);
+  transform: scale(0.98);
+}
+
+.mobile-menu-item.active {
+  background: rgba(0, 102, 255, 0.15);
+  color: var(--primary);
+}
+
+.mobile-menu-icon {
+  font-size: 1.5rem;
+  width: 32px;
+  text-align: center;
+}
+
+.mobile-menu-label {
+  flex: 1;
+  font-weight: 500;
+}
+
+.mobile-menu-check {
+  color: var(--primary);
+  font-weight: bold;
+}
+
+.mobile-menu-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 0.5rem 1.25rem;
+}
+
+/* User Section */
+.mobile-menu-user {
+  padding: 0.5rem;
+  padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));
+}
+
+.mobile-menu-auth {
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobile-user-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobile-sign-in-button {
+  width: 100%;
+  padding: 0.875rem;
+  background: var(--primary);
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mobile-sign-in-button:active {
+  background: var(--primary-hover);
+  transform: scale(0.98);
+}
+
+/* ===== Bottom Tab Bar ===== */
+.mobile-tab-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 56px;
+  background: rgba(10, 10, 10, 0.98);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  z-index: 1000;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.mobile-tab-item {
+  flex: 1;
+  padding: 0.5rem;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  transition: all 0.2s ease;
+  position: relative;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-tab-item:active {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.mobile-tab-item.active {
+  color: var(--primary);
+}
+
+.mobile-tab-item.active::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 48px;
+  height: 3px;
+  background: var(--primary);
+  border-radius: 0 0 3px 3px;
+}
+
+.mobile-tab-icon {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.mobile-tab-label {
+  font-size: 0.625rem;
+  font-weight: 500;
+  line-height: 1;
+}
+
+/* ===== Desktop Styles ===== */
+@media (min-width: 768px) {
+  /* Hide mobile components on desktop */
+  .mobile-action-bar,
+  .mobile-menu-overlay,
+  .mobile-tab-bar {
+    display: none;
+  }
+}
+
+/* ===== Layout Adjustments ===== */
+/* Add padding to body to account for fixed bars */
+body.has-mobile-actionbar {
+  padding-top: 56px;
+  padding-bottom: calc(56px + env(safe-area-inset-bottom));
+}
+
+/* Adjust main content area */
+.container.with-mobile-actionbar {
+  padding-top: 1rem;
+  padding-bottom: calc(80px + env(safe-area-inset-bottom));
+}
+
+/* ===== Icon Font Alternative ===== */
+/* If you prefer SVG icons over emojis */
+.icon-home::before { content: '🏠'; }
+.icon-plans::before { content: '📋'; }
+.icon-library::before { content: '📚'; }
+.icon-quick::before { content: '⚡'; }
+.icon-settings::before { content: '⚙️'; }
+
+/* ===== Accessibility ===== */
+@media (prefers-reduced-motion: reduce) {
+  .mobile-menu-overlay,
+  .mobile-menu-content,
+  .hamburger-line {
+    animation: none;
+    transition: none;
+  }
+}
+
+/* Focus styles for keyboard navigation */
+.mobile-menu-item:focus,
+.mobile-tab-item:focus,
+.mobile-menu-button:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .mobile-action-bar,
+  .mobile-tab-bar {
+    border-width: 2px;
+  }
+  
+  .mobile-menu-item.active {
+    outline: 2px solid var(--primary);
+  }
+}
