@@ -418,7 +418,13 @@ const ModifiableCalendar: React.FC<ModifiableCalendarProps> = ({
       <div className="calendar-content">
         {viewMode === 'month' && (
           <Calendar
-            onChange={handleDateChange}
+            onChange={(value) => {
+              if (value instanceof Date) {
+                handleDateChange(value);
+              } else if (Array.isArray(value) && value[0] instanceof Date) {
+                handleDateChange(value[0]);
+              }
+            }}
             value={selectedDate}
             tileContent={renderTileContent}
             className="custom-calendar"

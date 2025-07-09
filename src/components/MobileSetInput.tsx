@@ -17,8 +17,6 @@ interface MobileSetInputProps {
 }
 
 export const MobileSetInput: React.FC<MobileSetInputProps> = ({
-  exerciseName,
-  setIndex,
   set,
   inputValues,
   onInputChange,

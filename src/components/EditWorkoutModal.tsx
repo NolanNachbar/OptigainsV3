@@ -45,6 +45,7 @@ const EditWorkoutModal: React.FC<EditWorkoutModalProps> = ({
     const newExercise: Exercise = {
       name: "New Exercise",
       sets: [{ weight: 0, reps: 10, rir: 2 }],
+      rir: 2,
       notes: "",
     };
     setEditedWorkout({

@@ -95,7 +95,7 @@ export const MobileExerciseCard: React.FC<MobileExerciseCardProps> = ({
               onCalculateWeight={() => onCalculateWeight(exercise.name, setIndex)}
               onRemoveSet={() => onRemoveSet(exercise.name, setIndex)}
               showCalculate={!!history}
-              isLogged={set.isLogged}
+              isLogged={set.isLogged || false}
               onEditSet={() => onEditSet(exercise.name, setIndex)}
               onDeleteSet={() => onDeleteSet(exercise.name, setIndex)}
             />

@@ -8,6 +8,7 @@ export interface Exercise {
   logs?: ExerciseLog[];
   restTime?: number; // Rest time in seconds (per-exercise override)
   minWeightIncrement?: number; // Minimum weight increment for this exercise
+  notes?: string; // Notes for the exercise
 }
 
 export type Set = {
@@ -29,7 +30,7 @@ export type bodyWeight = {
   weight: number;
 };
 
-interface ExerciseLog {
+export interface ExerciseLog {
   date: string;
   weight: number;
   reps: number;
