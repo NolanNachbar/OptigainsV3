@@ -1,0 +1,337 @@
+/* OptiGains Design System - Release Ready */
+
+/* ============================================
+   1. COLOR SYSTEM
+   ============================================ */
+:root {
+  /* Primary Colors */
+  --primary-500: #0066ff;
+  --primary-600: #0052cc;
+  --primary-700: #003d99;
+  --primary-100: #e6f0ff;
+  
+  /* Neutrals */
+  --gray-900: #0a0a0a;  /* Background */
+  --gray-850: #111111;  /* Card background */
+  --gray-800: #1a1a1a;  /* Input background */
+  --gray-700: #2a2a2a;  /* Borders */
+  --gray-600: #3a3a3a;  /* Disabled */
+  --gray-500: #666666;  /* Muted text */
+  --gray-400: #888888;  /* Secondary text */
+  --gray-300: #a0a0a0;  /* Icons */
+  --gray-200: #c0c0c0;  /* Placeholder */
+  --gray-100: #e0e0e0;  /* Primary text */
+  
+  /* Semantic Colors */
+  --success-500: #10b981;
+  --success-600: #059669;
+  --success-100: #d1fae5;
+  
+  --warning-500: #f59e0b;
+  --warning-600: #d97706;
+  --warning-100: #fef3c7;
+  
+  --danger-500: #ef4444;
+  --danger-600: #dc2626;
+  --danger-100: #fee2e2;
+  
+  /* Muscle Group Colors (for bodybuilders) */
+  --muscle-chest: #ff6b6b;
+  --muscle-back: #4ecdc4;
+  --muscle-shoulders: #45b7d1;
+  --muscle-arms: #f7b731;
+  --muscle-legs: #5f27cd;
+  --muscle-core: #00d2d3;
+  
+  /* Applied Colors */
+  --color-background: var(--gray-900);
+  --color-surface: var(--gray-850);
+  --color-surface-raised: var(--gray-800);
+  --color-border: var(--gray-700);
+  --color-border-light: var(--gray-600);
+  --color-text: var(--gray-100);
+  --color-text-secondary: var(--gray-400);
+  --color-text-muted: var(--gray-500);
+  --color-primary: var(--primary-500);
+  --color-primary-hover: var(--primary-600);
+  --color-primary-active: var(--primary-700);
+}
+
+/* ============================================
+   2. TYPOGRAPHY SYSTEM
+   ============================================ */
+:root {
+  /* Font Family */
+  --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
+  
+  /* Font Sizes */
+  --text-xs: 0.75rem;     /* 12px */
+  --text-sm: 0.875rem;    /* 14px */
+  --text-base: 1rem;      /* 16px */
+  --text-lg: 1.125rem;    /* 18px */
+  --text-xl: 1.25rem;     /* 20px */
+  --text-2xl: 1.5rem;     /* 24px */
+  --text-3xl: 1.875rem;   /* 30px */
+  --text-4xl: 2.25rem;    /* 36px */
+  
+  /* Font Weights */
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+  
+  /* Line Heights */
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.75;
+  
+  /* Letter Spacing */
+  --tracking-tight: -0.025em;
+  --tracking-normal: -0.011em;
+  --tracking-wide: 0.025em;
+}
+
+/* ============================================
+   3. SPACING SYSTEM
+   ============================================ */
+:root {
+  /* Spacing Scale */
+  --space-0: 0;
+  --space-1: 0.25rem;    /* 4px */
+  --space-2: 0.5rem;     /* 8px */
+  --space-3: 0.75rem;    /* 12px */
+  --space-4: 1rem;       /* 16px */
+  --space-5: 1.25rem;    /* 20px */
+  --space-6: 1.5rem;     /* 24px */
+  --space-8: 2rem;       /* 32px */
+  --space-10: 2.5rem;    /* 40px */
+  --space-12: 3rem;      /* 48px */
+  --space-16: 4rem;      /* 64px */
+  
+  /* Applied Spacing */
+  --padding-xs: var(--space-2);
+  --padding-sm: var(--space-3);
+  --padding-md: var(--space-4);
+  --padding-lg: var(--space-6);
+  --padding-xl: var(--space-8);
+  
+  --gap-xs: var(--space-2);
+  --gap-sm: var(--space-3);
+  --gap-md: var(--space-4);
+  --gap-lg: var(--space-6);
+  --gap-xl: var(--space-8);
+}
+
+/* ============================================
+   4. LAYOUT SYSTEM
+   ============================================ */
+:root {
+  /* Breakpoints */
+  --screen-sm: 640px;
+  --screen-md: 768px;
+  --screen-lg: 1024px;
+  --screen-xl: 1280px;
+  
+  /* Container */
+  --container-sm: 640px;
+  --container-md: 768px;
+  --container-lg: 1024px;
+  --container-xl: 1280px;
+  
+  /* Border Radius */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 24px;
+  --radius-full: 9999px;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.5);
+  
+  /* Z-index Scale */
+  --z-base: 0;
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-overlay: 300;
+  --z-modal: 400;
+  --z-popover: 500;
+  --z-tooltip: 600;
+}
+
+/* ============================================
+   5. INTERACTION SYSTEM
+   ============================================ */
+:root {
+  /* Transitions */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Touch Targets */
+  --touch-target-min: 44px;
+  --touch-target-optimal: 48px;
+  
+  /* Focus States */
+  --focus-ring-width: 3px;
+  --focus-ring-color: rgba(0, 102, 255, 0.5);
+  --focus-ring-offset: 2px;
+}
+
+/* ============================================
+   6. COMPONENT TOKENS
+   ============================================ */
+
+/* Buttons */
+.btn {
+  /* Base */
+  --btn-padding-x: var(--space-4);
+  --btn-padding-y: var(--space-3);
+  --btn-font-size: var(--text-base);
+  --btn-font-weight: var(--font-semibold);
+  --btn-line-height: var(--leading-tight);
+  --btn-border-radius: var(--radius-md);
+  --btn-min-height: var(--touch-target-min);
+  
+  /* Sizes */
+  --btn-sm-padding-x: var(--space-3);
+  --btn-sm-padding-y: var(--space-2);
+  --btn-sm-font-size: var(--text-sm);
+  
+  --btn-lg-padding-x: var(--space-6);
+  --btn-lg-padding-y: var(--space-4);
+  --btn-lg-font-size: var(--text-lg);
+  --btn-lg-min-height: 56px;
+}
+
+/* Cards */
+.card {
+  --card-padding: var(--space-6);
+  --card-background: var(--color-surface);
+  --card-border-radius: var(--radius-lg);
+  --card-shadow: var(--shadow-md);
+  --card-border: 1px solid var(--color-border);
+}
+
+/* Inputs */
+.input {
+  --input-padding-x: var(--space-4);
+  --input-padding-y: var(--space-3);
+  --input-font-size: var(--text-base);
+  --input-line-height: var(--leading-normal);
+  --input-border-radius: var(--radius-md);
+  --input-border-width: 2px;
+  --input-background: var(--color-surface-raised);
+  --input-border-color: var(--color-border);
+  --input-min-height: var(--touch-target-optimal);
+}
+
+/* ============================================
+   7. UTILITY CLASSES
+   ============================================ */
+
+/* Text Utilities */
+.text-xs { font-size: var(--text-xs); }
+.text-sm { font-size: var(--text-sm); }
+.text-base { font-size: var(--text-base); }
+.text-lg { font-size: var(--text-lg); }
+.text-xl { font-size: var(--text-xl); }
+.text-2xl { font-size: var(--text-2xl); }
+.text-3xl { font-size: var(--text-3xl); }
+.text-4xl { font-size: var(--text-4xl); }
+
+.font-normal { font-weight: var(--font-normal); }
+.font-medium { font-weight: var(--font-medium); }
+.font-semibold { font-weight: var(--font-semibold); }
+.font-bold { font-weight: var(--font-bold); }
+
+.text-primary { color: var(--color-text); }
+.text-secondary { color: var(--color-text-secondary); }
+.text-muted { color: var(--color-text-muted); }
+.text-success { color: var(--success-500); }
+.text-warning { color: var(--warning-500); }
+.text-danger { color: var(--danger-500); }
+
+/* Spacing Utilities */
+.p-0 { padding: var(--space-0); }
+.p-1 { padding: var(--space-1); }
+.p-2 { padding: var(--space-2); }
+.p-3 { padding: var(--space-3); }
+.p-4 { padding: var(--space-4); }
+.p-5 { padding: var(--space-5); }
+.p-6 { padding: var(--space-6); }
+.p-8 { padding: var(--space-8); }
+
+.px-4 { padding-left: var(--space-4); padding-right: var(--space-4); }
+.py-4 { padding-top: var(--space-4); padding-bottom: var(--space-4); }
+
+.m-0 { margin: var(--space-0); }
+.m-1 { margin: var(--space-1); }
+.m-2 { margin: var(--space-2); }
+.m-3 { margin: var(--space-3); }
+.m-4 { margin: var(--space-4); }
+
+.mx-auto { margin-left: auto; margin-right: auto; }
+
+.gap-1 { gap: var(--space-1); }
+.gap-2 { gap: var(--space-2); }
+.gap-3 { gap: var(--space-3); }
+.gap-4 { gap: var(--space-4); }
+.gap-5 { gap: var(--space-5); }
+.gap-6 { gap: var(--space-6); }
+
+/* Layout Utilities */
+.flex { display: flex; }
+.inline-flex { display: inline-flex; }
+.grid { display: grid; }
+.hidden { display: none; }
+.block { display: block; }
+
+.flex-col { flex-direction: column; }
+.flex-row { flex-direction: row; }
+.items-center { align-items: center; }
+.items-start { align-items: flex-start; }
+.items-end { align-items: flex-end; }
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
+.justify-start { justify-content: flex-start; }
+.justify-end { justify-content: flex-end; }
+.flex-1 { flex: 1; }
+.flex-wrap { flex-wrap: wrap; }
+
+/* Border Utilities */
+.rounded-sm { border-radius: var(--radius-sm); }
+.rounded { border-radius: var(--radius-md); }
+.rounded-lg { border-radius: var(--radius-lg); }
+.rounded-xl { border-radius: var(--radius-xl); }
+.rounded-full { border-radius: var(--radius-full); }
+
+.border { border: 1px solid var(--color-border); }
+.border-2 { border: 2px solid var(--color-border); }
+.border-t { border-top: 1px solid var(--color-border); }
+.border-b { border-bottom: 1px solid var(--color-border); }
+
+/* Shadow Utilities */
+.shadow-sm { box-shadow: var(--shadow-sm); }
+.shadow { box-shadow: var(--shadow-md); }
+.shadow-lg { box-shadow: var(--shadow-lg); }
+.shadow-xl { box-shadow: var(--shadow-xl); }
+
+/* Responsive Utilities */
+@media (max-width: 768px) {
+  .mobile\:hidden { display: none; }
+  .mobile\:block { display: block; }
+  .mobile\:flex { display: flex; }
+  .mobile\:flex-col { flex-direction: column; }
+}
+
+@media (min-width: 768px) {
+  .desktop\:hidden { display: none; }
+  .desktop\:block { display: block; }
+  .desktop\:flex { display: flex; }
+  .desktop\:grid { display: grid; }
+}

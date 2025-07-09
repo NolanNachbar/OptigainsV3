@@ -13,6 +13,8 @@
     display: grid !important;
     grid-template-columns: 2fr 1fr 1fr !important;
     gap: 0.5rem !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
   
   /* Larger input fields */

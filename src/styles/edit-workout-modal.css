@@ -1,0 +1,467 @@
+/* Edit Workout Modal Styles */
+
+.edit-workout-modal {
+  background: var(--surface-1);
+  border-radius: 12px;
+  padding: 0;
+  max-width: min(800px, calc(100vw - 2rem));
+  width: 100%;
+  max-height: 85vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+/* Modal Header */
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--surface-2);
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: var(--text-primary);
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.close-btn:hover {
+  background: var(--surface-3);
+  color: var(--text-primary);
+}
+
+/* Modal Body */
+.modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem;
+}
+
+/* Workout Name Section */
+.workout-name-section {
+  margin-bottom: 2rem;
+}
+
+.workout-name-section label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+}
+
+.workout-name-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--surface-2);
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.workout-name-input:focus {
+  outline: none;
+  border-color: var(--primary-500);
+  background: var(--surface-1);
+}
+
+/* Exercises Section */
+.exercises-section {
+  margin-bottom: 2rem;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.section-header h3 {
+  margin: 0;
+  font-size: 1.125rem;
+  color: var(--text-primary);
+}
+
+.add-btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  background: var(--primary-500);
+  color: white;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.add-btn:hover {
+  background: var(--primary-600);
+}
+
+/* Exercise Block */
+.exercise-block {
+  background: var(--surface-2);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.exercise-header {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.exercise-name-input {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--surface-1);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.exercise-name-input:focus {
+  outline: none;
+  border-color: var(--primary-500);
+}
+
+.remove-btn {
+  padding: 0.5rem 0.75rem;
+  border: none;
+  border-radius: 6px;
+  background: var(--danger);
+  color: white;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.remove-btn:hover {
+  background: var(--danger-hover);
+}
+
+/* Sets Section */
+.sets-section {
+  margin-bottom: 1rem;
+}
+
+.sets-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.sets-header span {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.add-set-btn {
+  padding: 0.25rem 0.5rem;
+  border: none;
+  border-radius: 4px;
+  background: var(--surface-3);
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.add-set-btn:hover {
+  background: var(--primary-500);
+  color: white;
+}
+
+/* Set Row */
+.set-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.set-number {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  min-width: 50px;
+}
+
+.set-inputs {
+  display: flex;
+  gap: 0.5rem;
+  flex: 1;
+  align-items: center;
+}
+
+.input-group {
+  flex: 1;
+}
+
+.input-group label {
+  display: block;
+  font-size: 0.625rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 0.25rem;
+}
+
+.set-input {
+  width: 100%;
+  padding: 0.375rem 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background: var(--surface-1);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.set-input:focus {
+  outline: none;
+  border-color: var(--primary-500);
+}
+
+/* Chrome, Safari, Edge, Opera */
+.set-input::-webkit-outer-spin-button,
+.set-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+.set-input[type=number] {
+  -moz-appearance: textfield;
+}
+
+.remove-set-btn {
+  padding: 0.25rem;
+  border: none;
+  border-radius: 4px;
+  background: var(--danger);
+  color: white;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.remove-set-btn:hover {
+  background: var(--danger-hover);
+}
+
+/* Exercise Notes */
+.exercise-notes {
+  margin-top: 0.75rem;
+}
+
+.exercise-notes label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 0.25rem;
+}
+
+.exercise-notes textarea {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--surface-1);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  resize: vertical;
+  min-height: 60px;
+  transition: all 0.2s ease;
+}
+
+.exercise-notes textarea:focus {
+  outline: none;
+  border-color: var(--primary-500);
+}
+
+/* Save Options */
+.save-options {
+  background: var(--surface-2);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 1.5rem;
+}
+
+.save-options label {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.save-options label:hover {
+  background: var(--surface-3);
+}
+
+.save-options input[type="radio"] {
+  margin-right: 0.75rem;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+/* Modal Footer */
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  border-top: 1px solid var(--border-color);
+  background: var(--surface-2);
+}
+
+.cancel-btn,
+.save-btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cancel-btn {
+  background: var(--surface-3);
+  color: var(--text-primary);
+}
+
+.cancel-btn:hover {
+  background: var(--surface-4);
+}
+
+.save-btn {
+  background: var(--primary-500);
+  color: white;
+}
+
+.save-btn:hover {
+  background: var(--primary-600);
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .edit-workout-modal {
+    max-height: 100vh;
+    border-radius: 0;
+  }
+
+  .modal-header {
+    padding: 1rem;
+  }
+
+  .modal-header h2 {
+    font-size: 1.125rem;
+  }
+
+  .modal-body {
+    padding: 1rem;
+  }
+
+  .set-inputs {
+    flex-wrap: wrap;
+  }
+
+  .input-group {
+    min-width: 80px;
+  }
+
+  .modal-footer {
+    padding: 1rem;
+    flex-direction: column-reverse;
+  }
+
+  .cancel-btn,
+  .save-btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .exercise-header {
+    flex-direction: column;
+  }
+
+  .remove-btn {
+    align-self: flex-end;
+  }
+
+  .set-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .set-number {
+    margin-bottom: 0.5rem;
+  }
+
+  .set-inputs {
+    gap: 0.25rem;
+  }
+
+  .input-group {
+    min-width: 60px;
+  }
+
+  .input-group label {
+    font-size: 0.5625rem;
+  }
+
+  .set-input {
+    padding: 0.25rem 0.375rem;
+    font-size: 0.75rem;
+  }
+}
+
+/* Dark mode variables (already defined in modifiable-calendar.css) */

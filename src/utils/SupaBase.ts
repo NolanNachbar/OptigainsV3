@@ -285,6 +285,42 @@ export const removeWorkoutFromDate = async (_supabase: any, workoutNameOrTemplat
   }
 };
 
+export const updateWorkoutForDate = async (_supabase: any, workoutNameOrTemplateId: string, date: string, updatedWorkout: Workout, user: UserResource): Promise<void> => {
+  // First try to find by workout name (backward compatibility)
+  const templates = await db.getWorkoutTemplates(user.id);
+  const template = templates.find(t => t.workout_name === workoutNameOrTemplateId || t.id === workoutNameOrTemplateId);
+  
+  if (template && template.id) {
+    // Check if there's already a workout instance for this date
+    const instances = await db.getWorkoutInstances(user.id, { start: date, end: date });
+    const existingInstance = instances.find(i => i.template_id === template.id && i.scheduled_date === date);
+    
+    if (existingInstance) {
+      // Update the existing instance
+      const updatedInstance: WorkoutInstance = {
+        ...existingInstance,
+        workout_name: updatedWorkout.workout_name,
+        exercises: updatedWorkout.exercises
+      };
+      
+      await db.saveWorkoutInstance(updatedInstance, user);
+    } else {
+      // Create a new instance for this specific date
+      const newInstance: WorkoutInstance = {
+        id: '',
+        template_id: template.id,
+        workout_name: updatedWorkout.workout_name,
+        exercises: updatedWorkout.exercises,
+        scheduled_date: date,
+        clerk_user_id: user.id,
+        created_at: new Date().toISOString()
+      };
+      
+      await db.saveWorkoutInstance(newInstance, user);
+    }
+  }
+};
+
 export const getWorkoutTemplate = async (_supabase: any, templateId: string, user: UserResource): Promise<WorkoutTemplate | null> => {
   return await db.getWorkoutTemplate(templateId, user.id);
 };

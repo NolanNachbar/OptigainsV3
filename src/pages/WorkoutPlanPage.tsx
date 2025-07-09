@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import WorkoutForm from "../components/WorkoutForm";
 import ImprovedCalendar from "../components/ImprovedCalendar";
+import ModifiableCalendar from "../components/ModifiableCalendar";
 import TrainingBlockPlanner from "../components/TrainingBlockPlanner";
 import EditWorkout from "../components/EditWorkout";
 import {
@@ -12,7 +13,7 @@ import {
 import { Workout, TrainingBlock } from "../utils/types";
 import ActionBar from "../components/Actionbar";
 import { useUser, useAuth } from "@clerk/clerk-react";
-import { FiPlus } from "react-icons/fi";
+import { FiPlus, FiEdit3 } from "react-icons/fi";
 
 const WorkoutPlanPage: React.FC = () => {
   const navigate = useNavigate();
@@ -21,6 +22,7 @@ const WorkoutPlanPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'overview' | 'schedule' | 'create'>('overview');
   const [editingWorkout, setEditingWorkout] = useState<Workout | null>(null);
   const [calendarRefreshKey, setCalendarRefreshKey] = useState(0);
+  const [modifiableMode, setModifiableMode] = useState(false);
   const { user } = useUser();
   const { getToken } = useAuth();
 
@@ -180,12 +182,30 @@ const WorkoutPlanPage: React.FC = () => {
 
         {activeTab === 'schedule' && (
           <div className="schedule-tab">
-            <ImprovedCalendar
-              key={calendarRefreshKey}
-              savedWorkouts={savedWorkouts}
-              onRemoveWorkout={handleRemoveWorkout}
-              onWorkoutAdded={handleWorkoutAdded}
-            />
+            <div className="schedule-header">
+              <button 
+                className={`mode-toggle ${modifiableMode ? 'active' : ''}`}
+                onClick={() => setModifiableMode(!modifiableMode)}
+                title={modifiableMode ? "Switch to view mode" : "Switch to edit mode"}
+              >
+                <FiEdit3 />
+                {modifiableMode ? 'Edit Mode' : 'View Mode'}
+              </button>
+            </div>
+            {modifiableMode ? (
+              <ModifiableCalendar
+                key={calendarRefreshKey}
+                savedWorkouts={savedWorkouts}
+                onWorkoutUpdated={() => setCalendarRefreshKey(prev => prev + 1)}
+              />
+            ) : (
+              <ImprovedCalendar
+                key={calendarRefreshKey}
+                savedWorkouts={savedWorkouts}
+                onRemoveWorkout={handleRemoveWorkout}
+                onWorkoutAdded={handleWorkoutAdded}
+              />
+            )}
           </div>
         )}
 
@@ -352,6 +372,42 @@ const styles = `
   padding: 1.5rem;
   box-shadow: 0 4px 20px rgba(0,0,0,0.3);
   border: 1px solid #404040;
+}
+
+.schedule-header {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1.5rem;
+}
+
+.mode-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  border: none;
+  border-radius: 8px;
+  background: #2a2a2a;
+  color: #b0b0b0;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.875rem;
+}
+
+.mode-toggle:hover {
+  background: #333333;
+  color: #ffffff;
+}
+
+.mode-toggle.active {
+  background: #2196F3;
+  color: white;
+}
+
+.mode-toggle svg {
+  width: 16px;
+  height: 16px;
 }
 
 @media (max-width: 1024px) {

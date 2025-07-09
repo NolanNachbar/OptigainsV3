@@ -1,0 +1,463 @@
+/* Modifiable Calendar Styles */
+
+.modifiable-calendar {
+  background: var(--surface-1);
+  border-radius: 12px;
+  padding: 1.5rem;
+  color: var(--text-primary);
+}
+
+/* Header Controls */
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.view-controls {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.view-controls button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  background: var(--surface-2);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.view-controls button:hover {
+  background: var(--surface-3);
+  color: var(--text-primary);
+}
+
+.view-controls button.active {
+  background: var(--primary-500);
+  color: white;
+}
+
+.edit-controls {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.edit-mode-btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  background: var(--surface-2);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.edit-mode-btn:hover {
+  background: var(--surface-3);
+}
+
+.edit-mode-btn.active {
+  background: var(--success);
+  color: white;
+}
+
+.bulk-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  background: var(--surface-2);
+  border-radius: 6px;
+}
+
+.bulk-actions span {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.delete-btn {
+  padding: 0.375rem 0.75rem;
+  border: none;
+  border-radius: 4px;
+  background: var(--danger);
+  color: white;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.delete-btn:hover {
+  background: var(--danger-hover);
+}
+
+/* Calendar Content */
+.calendar-content {
+  background: var(--surface-2);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+/* Custom Calendar Styles */
+.custom-calendar {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+}
+
+.custom-calendar .react-calendar__navigation {
+  background: var(--surface-1);
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+}
+
+.custom-calendar .react-calendar__navigation button {
+  color: var(--text-primary);
+  background: transparent;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.custom-calendar .react-calendar__navigation button:hover {
+  background: var(--surface-3);
+}
+
+.custom-calendar .react-calendar__navigation button:disabled {
+  color: var(--text-disabled);
+}
+
+.custom-calendar .react-calendar__month-view__weekdays {
+  text-align: center;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  padding: 0.5rem 0;
+}
+
+.custom-calendar .react-calendar__tile {
+  position: relative;
+  background: var(--surface-1);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 0.5rem;
+  min-height: 80px;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.2s ease;
+}
+
+.custom-calendar .react-calendar__tile:hover {
+  background: var(--surface-3);
+  border-color: var(--primary-500);
+}
+
+.custom-calendar .react-calendar__tile--now {
+  background: var(--primary-100);
+  border-color: var(--primary-500);
+  font-weight: 600;
+}
+
+.custom-calendar .react-calendar__tile--active {
+  background: var(--primary-200);
+  border-color: var(--primary-600);
+}
+
+/* Calendar Tile Content */
+.calendar-tile-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-top: 0.5rem;
+  min-height: 40px;
+}
+
+.calendar-tile-content.drag-over {
+  background: rgba(33, 150, 243, 0.1);
+  border: 2px dashed var(--primary-500);
+  border-radius: 4px;
+}
+
+/* Workout Pills */
+.workout-pill {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  position: relative;
+}
+
+.workout-pill:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.workout-pill.dragging {
+  opacity: 0.5;
+  cursor: grabbing;
+}
+
+.workout-pill.selected {
+  outline: 2px solid var(--primary-500);
+  outline-offset: 2px;
+}
+
+.workout-pill.moving {
+  animation: pulse 1.5s ease-in-out infinite;
+  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.4);
+  cursor: move;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(33, 150, 243, 0.4);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 5px rgba(33, 150, 243, 0.2);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(33, 150, 243, 0.4);
+  }
+}
+
+/* Moving mode visual feedback */
+.calendar-tile-content.move-mode {
+  cursor: pointer;
+}
+
+.custom-calendar .react-calendar__tile:hover .calendar-tile-content.move-mode {
+  background: rgba(33, 150, 243, 0.1);
+  border: 2px dashed var(--primary-500);
+  border-radius: 4px;
+}
+
+/* Moving indicator */
+.moving-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: var(--primary-100);
+  border: 1px solid var(--primary-500);
+  border-radius: 6px;
+  margin-right: 1rem;
+}
+
+.moving-indicator span {
+  color: var(--text-primary);
+  font-size: 0.875rem;
+}
+
+.moving-indicator strong {
+  color: var(--primary-600);
+}
+
+.cancel-move-btn {
+  padding: 0.25rem 0.5rem;
+  border: none;
+  border-radius: 4px;
+  background: var(--surface-3);
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: 0.75rem;
+  transition: all 0.2s ease;
+}
+
+.cancel-move-btn:hover {
+  background: var(--danger);
+  color: white;
+}
+
+/* Context Menu */
+.context-menu {
+  position: fixed;
+  background: var(--surface-1);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 0.5rem;
+  z-index: 1000;
+  min-width: 150px;
+}
+
+.context-menu button {
+  display: block;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+  text-align: left;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+
+.context-menu button:hover {
+  background: var(--surface-2);
+}
+
+/* Modal Overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modal-content {
+  background: var(--surface-1);
+  border-radius: 12px;
+  padding: 2rem;
+  max-width: min(500px, calc(100vw - 2rem));
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.modal-content h2 {
+  margin: 0 0 1rem 0;
+  color: var(--text-primary);
+}
+
+.modal-content p {
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+}
+
+.workout-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.workout-option {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--surface-2);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  font-weight: 500;
+}
+
+.workout-option:hover {
+  background: var(--surface-3);
+  border-color: var(--primary-500);
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .modifiable-calendar {
+    padding: 1rem;
+  }
+
+  .calendar-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .view-controls,
+  .edit-controls {
+    justify-content: center;
+  }
+
+  .custom-calendar .react-calendar__tile {
+    min-height: 60px;
+    padding: 0.25rem;
+    font-size: 0.75rem;
+  }
+
+  .workout-pill {
+    font-size: 0.625rem;
+    padding: 0.125rem 0.25rem;
+  }
+
+  .context-menu {
+    min-width: 120px;
+  }
+
+  .context-menu button {
+    font-size: 0.75rem;
+    padding: 0.375rem 0.5rem;
+  }
+
+  .modal-content {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .view-controls button,
+  .edit-mode-btn {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.75rem;
+  }
+
+  .bulk-actions {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0.75rem;
+  }
+
+  .custom-calendar .react-calendar__navigation button {
+    padding: 0.375rem 0.5rem;
+    font-size: 0.875rem;
+  }
+}
+
+/* Dark mode adjustments */
+:root {
+  --surface-1: #1e1e1e;
+  --surface-2: #2a2a2a;
+  --surface-3: #333333;
+  --text-primary: #ffffff;
+  --text-secondary: #b0b0b0;
+  --text-disabled: #666666;
+  --border-color: #404040;
+  --primary-100: rgba(33, 150, 243, 0.1);
+  --primary-200: rgba(33, 150, 243, 0.2);
+  --primary-500: #2196F3;
+  --primary-600: #1976D2;
+  --success: #4CAF50;
+  --danger: #f44336;
+  --danger-hover: #d32f2f;
+}
