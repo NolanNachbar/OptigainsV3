@@ -11,6 +11,7 @@ import {
 } from "../utils/SupaBase";
 import { useUser } from "@clerk/clerk-react";
 import EditWorkoutModal from "./EditWorkoutModal";
+import { useDate } from "../contexts/DateContext";
 import "../styles/modifiable-calendar.css";
 
 interface ModifiableCalendarProps {
@@ -30,7 +31,8 @@ const ModifiableCalendar: React.FC<ModifiableCalendarProps> = ({
   onWorkoutUpdated,
 }) => {
   const { user } = useUser();
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const { currentDate } = useDate();
+  const [selectedDate, setSelectedDate] = useState<Date>(currentDate);
   const [workoutsForMonth, setWorkoutsForMonth] = useState<Record<string, Workout[]>>({});
   const [draggedWorkout, setDraggedWorkout] = useState<{ workout: Workout; fromDate: string } | null>(null);
   const [viewMode, setViewMode] = useState<'month' | 'week' | 'list'>('month');
@@ -90,6 +92,11 @@ const ModifiableCalendar: React.FC<ModifiableCalendarProps> = ({
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [contextMenu]);
+
+  // Update selectedDate when currentDate changes from dev adjuster
+  useEffect(() => {
+    setSelectedDate(currentDate);
+  }, [currentDate]);
 
   const handleDateChange = (value: Date | Date[] | null) => {
     if (value instanceof Date) {

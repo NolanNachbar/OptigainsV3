@@ -6,7 +6,7 @@ import {
   getConsolidatedExercises,
   generateUserIdAsUuid,
   removeExerciseFromWorkout,
-  getLastExercisePerformance,
+  getLastExercisePerformances,
   getWorkoutInstanceForDate,
   saveWorkoutInstance,
   updateWorkoutInstance,
@@ -147,20 +147,14 @@ const StartProgrammedLiftPage: React.FC = () => {
     }
   }, [user]);
 
-  // Fetch exercise history when workout loads
+  // Fetch exercise history when workout loads - OPTIMIZED BATCH QUERY
   useEffect(() => {
     if (workoutToday && user) {
       const fetchExerciseHistory = async () => {
-        const historyData: Record<string, any> = {};
-        
-        for (const exercise of workoutToday.exercises) {
-          const lastPerformance = await getLastExercisePerformance(exercise.name, user);
-          if (lastPerformance) {
-            historyData[exercise.name] = lastPerformance;
-          }
-        }
-        
-        setExerciseHistory(historyData);
+        // Batch fetch all exercise histories in one query
+        const exerciseNames = workoutToday.exercises.map(e => e.name);
+        const histories = await getLastExercisePerformances(exerciseNames, user);
+        setExerciseHistory(histories);
       };
       
       fetchExerciseHistory();
@@ -190,32 +184,6 @@ const StartProgrammedLiftPage: React.FC = () => {
 
     if (!workoutToday || !user) return;
 
-    // Create or get workout instance
-    let instanceId = workoutInstanceId;
-    if (!instanceId) {
-      const todayStr = currentDate.toISOString().split("T")[0];
-      let instance = await getWorkoutInstanceForDate(workoutToday.workout_name, todayStr, user);
-      
-      if (!instance) {
-        // Create new workout instance
-        instance = await saveWorkoutInstance({
-          id: '',
-          clerk_user_id: user.id,
-          user_id: generateUserIdAsUuid(user.id),
-          workout_name: workoutToday.workout_name,
-          template_id: workoutToday.id || '',
-          scheduled_date: todayStr,
-          completed_at: undefined,
-          notes: '',
-          exercises: workoutToday.exercises,
-          created_at: new Date().toISOString()
-        }, user);
-      }
-      
-      instanceId = instance.id!;
-      setWorkoutInstanceId(instanceId);
-    }
-
     const newLog = {
       date: currentDate.toISOString(),
       weight: Number(input.weight),
@@ -223,34 +191,11 @@ const StartProgrammedLiftPage: React.FC = () => {
       rir: Number(input.rir),
     };
 
-    // Save to exercise_logs table
-    try {
-      await saveExerciseLog({
-        clerk_user_id: user.id,
-        workout_instance_id: instanceId,
-        exercise_name: exerciseName,
-        set_number: setIndex + 1,
-        weight: Number(input.weight),
-        reps: Number(input.reps),
-        rir: Number(input.rir),
-      });
-      
-      // Update exercise history for immediate display
-      setExerciseHistory(prev => ({
-        ...prev,
-        [exerciseName]: {
-          weight: Number(input.weight),
-          reps: Number(input.reps),
-          rir: Number(input.rir),
-          date: new Date().toISOString(),
-          workoutName: workoutToday.workout_name
-        }
-      }));
-    } catch (error) {
-      console.error("Error saving exercise log:", error);
-    }
+    // Store previous state for rollback
+    const previousWorkout = workoutToday;
+    const previousHistory = exerciseHistory;
 
-    // Update local state
+    // OPTIMISTIC UPDATE: Update UI immediately
     const updatedWorkout = {
       ...workoutToday,
       exercises: workoutToday.exercises.map((exercise) => {
@@ -267,10 +212,59 @@ const StartProgrammedLiftPage: React.FC = () => {
       }),
     };
 
+    // Update UI state immediately
     setWorkoutToday(updatedWorkout);
+    setExerciseHistory(prev => ({
+      ...prev,
+      [exerciseName]: {
+        weight: Number(input.weight),
+        reps: Number(input.reps),
+        rir: Number(input.rir),
+        date: new Date().toISOString(),
+        workoutName: workoutToday.workout_name
+      }
+    }));
 
-    // Save to Supabase
+    // Background save operations
     try {
+      // Create or get workout instance
+      let instanceId = workoutInstanceId;
+      if (!instanceId) {
+        const todayStr = currentDate.toISOString().split("T")[0];
+        let instance = await getWorkoutInstanceForDate(workoutToday.workout_name, todayStr, user);
+        
+        if (!instance) {
+          // Create new workout instance
+          instance = await saveWorkoutInstance({
+            id: '',
+            clerk_user_id: user.id,
+            user_id: generateUserIdAsUuid(user.id),
+            workout_name: workoutToday.workout_name,
+            template_id: workoutToday.id || '',
+            scheduled_date: todayStr,
+            completed_at: undefined,
+            notes: '',
+            exercises: workoutToday.exercises,
+            created_at: new Date().toISOString()
+          }, user);
+        }
+        
+        instanceId = instance.id!;
+        setWorkoutInstanceId(instanceId);
+      }
+
+      // Save to exercise_logs table
+      await saveExerciseLog({
+        clerk_user_id: user.id,
+        workout_instance_id: instanceId,
+        exercise_name: exerciseName,
+        set_number: setIndex + 1,
+        weight: Number(input.weight),
+        reps: Number(input.reps),
+        rir: Number(input.rir),
+      });
+
+      // Save workout state
       const workoutToSave: Workout = {
         ...updatedWorkout,
         id:
@@ -289,11 +283,14 @@ const StartProgrammedLiftPage: React.FC = () => {
 
       await saveWorkouts(null, workoutToSave, user);
     } catch (error) {
-      console.error("Error saving workout after logging set:", error);
-      // Optionally show an error message to the user
-      alert(
-        "Failed to save workout state. Your changes may be lost if you leave the page."
-      );
+      console.error("Error saving workout:", error);
+      
+      // ROLLBACK: Revert optimistic updates on error
+      setWorkoutToday(previousWorkout);
+      setExerciseHistory(previousHistory);
+      
+      // Show user-friendly error message
+      alert("Failed to save your set. Please check your connection and try again.");
     }
   };
 

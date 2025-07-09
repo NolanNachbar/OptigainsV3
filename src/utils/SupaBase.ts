@@ -5,6 +5,7 @@ import { db, generateUserIdAsUuid } from './database';
 import { Workout, WorkoutTemplate, WorkoutInstance, Exercise } from './types';
 import { UserResource } from '@clerk/types';
 import { ALL_PRELOADED_PROGRAMS } from './preloadedWorkouts';
+import { requestDeduplicator, createRequestKey } from './requestDeduplication';
 
 // Re-export utility functions
 export { generateUserIdAsUuid };
@@ -69,17 +70,21 @@ export const saveWorkoutTemplate = async (_supabase: any, template: WorkoutTempl
 };
 
 export const loadWorkouts = async (_supabase: any, user: UserResource): Promise<Workout[]> => {
-  const templates = await db.getWorkoutTemplates(user.id);
+  const key = createRequestKey('loadWorkouts', user.id);
   
-  // Convert templates to Workout format for backward compatibility
-  return templates.map(template => ({
-    id: template.id,
-    workout_name: template.workout_name,
-    assigned_days: [], // This will be populated from calendar assignments
-    exercises: template.exercises,
-    clerk_user_id: template.clerk_user_id,
-    user_id: template.user_id
-  }));
+  return requestDeduplicator.deduplicate(key, async () => {
+    const templates = await db.getWorkoutTemplates(user.id);
+    
+    // Convert templates to Workout format for backward compatibility
+    return templates.map(template => ({
+      id: template.id,
+      workout_name: template.workout_name,
+      assigned_days: [], // This will be populated from calendar assignments
+      exercises: template.exercises,
+      clerk_user_id: template.clerk_user_id,
+      user_id: template.user_id
+    }));
+  });
 };
 
 export const saveWorkout = async (_supabase: any, workout: Workout, user: UserResource): Promise<Workout> => {
@@ -148,30 +153,32 @@ export const removeExerciseFromWorkout = async (_supabase: any, workoutName: str
 
 // Calendar functions
 export const getWorkoutsForDate = async (_supabase: any, date: string, user: UserResource): Promise<Workout[]> => {
+  const key = createRequestKey('getWorkoutsForDate', user.id, date);
   
-  const assignments = await db.getCalendarAssignments(user.id, {
-    start: date,
-    end: date
-  });
-  
-  
-  const workouts: Workout[] = [];
-  
-  for (const assignment of assignments) {
-    const template = await db.getWorkoutTemplate(assignment.template_id, user.id);
-    if (template) {
-      workouts.push({
-        id: template.id,
-        workout_name: template.workout_name,
-        assigned_days: [date],
-        exercises: template.exercises,
-        clerk_user_id: template.clerk_user_id,
-        user_id: template.user_id
-      });
+  return requestDeduplicator.deduplicate(key, async () => {
+    const assignments = await db.getCalendarAssignments(user.id, {
+      start: date,
+      end: date
+    });
+    
+    const workouts: Workout[] = [];
+    
+    for (const assignment of assignments) {
+      const template = await db.getWorkoutTemplate(assignment.template_id, user.id);
+      if (template) {
+        workouts.push({
+          id: template.id,
+          workout_name: template.workout_name,
+          assigned_days: [date],
+          exercises: template.exercises,
+          clerk_user_id: template.clerk_user_id,
+          user_id: template.user_id
+        });
+      }
     }
-  }
-  
-  return workouts;
+    
+    return workouts;
+  });
 };
 
 export const getWorkoutForToday = async (_supabase: any, date: string, user: UserResource): Promise<Workout | null> => {
@@ -338,32 +345,36 @@ export const copyWorkoutTemplate = async (_supabase: any, originalTemplate: Work
 
 // Exercise library
 export const getConsolidatedExercises = async (_supabase: any, user: UserResource): Promise<Exercise[]> => {
-  const library = await db.getExerciseLibrary(user.id);
+  const key = createRequestKey('getConsolidatedExercises', user.id);
   
-  // Convert to Exercise format
-  const exercises: Exercise[] = library.map(entry => ({
-    name: entry.exercise_name,
-    sets: [],
-    rir: 0
-  }));
-  
-  // If no exercises in library, get from templates
-  if (exercises.length === 0) {
-    const templates = await db.getWorkoutTemplates(user.id);
-    const exerciseMap = new Map<string, Exercise>();
+  return requestDeduplicator.deduplicate(key, async () => {
+    const library = await db.getExerciseLibrary(user.id);
     
-    templates.forEach(template => {
-      template.exercises.forEach(exercise => {
-        if (!exerciseMap.has(exercise.name)) {
-          exerciseMap.set(exercise.name, exercise);
-        }
+    // Convert to Exercise format
+    const exercises: Exercise[] = library.map(entry => ({
+      name: entry.exercise_name,
+      sets: [],
+      rir: 0
+    }));
+    
+    // If no exercises in library, get from templates
+    if (exercises.length === 0) {
+      const templates = await db.getWorkoutTemplates(user.id);
+      const exerciseMap = new Map<string, Exercise>();
+      
+      templates.forEach(template => {
+        template.exercises.forEach(exercise => {
+          if (!exerciseMap.has(exercise.name)) {
+            exerciseMap.set(exercise.name, exercise);
+          }
+        });
       });
-    });
+      
+      return Array.from(exerciseMap.values());
+    }
     
-    return Array.from(exerciseMap.values());
-  }
-  
-  return exercises;
+    return exercises;
+  });
 };
 
 export const getExerciseHistory = async (user: UserResource): Promise<string[]> => {
@@ -389,17 +400,44 @@ export const getLastExercisePerformance = async (exerciseName: string, user: Use
   date: string;
   workoutName: string;
 } | null> => {
-  const lastPerformance = await db.getLastExercisePerformance(exerciseName, user.id);
+  const key = createRequestKey('getLastExercisePerformance', user.id, exerciseName);
   
-  if (!lastPerformance) return null;
+  return requestDeduplicator.deduplicate(key, async () => {
+    const lastPerformance = await db.getLastExercisePerformance(exerciseName, user.id);
+    
+    if (!lastPerformance) return null;
+    
+    return {
+      weight: Number(lastPerformance.weight),
+      reps: lastPerformance.reps,
+      rir: lastPerformance.rir || 0,
+      date: lastPerformance.created_at,
+      workoutName: 'Previous Workout' // We'll need to get this from workout_instance_id later
+    };
+  });
+};
+
+export const getLastExercisePerformances = async (exerciseNames: string[], user: UserResource): Promise<Record<string, {
+  weight: number;
+  reps: number;
+  rir: number;
+  date: string;
+  workoutName: string;
+}>> => {
+  const performances = await db.getLastExercisePerformances(exerciseNames, user.id);
+  const result: Record<string, any> = {};
   
-  return {
-    weight: Number(lastPerformance.weight),
-    reps: lastPerformance.reps,
-    rir: lastPerformance.rir || 0,
-    date: lastPerformance.created_at,
-    workoutName: 'Previous Workout' // We'll need to get this from workout_instance_id later
-  };
+  Object.entries(performances).forEach(([exerciseName, performance]) => {
+    result[exerciseName] = {
+      weight: Number(performance.weight),
+      reps: performance.reps,
+      rir: performance.rir || 0,
+      date: performance.created_at,
+      workoutName: 'Previous Workout'
+    };
+  });
+  
+  return result;
 };
 
 // Utility functions

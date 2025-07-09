@@ -65,6 +65,7 @@ export interface IDatabase {
   getExerciseLibrary(userId: string): Promise<ExerciseLibraryEntry[]>;
   updateExerciseUsage(exerciseName: string, user: UserResource): Promise<void>;
   getLastExercisePerformance(exerciseName: string, userId: string): Promise<any | null>;
+  getLastExercisePerformances(exerciseNames: string[], userId: string): Promise<Record<string, any>>;
   saveExerciseLog(log: {
     clerk_user_id: string;
     workout_instance_id: string;

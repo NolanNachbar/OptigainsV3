@@ -10,6 +10,7 @@ import {
 import { getCurrentTrainingBlock } from "../utils/trainingBlocks";
 import EditWorkoutComponent from "./EditWorkout";
 import { useUser } from "@clerk/clerk-react";
+import { useDate } from "../contexts/DateContext";
 
 interface CalendarProps {
   savedWorkouts: Workout[];
@@ -21,7 +22,8 @@ const ImprovedCalendar: React.FC<CalendarProps> = ({
   savedWorkouts = [],
 }) => {
   const { user } = useUser();
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const { currentDate } = useDate();
+  const [selectedDate, setSelectedDate] = useState<Date>(currentDate);
   const [workoutsForMonth, setWorkoutsForMonth] = useState<Record<string, Workout[]>>({});
   const [draggedWorkout, setDraggedWorkout] = useState<Workout | null>(null);
   const [viewMode, setViewMode] = useState<'month' | 'week' | 'list'>('month');
@@ -43,6 +45,11 @@ const ImprovedCalendar: React.FC<CalendarProps> = ({
     
     fetchMonthWorkouts();
   }, [user, selectedDate]);
+
+  // Update selectedDate when currentDate changes from dev adjuster
+  useEffect(() => {
+    setSelectedDate(currentDate);
+  }, [currentDate]);
 
   const fetchMonthWorkouts = async () => {
     if (!user) return;

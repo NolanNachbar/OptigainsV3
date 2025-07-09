@@ -511,6 +511,47 @@ export class SupabaseDB implements IDatabase {
     }
   }
 
+  // Batch get last exercise performances
+  async getLastExercisePerformances(exerciseNames: string[], userId: string): Promise<Record<string, any>> {
+    const client = await this.getAuthClient();
+    const result: Record<string, any> = {};
+    
+    try {
+      // Get the most recent exercise logs for all exercises in one query
+      const { data, error } = await client
+        .from('exercise_logs')
+        .select('*')
+        .eq('clerk_user_id', userId)
+        .in('exercise_name', exerciseNames)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.warn('[getLastExercisePerformances] Error:', error);
+        return result;
+      }
+
+      // Group by exercise name and take the most recent for each
+      if (data) {
+        const exerciseMap = new Map<string, any>();
+        
+        data.forEach(log => {
+          if (!exerciseMap.has(log.exercise_name)) {
+            exerciseMap.set(log.exercise_name, log);
+          }
+        });
+        
+        exerciseMap.forEach((log, exerciseName) => {
+          result[exerciseName] = log;
+        });
+      }
+
+      return result;
+    } catch (err) {
+      console.warn('[getLastExercisePerformances] Exception:', err);
+      return result;
+    }
+  }
+
   // Save exercise log
   async saveExerciseLog(log: {
     clerk_user_id: string;
